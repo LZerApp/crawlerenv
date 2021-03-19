@@ -1,0 +1,8 @@
+# Everything the developer needs in addition to the production requirements
+-r product.txt
+
+# Testing
+pytest==3.3.1
+
+# Linting
+autopep8==1.5.5

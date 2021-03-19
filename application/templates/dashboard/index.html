@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/module/load.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/module/dashboard.css') }}"
+    />
+  </head>
+  <body class="layui-layout-body pear-admin">
+    <!-- Layout Framework -->
+    <div class="layui-layout layui-layout-admin">
+      <div class="layui-header">
+        <!-- Layout: Top Left Navbar -->
+        <ul class="layui-nav layui-layout-left">
+          <li class="collaspe layui-nav-item">
+            <a href="#" class="layui-icon layui-icon-shrink-right"></a>
+          </li>
+          <li class="refresh layui-nav-item">
+            <a
+              href="#"
+              class="layui-icon layui-icon-refresh-1"
+              loading="600"
+            ></a>
+          </li>
+        </ul>
+        <!-- Layout: Top Right Navbar -->
+        <div id="control" class="layui-layout-control"></div>
+        <ul class="layui-nav layui-layout-right" lay-filter="layui_nav_right">
+          <li class="layui-nav-item layui-hide-xs">
+            <a
+              href="#"
+              class="fullScreen layui-icon layui-icon-screen-full"
+            ></a>
+          </li>
+          <li class="layui-nav-item layui-hide-xs">
+            <a
+              href="https://github.com/Hsins"
+              class="layui-icon layui-icon-website"
+            ></a>
+          </li>
+          <li class="layui-nav-item">
+            <!-- Avator -->
+            <a href="javascript:;">
+              <img
+                src="{{ url_for('static', filename='img/favicon.png') }}"
+                class="layui-nav-img"
+              />
+              {{username}}
+            </a>
+            <!-- Menu -->
+            <dl class="layui-nav-child">
+              <dd>
+                <a href="javascript:void(0);" class="password">修改密碼</a>
+              </dd>
+              <dd>
+                <a href="javascript:void(0);" class="cache">清空緩存</a>
+              </dd>
+              <dd>
+                <a href="javascript:void(0);" class="logout">登出</a>
+              </dd>
+            </dl>
+          </li>
+          <!-- Theme Settings -->
+          <li class="layui-nav-item setting">
+            <a href="#" class="layui-icon layui-icon-more-vertical"></a>
+          </li>
+        </ul>
+      </div>
+      <!-- Layout: Sidebar -->
+      <div class="layui-side layui-bg-black">
+        <!-- Logo Section -->
+        <div class="layui-logo">
+          <img class="logo" />
+          <span class="title"></span>
+        </div>
+        <!-- Menu Section -->
+        <div class="layui-side-scroll">
+          <div id="sideMenu"></div>
+        </div>
+      </div>
+      <!-- Layout: Contents -->
+      <div class="layui-body">
+        <div id="content"></div>
+      </div>
+    </div>
+    <!-- Layout: Cover -->
+    <div class="pear-cover"></div>
+    <!-- Layout: Mobile -->
+    <div class="pear-collasped-pe collaspe">
+      <a href="#" class="layui-icon layui-icon-shrink-right"></a>
+    </div>
+    <!-- Loading Animation -->
+    <div class="loader-main">
+      <div class="loader"></div>
+    </div>
+    <!-- Import JavaScript Library -->
+    <script src="{{ url_for('static', filename='libs/layui/layui.all.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/pear/pear.all.js') }}"></script>
+    <!-- 框 架 初 始 化 -->
+    <script>
+      layui.use(
+        ['admin', 'jquery', 'convert', 'layer', 'element'],
+        function () {
+          let admin = layui.admin;
+          let $ = layui.jquery;
+          let convert = layui.convert;
+          let layelem = layui.element;
+          let layer = layui.layer;
+
+          let image = new Image();
+          image.src = 'https://i.imgur.com/Ar77xLR.png';
+          // image.src = "{{ url_for('static', filename='admin/admin/images/avatar.jpg') }}";
+          image.onload = function () {
+            $('.layui-nav-img').attr('src', convert.imageToBase64(image));
+          };
+          // 框架初始化时会读取 根目录下 pear.config.yml 文件作为初始化配置
+          // 你可以通过 admin.setConfigPath 方法修改配置文件位置
+          // 你可以通过 admin.setConfigType 方法修改配置文件类型
+          admin.setConfigType('json');
+          admin.setConfigPath(
+            "{{ url_for('static', filename='config/pear.config.json') }}"
+          );
+          admin.render();
+          console.log('444');
+          layelem.on('nav(layui_nav_right)', function (elem) {
+            console.log('6');
+            if ($(elem).hasClass('logout')) {
+              layer.confirm('確定登出嗎？', function (index) {
+                layer.close(index);
+                $.ajax({
+                  url: '/admin/logout',
+                  type: 'POST',
+                  dataType: 'json',
+                  success: function (res) {
+                    if (res.code == 200) {
+                      layer.msg(res.msg, {
+                        icon: 1,
+                      });
+                      setTimeout(function () {
+                        location.href = '/admin';
+                      }, 333);
+                    }
+                  },
+                });
+              });
+            } else if ($(elem).hasClass('password')) {
+              layer.open({
+                type: 2,
+                maxmin: true,
+                title: '修改密碼',
+                shade: 0.1,
+                area: ['300px', '300px'],
+                content: MODULE_PATH + '/index/pass',
+              });
+            } else if ($(elem).hasClass('cache')) {
+              $.post(MODULE_PATH + '/index/cache', function (data) {
+                layer.msg(data.msg, { time: 1500 });
+                location.reload();
+              });
+            }
+          });
+        }
+      );
+    </script>
+  </body>
+</html>
