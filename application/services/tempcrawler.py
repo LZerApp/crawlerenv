@@ -6160,7 +6160,7 @@ def Bisou():
         while(i < 41):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//div[@class='product-block detail-mode-permanent  main-image-loaded'][%i]/div[1]/a/div[2]/div/div/div[1]" % (i,)).text
+                    "//div[%i]/div[1]/a/div[2]/div/div/div[1]" % (i,)).text
             except:
                 close += 1
                 break
@@ -6177,6 +6177,11 @@ def Bisou():
                 sale_price = sale_price.strip('$')
                 sale_price = sale_price.replace('.00 TWD', '')
                 ori_price = ""
+                if 'AUD' in sale_price:
+                    i += 1
+                    if(i == 41):
+                        p += 1
+                    continue
             except:
                 i += 1
                 if(i == 41):
