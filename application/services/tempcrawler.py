@@ -6054,7 +6054,7 @@ def Scheminggg():
     while True:
         if (close == 1):
             break
-        url = "https://www.scheminggg.com/products?page=" + str(p)
+        url = "https://www.scheminggg.com/productlist?page=" + str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -6063,38 +6063,52 @@ def Scheminggg():
             break
         time.sleep(1)
         i = 1
-        while(i < 25):
+        while(i < 37):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[1]" % (i,)).text
+                    "//div[@class='columns']/div[%i]/a/p" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
-                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
+                    "//div[@class='columns']/div[%i]/a[1][@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[1]/div" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = ""
+                page_id = make_id.query
+                page_id = page_id.lstrip("/products?saleid=")
+                page_id = page_id.rstrip("&colorid=")
+                pic_link = chrome.find_element_by_xpath(
+                    "//div[@class='columns']/div[%i]/a/img" % (i,)).get_attribute('src')
+                if (pic_link == ""):
+                    i += 1
+                    if(i == 37):
+                        p += 1
+                    continue
             except:
                 i += 1
-                if(i == 25):
+                if(i == 37):
                     p += 1
                 continue
-
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='columns']/div[%i]/p[2]" % (i,)).text
+                sale_price = sale_price.strip('NT. ')
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@class='columns']/div[%i]/p[1]" % (i,)).text
+                ori_price = ori_price.strip('NT. ')
+            except:
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='columns']/div[%i]/p[1]" % (i,)).text
+                    sale_price = sale_price.strip('NT. ')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 37):
+                        p += 1
+                    continue
             i += 1
-            if(i == 25):
+            if(i == 37):
                 p += 1
 
             df = pd.DataFrame(
@@ -6146,7 +6160,7 @@ def Bisou():
         while(i < 41):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//div[@class='product-block detail-mode-permanent  main-image-loaded'][%i]/div[1]/a/div[2]/div/div/div[1]" % (i,)).text
+                    "//div[%i]/div[1]/a/div[2]/div/div/div[1]" % (i,)).text
             except:
                 close += 1
                 break
@@ -6163,6 +6177,11 @@ def Bisou():
                 sale_price = sale_price.strip('$')
                 sale_price = sale_price.replace('.00 TWD', '')
                 ori_price = ""
+                if 'AUD' in sale_price:
+                    i += 1
+                    if(i == 41):
+                        p += 1
+                    continue
             except:
                 i += 1
                 if(i == 41):
