@@ -378,7 +378,7 @@ def Majormade():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-            save(shop_id, name, dfAll)
+    save(shop_id, name, dfAll)
     upload(shop_id, name)
 
 
@@ -6791,7 +6791,7 @@ def Mojp():
         if (close == 1):
             break
         url = "https://www.mojp.com.tw/product.php?page=" + \
-            str(p) + "&cid=2#prod_list"
+            str(p) + "&cid=12#prod_list"
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -6800,7 +6800,7 @@ def Mojp():
             break
         time.sleep(1)
         i = 1
-        while(i < 81):
+        while(i < 64):
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[1]/section[3]/div/div[1]/div[%i]/div/div[2]/div[1]/a" % (i,)).text
@@ -6818,7 +6818,7 @@ def Mojp():
                     "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('src')
             except:
                 i += 1
-                if(i == 81):
+                if(i == 64):
                     p += 1
                 continue
 
@@ -6837,12 +6837,12 @@ def Mojp():
                     ori_price = ""
                 except:
                     i += 1
-                    if(i == 81):
+                    if(i == 64):
                         p += 1
                     continue
 
             i += 1
-            if(i == 81):
+            if(i == 64):
                 p += 1
 
             df = pd.DataFrame(
@@ -7440,18 +7440,30 @@ def Oiiv():
                     "//li[%i]/a/div[1]/div[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
                 pic_link = bg_url.lstrip('url(').rstrip(')"')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = ""
+
             except:
                 i += 1
                 if(i == 25):
                     p += 1
                 continue
-
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//li[%i]/a/div[2]/div/div[3]" % (i,)).text
+                sale_price = sale_price.strip('NT$')
+                ori_price = chrome.find_element_by_xpath(
+                    "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
+                ori_price = ori_price.strip('NT$')
+            except:
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
+                    sale_price = sale_price.strip('NT$')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
             i += 1
             if(i == 25):
                 p += 1
@@ -7495,14 +7507,13 @@ def Veryyou():
         url = "https://www.veryyou.com.tw/PDList2.asp?item=all&ob=D3&pageno=" + \
             str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
             break
         time.sleep(1)
         i = 1
-        while(i < 41):
+        while(i < 49):
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[2]/figure[%i]/figcaption/div[1]" % (i,)).text
@@ -7520,7 +7531,7 @@ def Veryyou():
                     "//div[2]/figure[%i]/div/img[@src]" % (i,)).get_attribute("src")
             except:
                 i += 1
-                if(i == 41):
+                if(i == 49):
                     p += 1
                 continue
             try:
@@ -7538,12 +7549,12 @@ def Veryyou():
                     ori_price = ""
                 except:
                     i += 1
-                    if(i == 25):
+                    if(i == 49):
                         p += 1
                     continue
 
             i += 1
-            if(i == 25):
+            if(i == 49):
                 p += 1
 
             df = pd.DataFrame(
