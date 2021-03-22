@@ -843,7 +843,7 @@ def Kklee():
                 find_href = chrome.find_element_by_xpath(
                     "//a[%i]/div[1]/div[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url(').rstrip(')"')
+                pic_link = bg_url.lstrip('url("').rstrip(')"')
             except:
                 i += 1
                 if(i == 25):
