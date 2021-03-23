@@ -1934,8 +1934,6 @@ def Corban():
                     "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
             except:
                 close += 1
-                # print(i, "title")
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -1957,13 +1955,11 @@ def Corban():
                 i += 1
                 if(i == 51):
                     p += 1
-                    i == 1
                 continue
 
             i += 1
             if(i == 51):
                 p += 1
-                i == 1
 
             df = pd.DataFrame(
                 {
@@ -5686,7 +5682,6 @@ def Potatochicks():
                     "//div[@class='itemListDiv'][%i]/div/a " % (i,)).text
             except:
                 flag += 1
-                print(p, i)
                 break
             try:
                 pic_link = chrome.find_element_by_xpath(
@@ -5713,7 +5708,6 @@ def Potatochicks():
                 try:
                     sale_price = chrome.find_element_by_xpath(
                         "//div[%i]/div[4]/span" % (i,)).text
-                    sale_price = sale_price.strip('NT.')
                     ori_price = ""
                 except:
                     i += 1

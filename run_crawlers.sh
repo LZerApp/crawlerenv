@@ -22,5 +22,10 @@ fi
 echo "RUN CRAWLERS FROM ID ${BEG} ~ ${END}"
 
 for IDX in $(seq $BEG $END); do
-  flask run-crawler $IDX
+	run_time=`date`
+	echo $run_time
+      	/home/ubuntu/crawlerenv/env/bin/flask run-crawler $IDX
 done
+
+echo "ALL from ${BEG} to ${END} DONE"
+ls -al /home/ubuntu/crawlerenv/crawler_data/
