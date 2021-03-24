@@ -7,6 +7,7 @@ from datetime import datetime
 import pandas as pd
 from urllib import parse
 from config import ENV_VARIABLE
+from os.path import getsize
 
 fold_path = "./crawler_data/"
 
@@ -2446,7 +2447,7 @@ def Jcjc():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-            save(shop_id, name, dfAll)
+    save(shop_id, name, dfAll)
     upload(shop_id, name)
 
 
@@ -8863,8 +8864,14 @@ def upload(shop_id, name):
         files = {
             'file': (filename + '.xlsx', open(fold_path + filename + '.xlsx', 'rb')),
         }
+        path = fold_path + filename + '.xlsx'
+        size = getsize(path)
+        if (size <= 4760):
+            print(size)
+            return
         response = requests.post(verify=False, url=url, files=files,
                                  headers=headers)
+        print(response.status_code)
         # os.remove(filename+'.xlsx')
     except Exception as e:
         print(e)
