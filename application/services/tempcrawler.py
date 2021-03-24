@@ -4797,10 +4797,8 @@ def Boy2():
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[4]/a " % (i,)).text
-
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -4811,6 +4809,12 @@ def Boy2():
                 page_id = page_id.replace("&m=23", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[%i]/div[1]/center/a/img[@src]" % (i,)).get_attribute("src")
+            except:
+                i += 1
+                if(i == 33):
+                    p += 1
+                continue
+            try:
                 sale_price = chrome.find_element_by_xpath(
                     "//div[%i]/div[5]/span[2]" % (i,)).text
                 sale_price = sale_price.replace('SALE.', '')
@@ -4818,10 +4822,16 @@ def Boy2():
                     "//div[%i]/div[5]/span[1]" % (i,)).text
                 ori_price = ori_price.replace('NT.', '')
             except:
-                i += 1
-                if(i == 33):
-                    p += 1
-                continue
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[%i]/div[5]/span[1]" % (i,)).text
+                    sale_price = sale_price.replace('NT.', '')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 33):
+                        p += 1
+                    continue
 
             i += 1
             if(i == 33):
@@ -5124,7 +5134,6 @@ def Suitangtang():
                 title = title[0:k-1]
             except:
                 close += 1
-                # print(i, "title")
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -5133,7 +5142,7 @@ def Suitangtang():
                 page_id = make_id.path + make_id.query
                 page_id = page_id.replace("/Product/", '')
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product-list'][%i]/a/img" % (i,)).get_attribute('src')
+                    "//div[@class='product-list'][%i]/a/img" % (i,)).get_attribute('data-original')
             except:
                 i += 1
                 continue
