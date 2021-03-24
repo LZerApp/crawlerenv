@@ -3,12 +3,14 @@
 
   [![](https://img.shields.io/badge/docs-Tutorial-F7D360.svg?logo=&style=flat-square)](https://github.com/LZerApp/crawlerenv/wiki)
   [![](https://img.shields.io/github/license/LZerApp/crawlerenv.svg?style=flat-square)](./LICENSE)
-
+  <br>
+  [![](https://img.shields.io/github/last-commit/LZerApp/crawlerenv.svg?style=flat-square)](https://github.com/LZerApp/crawlerenv/commits)
+  
 </div>
 
 <!-- Logo -->
 <p align="center">
-  <img src="https://i.imgur.com/Ar77xLR.png" alt="Flask Crawler Tutorial" height="150px">
+  <img src="https://i.imgur.com/Ar77xLR.png" alt="Flask Crawler" height="150px">
 </p>
 
 
@@ -132,7 +134,7 @@ $ source env/bin/activate
 # flask run-crawler <crawler_id>
 $ flask run-crawler 1
 ```
-#test 55668877
+
 ## License
 
 Licensed under the MIT License, Copyright © 2021-present Hsins.
