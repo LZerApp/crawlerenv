@@ -2302,11 +2302,11 @@ def Cereal():
                     "//div[@data-loop='%i']/h3/a" % (i,)).text
                 if(title == ""):
                     i += 1
-
+                    if(i == 25):
+                        p += 1
                     continue
             except:
                 close += 1
-                # print(p, i, "title")
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -2316,16 +2316,30 @@ def Cereal():
                 page_id = page_id.lstrip("/new/")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@data-loop='%i']/div[1]/a/img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@data-loop='%i']/div[2]//span[@class='woocommerce-Price-amount amount']" % (i,)).text
-                sale_price = sale_price.rstrip(' NT$')
-                ori_price = ""
+
             except:
                 i += 1
                 if(i == 25):
                     p += 1
                 continue
-
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@data-loop='%i']//ins//bdi" % (i,)).text
+                sale_price = sale_price.rstrip(' NT$')
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@data-loop='%i']//del//bdi" % (i,)).text
+                ori_price = ori_price.rstrip(' NT$')
+            except:
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@data-loop='%i']/div[2]//span[@class='woocommerce-Price-amount amount']" % (i,)).text
+                    sale_price = sale_price.rstrip(' NT$')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
             i += 1
             if(i == 25):
                 p += 1
@@ -2376,34 +2390,48 @@ def Jcjc():
             break
         time.sleep(1)
         i = 1
-        while(i < 19):
+        while(i < 25):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//div[@class='product_grid-item grid__item small--one-half medium--one-half large--one-quarter'][%i]/div/a/p[1]" % (i,)).text
+                    "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a/p[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
-                    "//div[@class='product_grid-item grid__item small--one-half medium--one-half large--one-quarter'][%i]/div/a[1][@href]" % (i,)).get_attribute('href')
+                    "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a[1][@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
+                page_id = page_id.lstrip("/collections/in-stock/products/")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product_grid-item grid__item small--one-half medium--one-half large--one-quarter'][%i]/div/span/a/img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product_grid-item grid__item small--one-half medium--one-half large--one-quarter'][%i]/div/a/p[2]/span" % (i,)).text
-                sale_price = sale_price.strip('NT$ ')
-                ori_price = ""
+                    "//div[@class='grid-uniform grid-link__container']/div[%i]/div/span/a/img" % (i,)).get_attribute('src')
+
             except:
                 i += 1
-                if(i == 19):
+                if(i == 25):
                     p += 1
                 continue
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a/p[2]/span" % (i,)).text
+                sale_price = sale_price.strip('NT$ ')
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a/p[2]/s/span" % (i,)).text
+                ori_price = ori_price.strip('NT$ ')
+            except:
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a/p[2]/span" % (i,)).text
+                    sale_price = sale_price.strip('NT$ ')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
 
             i += 1
-            if(i == 19):
+            if(i == 25):
                 p += 1
 
             df = pd.DataFrame(
@@ -2418,7 +2446,7 @@ def Jcjc():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
+            save(shop_id, name, dfAll)
     upload(shop_id, name)
 
 
