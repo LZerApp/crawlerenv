@@ -2580,7 +2580,6 @@ def Iris():
                     "//li[%i]/a/div[2]/div/div[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -6554,9 +6553,13 @@ def Miyuki():
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@id='category-item-wrap']//div[%i]/div[2]/a" % (i,)).text
+                if (title == ""):
+                    i += 1
+                    if(i == 17):
+                        p += 1
+                    continue
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -6576,7 +6579,7 @@ def Miyuki():
                     "//div[@id='category-item-wrap']//div[%i]/div[2]/div[1]/span[1]" % (i,)).text
                 sale_price = sale_price.strip('NT$')
                 ori_price = chrome.find_element_by_xpath(
-                    "//div[%i]/div[5]/div[2]/div[1]/span[2]" % (i,)).text
+                    "//div[@id='category-item-wrap']//div[%i]/div[2]/div[1]/span[2]" % (i,)).text
                 ori_price = ori_price.strip('NT$')
 
             except:
@@ -6818,27 +6821,27 @@ def Mojp():
     p = 1
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
     while True:
-        if (close == 1):
-            break
+
         url = "https://www.mojp.com.tw/product.php?page=" + \
             str(p) + "&cid=12#prod_list"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
+        print(url)
+        if(p < 11):
+            try:
+                chrome.get(url)
+            except:
+                break
+        else:
             break
+
         time.sleep(1)
         i = 1
-        while(i < 64):
+        while True:
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[1]/section[3]/div/div[1]/div[%i]/div/div[2]/div[1]/a" % (i,)).text
             except:
-                close += 1
-
+                p += 1
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -6850,8 +6853,6 @@ def Mojp():
                     "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('src')
             except:
                 i += 1
-                if(i == 64):
-                    p += 1
                 continue
 
             try:
@@ -6869,13 +6870,9 @@ def Mojp():
                     ori_price = ""
                 except:
                     i += 1
-                    if(i == 64):
-                        p += 1
                     continue
 
             i += 1
-            if(i == 64):
-                p += 1
 
             df = pd.DataFrame(
                 {
@@ -7912,7 +7909,6 @@ def Daf():
                     "//div[@class='commoditys'][%i]/p[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -7922,6 +7918,13 @@ def Daf():
                 page_id = page_id.lstrip("/product/show/")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='commoditys'][%i]/div/a/img" % (i,)).get_attribute('src')
+
+            except:
+                i += 1
+                if(i == 25):
+                    p += 1
+                continue
+            try:
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='commoditys'][%i]/p[2]/span[2]" % (i,)).text
                 sale_price = sale_price.replace('NT$ ', '')
@@ -7930,11 +7933,16 @@ def Daf():
                     "//div[@class='commoditys'][%i]/p[2]/span[1]" % (i,)).text
                 ori_price = ori_price.replace('NT$ ', '')
             except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='commoditys'][%i]/p[2]" % (i,)).text
+                    sale_price = sale_price.replace('NT$ ', '')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
             i += 1
             if(i == 25):
                 p += 1
@@ -7956,7 +7964,7 @@ def Daf():
 
 
 def Sexyinshape():
-    shop_id = 120
+    shop_id = 122
     name = 'sexyinshape'
     options = Options()                  # 啟動無頭模式
     options.add_argument('--headless')   # 規避google bug
