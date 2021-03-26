@@ -8,7 +8,7 @@ from openpyxl import Workbook
 
 from config import ENV_VARIABLE
 
-fold_path = "./crawler_data/"
+fold_path = "./crawler_data"
 
 # Product = namedtuple('Product', ['title', 'url', 'page_id', 'image_url', 'original_price', 'sale_price'])
 Product = namedtuple(
@@ -49,8 +49,9 @@ class BaseCrawler(object):
         sheet = book.active
         sheet.append(Product._fields)
         for product in self.result:
-            sheet.append([*product])
-        book.save(filename + ".xlsx")
+            if product:
+                sheet.append([*product])
+        book.save(f"{fold_path}/{filename}.xlsx")
 
     def get_price(
         self,
