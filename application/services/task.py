@@ -1,7 +1,5 @@
 import requests
-from datetime import datetime
 from flask_apscheduler import APScheduler
-from requests.api import get
 from application.services.crawler import get_crawler
 from application.services.tempcrawler import get_tempcrawler
 from config import ENV_VARIABLE
@@ -14,7 +12,7 @@ scheduler = APScheduler()
 #     brands = get_brands()
 #     print(brands)
 
-@scheduler.task('cron', id='do_job_4', hour='9', minute='00')
+# @scheduler.task('cron', id='do_job_4', hour='9', minute='00')
 def job_crawler():
     brands = get_brands()
     for brand in brands:
