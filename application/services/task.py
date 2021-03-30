@@ -43,7 +43,7 @@ def get_brands():
     }
 
     try:
-        response = requests.get(url=url, headers=headers)
+        response = requests.get(url=url, headers=headers, verify=False)
         result = response.json().get('data')
     except Exception as e:
         print(e)

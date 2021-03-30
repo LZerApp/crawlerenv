@@ -66,7 +66,7 @@ class BaseCrawler(object):
             files = {
                 "file": (
                     filename + ".xlsx",
-                    open(fold_path + filename + ".xlsx", "rb"),
+                    open(f"{fold_path}/{filename}.xlsx", "rb"),
                 ),
             }
             response = requests.post(
@@ -79,7 +79,7 @@ class BaseCrawler(object):
     def get_price(
         self,
         raw_text,
-        pattern="(-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?)",
+        pattern="(-?(?:0|[1-9]\d{0,2}(?:,?\d+)*)(?:\.\d+)?)",
         remove_comma=True,
     ):
         if remove_comma:
@@ -249,7 +249,7 @@ class MajormadeCrawler(BaseCrawler):
 # 007_BasicCrawler()
 class BasicCrawler(BaseCrawler):
     id = 7
-    name = "ajpease"
+    name = "basic"
     base_url = "https://www.basic.tw"
 
     def parse(self):
@@ -278,7 +278,7 @@ class BasicCrawler(BaseCrawler):
         sale_price = (
             self.get_price(item.find("span", {"class": "pdbox_price-sale"}).text)
             if item.find("span", {"class": "pdbox_price-sale"})
-            else ""
+            else self.get_price(item.find("span", {"class": "pdbox_price"}).text)
         )
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -295,7 +295,7 @@ class AirspaceCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find("div", {"id": "item"}).find_all("li")
-        self.result.extend([self.parse_product(item) for item in items])
+            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.find("div", {"class": "pdtext"}).find("a").text
@@ -353,7 +353,7 @@ class YocoCrawler(BaseCrawler):
     def parse_product(self, item):
         title = item.find("span", {"class": "cate-name"}).text.strip()
         link_id = item.find("a").get("href")
-        link = f"{self.base_url}/{link_id}"
+        link = f"{self.base_url}{link_id}"
         image_url = (
             item.find("img").get("data-original")
             if item.find("img").get("data-original")
