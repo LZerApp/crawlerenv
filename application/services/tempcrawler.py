@@ -33,7 +33,7 @@ def Legust():
     close = 0
     while True:
         if close == 1:
-            chrome.close()
+            chrome.quit()
             break
         url = "https://www.gusta.com.tw/products?page=" + str(p)
         #
@@ -130,6 +130,7 @@ def Gracegift():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.gracegift.com.tw/product/category/cid/239"
 
@@ -235,6 +236,7 @@ def Ajpeace():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.ajpeace.com.tw/index.php?app=search&cate_id=all&order=g.first_shelves_date%20desc&page=" + \
             str(p)
@@ -325,6 +327,7 @@ def Majormade():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.major-made.com/Shop/itemList.aspx?m=14&smfp=" + \
             str(p)
@@ -402,6 +405,7 @@ def Basic():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.basic.tw/productlist?other=newarrival&page=" + \
             str(p)
@@ -494,6 +498,7 @@ def Airspace():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.airspaceonline.com/PDList.asp?color=&keyword=&pp1=all&pp2=&pp3=&newpd=&ob=A&pageno=" + \
             str(p)
@@ -570,6 +575,7 @@ def Yoco():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.yoco.com.tw/Product/Category/Topic56/event#ProductCategoryList_pageload_" + \
             str(p)
@@ -652,6 +658,7 @@ def Efshop():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.efshop.com.tw/category/21/" + str(p)
         #
@@ -725,6 +732,7 @@ def Moda():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.modalovemoda.com/Shop/itemList.aspx?m=1&p=851&o=0&sa=0&smfp=" + \
             str(p) + "&"
@@ -816,6 +824,7 @@ def Kklee():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.kklee.co/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -913,7 +922,7 @@ def Wishbykorea():
     close = 0
     while True:
         if(close == 1):
-            chrome.close()
+            chrome.quit()
             break
         url = "https://www.wishbykorea.com/collection-729&pgno=" + str(p)
 
@@ -1010,7 +1019,7 @@ def Aspeed():
     close = 0
     while True:
         if(close == 1):
-            chrome.close()
+            chrome.quit()
             break
         url = "https://www.aspeed.co/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=72"
@@ -1103,6 +1112,7 @@ def Openlady():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.openlady.tw/item.html?&id=157172&page=" + \
             str(p) + "&total=622"
@@ -1193,7 +1203,7 @@ def Azoom():
     close = 0
     while True:
         if(close == 1):
-            chrome.close()
+            chrome.quit()
             break
         url = "https://www.aroom1988.com/categories/view-all?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -1281,6 +1291,7 @@ def Roxy():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.roxytaiwan.com.tw/new-collection/new-arrival/2017+%E6%97%A9%E6%98%A5%E5%95%86%E5%93%81?p=" + \
             str(p)
@@ -1365,6 +1376,7 @@ def Shaxi():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.shaxishop.com/products?page=" + str(p)
 
@@ -1460,6 +1472,7 @@ def Cici():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.chichishopline.com/products?page=" + str(p)
 
@@ -1556,6 +1569,7 @@ def Inshop():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.inshop.tw/v2/Official/NewestSalePage/6300"
 
@@ -1637,6 +1651,7 @@ def Amesoeur():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.amesoeur.co/categories/%E5%85%A8%E9%83%A8%E5%95%86%E5%93%81?page=" + \
             str(p)
@@ -1817,6 +1832,7 @@ def Folie():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.folief.com/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -1997,6 +2013,7 @@ def Gmorning():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.gmorning.co/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -2091,6 +2108,7 @@ def July():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.july2017.co/products?page=" + str(p)
 
@@ -2186,6 +2204,7 @@ def Per():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.perdot.com.tw/categories/all?page=" + str(p)
 
@@ -2380,6 +2399,7 @@ def Jcjc():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.jcjc-dailywear.com/collections/in-stock?limit=24&page=" + \
             str(p) + "&sort=featured"
@@ -2470,6 +2490,7 @@ def Ccshop():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.ccjshop.com/products?page=" + str(p)
 
@@ -2564,6 +2585,7 @@ def Iris():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.irisgarden.com.tw/products?page=" + str(p)
 
@@ -2657,6 +2679,7 @@ def Nook():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.nooknook.me/products?page=" + str(p)
 
@@ -2753,6 +2776,7 @@ def Greenpea():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.greenpea-tw.com/products?page=" + str(p)
 
@@ -2942,6 +2966,7 @@ def Queen():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.queenshop.com.tw/zh-TW/QueenShop/ProductList?item1=01&item2=all&Page=" + \
             str(p) + "&View=4"
@@ -3128,6 +3153,7 @@ def Gogosing():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://ggsing.tw/category/%E7%95%B6%E5%A4%A9%E5%87%BA%E8%B2%A8/865/?page=" + \
             str(p)
@@ -3205,6 +3231,7 @@ def Circlescinema():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.circles-cinema.com.tw/Shop/itemList.aspx?m=9&p=0&o=0&sa=0&smfp=" + \
             str(p)
@@ -3292,6 +3319,7 @@ def Cozyfee():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.cozyfee.com/product.php?page=" + \
             str(p) + "&cid=55#prod_list"
@@ -3368,6 +3396,7 @@ def Reishop():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.reishop.com.tw/pdlist2.asp?item1=all&item2=&item3=&keyword=&ob=A&pagex=&pageno=" + \
             str(p)
@@ -3445,6 +3474,7 @@ def Yourz():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.yourz.com.tw/product/category/34/1/" + str(p)
 
@@ -3523,6 +3553,7 @@ def Wstyle():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.wstyle.com.tw/Shop/itemList.aspx?m=22&o=0&sa=0&smfp=" + \
             str(p)
@@ -3599,6 +3630,7 @@ def Applestarry():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.applestarry.com.tw/Shop/itemList.aspx?m=1&smfp=" + \
             str(p)
@@ -3786,6 +3818,7 @@ def Seoulmate():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.seoulmate.com.tw/catalog.php?m=115&s=249&t=0&sort=&page=" + \
             str(p)
@@ -3884,6 +3917,7 @@ def Sweesa():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.sweesa.com/Shop/itemList.aspx?&m=20&o=5&sa=1&smfp=" + \
             str(p)
@@ -3961,6 +3995,7 @@ def Pazzo():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.pazzo.com.tw/recent?P=" + str(p)
 
@@ -4035,6 +4070,7 @@ def Meierq():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.meierq.com/zh-tw/tag/newarrival?P=" + str(p)
 
@@ -4110,6 +4146,7 @@ def Harper():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.harper.com.tw/Shop/itemList.aspx?&m=13&smfp=" + \
             str(p)
@@ -4187,6 +4224,7 @@ def Lurehsu():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.lurehsu.com/zh-TW/lure/productList?item1=00&item2=16&page=" + \
             str(p)
@@ -4278,6 +4316,7 @@ def Pufii():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.pufii.com.tw/Shop/itemList.aspx?&m=6&smfp=" + str(p)
 
@@ -4357,6 +4396,7 @@ def Mouggan():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.mouggan.com/zh-tw/category/ALL-ITEM?P=" + str(p)
 
@@ -4454,6 +4494,7 @@ def Jendes():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.jendesstudio.com/shop?c=de8eed41-acbf-4da7-a441-e6028d8b28c9&page=" + \
             str(p)
@@ -4530,6 +4571,7 @@ def Mercci():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.mercci22.com/zh-tw/tag/HOTTEST?P=" + str(p)
 
@@ -4627,6 +4669,7 @@ def Sivir():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.sivir.com.tw/collections/new-all-%E6%89%80%E6%9C%89?page=" + \
             str(p)
@@ -4703,6 +4746,7 @@ def Nana():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.2nana.tw/product.php?page=" + \
             str(p) + "&cid=1#prod_list"
@@ -4781,6 +4825,7 @@ def Boy2():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.boy2.com.tw/Shop/itemList.aspx?m=23&p=0&o=5&sa=1&smfp=" + \
             str(p)
@@ -4871,6 +4916,7 @@ def Aachic():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.aachic.com/categories/all-%E6%89%80%E6%9C%89%E5%95%86%E5%93%81?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -4953,6 +4999,7 @@ def Lovso():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.lovso.com.tw/Shop/itemList.aspx?m=8&o=0&sa=0&smfp=" + \
             str(p)
@@ -5033,6 +5080,7 @@ def Bowwow():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.bowwowkorea.com/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=48"
@@ -5295,6 +5343,7 @@ def Chochobee():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.chochobee.com/catalog.php?m=40&s=0&t=0&sort=&page=" + \
             str(p)
@@ -5467,6 +5516,7 @@ def Asobi():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.asobi.com.tw/Shop/itemList.aspx?undefined&smfp=" + \
             str(p)
@@ -5543,6 +5593,7 @@ def Kiyumi():
     flag = 0
     while True:
         if (flag == 1):
+            chrome.quit()
             break
         url = "https://www.kiyumishop.com/catalog.php?m=73&s=0&t=0&sort=&page=" + \
             str(p)
@@ -5615,6 +5666,7 @@ def Genquo():
     flag = 0
     while True:
         if (flag == 1):
+            chrome.quit()
             break
         url = "https://www.genquo.com/zh-tw/category/women?P=" + str(p)
         print("處理頁面:", url)
@@ -5703,6 +5755,7 @@ def Potatochicks():
     flag = 0
     while True:
         if (flag == 1):
+            chrome.quit()
             break
         url = "https://www.potatochicks.tw/Shop/itemList.aspx?m=2&o=0&sa=0&smfp=" + \
             str(p)
@@ -5912,6 +5965,7 @@ def Oolala():
     flag = 0
     while True:
         if (flag == 1):
+            chrome.quit()
             break
         url = "https://www.styleoolala.com/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=48"
@@ -6007,6 +6061,7 @@ def Pattis():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.i-pattis.com/catalog.php?m=1&s=21&t=0&sort=&page=" + \
             str(p)
@@ -6084,6 +6139,7 @@ def Scheminggg():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.scheminggg.com/productlist?page=" + str(p)
 
@@ -6177,6 +6233,7 @@ def Bisou():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.cn.bisoubisoustore.com/collections/all?page=" + \
             str(p)
@@ -6433,6 +6490,7 @@ def Pixelcake():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.pixelcake.com.tw/zh-tw/category/ALL?P=" + str(p)
 
@@ -6531,6 +6589,7 @@ def Miyuki():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.miyukiselect.com/zh-tw/category/ALL-ITEMS?P=" + \
             str(p)
@@ -6633,6 +6692,7 @@ def Percha():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.percha.tw/Shop/itemList.aspx?m=7&p=14&smfp=" + \
             str(p)
@@ -6724,6 +6784,7 @@ def Nab():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.nab.com.tw/product-list.ftl?p=" + \
             str(p) + "&lg=01&rMinPrice=370&rMaxPrice=1980"
@@ -6830,6 +6891,7 @@ def Mojp():
             try:
                 chrome.get(url)
             except:
+                chrome.quit()
                 break
         else:
             break
@@ -7004,6 +7066,7 @@ def Pleats():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.92pleats.com/products?page=" + str(p)
 
@@ -7083,6 +7146,7 @@ def Zebra():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.zebracrossing.com.tw/Shop/itemList.aspx?&m=8&smfp=" + \
             str(p)
@@ -7160,6 +7224,7 @@ def Mihara():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.mihara.com.tw/product.php?page=" + \
             str(p) + "&cid=1#prod_list"
@@ -7249,6 +7314,7 @@ def Eyescream():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.eyescream.com.tw/PDList2.asp?item=all&ob=D3&pageno=" + \
             str(p)
@@ -7441,6 +7507,7 @@ def Oiiv():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.oiiv.co/products?page=" + str(p)
 
@@ -7532,6 +7599,7 @@ def Veryyou():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.veryyou.com.tw/PDList2.asp?item=all&ob=D3&pageno=" + \
             str(p)
@@ -7621,6 +7689,7 @@ def Stayfoxy():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.stayfoxyshop.com/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -7717,6 +7786,7 @@ def Gracechow():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.gracechowtw.com/products?page=" + str(p)
 
@@ -7796,6 +7866,7 @@ def Righton():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://e.right-on.com.tw/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -7893,6 +7964,7 @@ def Daf():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.daf-shoes.com/product/list/all/" + str(p)
 
@@ -7982,6 +8054,7 @@ def Sexyinshape():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.sexyinshape.com/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
@@ -8077,6 +8150,7 @@ def Bonjour():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.bonjour.tw/Catalog.aspx?cid=40&p=" + str(p)
 
@@ -8249,6 +8323,7 @@ def Sandaru():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://sandarushop.com/product/all?page=" + str(p)
 
@@ -8527,6 +8602,7 @@ def Amissa():
     close = 0
     while True:
         if (close == 1):
+            chrome.quit()
             break
         url = "https://www.amissa.co/products?page=" + str(p)
 
@@ -8866,7 +8942,7 @@ def Vinacloset():
 def save(shop_id, name, dfAll):
     filename = '_'.join(
         [str(shop_id), name, datetime.today().strftime("%Y%m%d")])
-    dfAll.to_excel(fold_path + filename + ".xlsx")
+    dfAll.to_excel(fold_path + '/' + filename + ".xlsx")
 
 
 def upload(shop_id, name):
