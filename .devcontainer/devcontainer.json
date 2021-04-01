@@ -1,0 +1,53 @@
+{
+    "name": "LZerApp CrawlerApp",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+    "settings": {
+        "workbench.colorTheme": "Monokai Dimmed",
+        "terminal.integrated.shell.linux": "/usr/bin/zsh",
+        // ----------------------------------------
+        // Explorer Settings
+        // ----------------------------------------
+        "explorer.confirmDelete": false,
+        "explorer.confirmDragAndDrop": false,
+        // ----------------------------------------
+        // Editor Settings
+        // ----------------------------------------
+        "editor.formatOnSave": true,
+        "editor.rulers": [
+            {
+                "column": 80,
+                "color": "#424142"
+            },
+            {
+                "column": 120,
+                "color": "#0054a3b0"
+            }
+        ],
+        // ----------------------------------------
+        // Plugin Settings
+        // ----------------------------------------
+        // Git
+        "git.autofetch": true,
+        "git.allowForcePush": true,
+        "git.confirmForcePush": false,
+        "git.enableSmartCommit": true,
+        // prettier (esbenp.prettier-vscode)
+        "prettier.singleQuote": true,
+        "prettier.trailingComma": "all"
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "coenraads.bracket-pair-colorizer-2",
+        "shardulm94.trailing-spaces",
+        "esbenp.prettier-vscode",
+        "vtrois.gitmoji-vscode",
+        "arcticicestudio.nord-visual-studio-code",
+        "dnlytras.nord-wave",
+    ],
+
+    "remoteUser": "LZerApp",
+}
