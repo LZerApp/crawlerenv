@@ -20,15 +20,21 @@ def job_crawler():
         crawler = get_crawler(brand[0])
 
         if crawler:
-            crawler.parse()
-            crawler.save()
-            crawler.upload()
-            continue
+            try:
+                crawler.parse()
+                crawler.save()
+                crawler.upload()
+                continue
+            except:
+                pass
 
         crawler = get_tempcrawler(brand[0])
 
         if crawler:
-            crawler()
+            try:
+                crawler()
+            except:
+                pass
 
 
 def get_brands():
