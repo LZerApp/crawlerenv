@@ -1234,7 +1234,7 @@ def Azoom():
                 find_href = chrome.find_element_by_xpath(
                     "//div[@class='product-item'][%i]/product-item/a/div[1]/div[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url(').rstrip(')')
+                pic_link = bg_url.lstrip('url("').rstrip(')')
             except:
                 i += 1
                 if(i == 24):
