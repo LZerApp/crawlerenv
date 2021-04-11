@@ -450,11 +450,10 @@ class SivirCrawler(BaseCrawler):
     def parse_product(self, item):
         title = item.find("div", {"class": "product_title"}).find(
             "a").get("data-name")
-        link_id = item.find("a").get("href")
-        link = f"{self.base_url}{link_id}"
+        link_id = item.find("a").get("href").replace("/products/", "")
+        link = f"{self.base_url}/products/{link_id}"
         link_id = link_id.replace("/products/", "")
-        image_url = item.find("img").get("data-src")
-        image_url = f"https:{image_url}"
+        image_url = f"https:{item.find("img").get("data-src")}"
         original_price = ""
         sale_price = self.get_price(
             item.find("div", {"class": "product_price"}).find("span").text)
@@ -518,8 +517,7 @@ class BisouCrawler(BaseCrawler):
         title = item.find("div", {"class": "title"}).text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}{link_id}"
-        image_url = item.find("img").get("src")
-        image_url = f"https:{image_url}"
+        image_url = f"https:{item.find("img").get("src")}"
         original_price = ""
         sale_price = self.get_price(
             item.find("div", {"class": "innerer"}).find("span").find("span").text)
