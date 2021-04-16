@@ -157,7 +157,7 @@ def Gracegift():
                     "//li[@class='SaleItem'][%i]/div[1]/a[@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path
-                page_id = page_id.lstrip("/product/detail/pmc/")
+                page_id = page_id.replace("/product/detail/pmc/", "").replace("/cid/239", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//li[@class='SaleItem'][%i]/div[1]/a/img" % (i,)).get_attribute('src')
             except:
