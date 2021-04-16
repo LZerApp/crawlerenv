@@ -924,7 +924,7 @@ def Wishbykorea():
         if(close == 1):
             chrome.quit()
             break
-        url = "https://www.wishbykorea.com/collection-729&pgno=" + str(p)
+        url = "https://www.wishbykorea.com/collection-727&pgno=" + str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
