@@ -944,9 +944,7 @@ def Wishbykorea():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='collection_item'][%i]/a[@href]" % (i,)).get_attribute('href')
-                page_id = page_link.strip(
-                    "https://www.wishbykorea.com/collection-view-")
-                page_id = page_id.replace("&ca=729", "")
+                page_id = page_link.replace("https://www.wishbykorea.com/collection-view-", "").replace("&ca=727", "")
                 find_href = chrome.find_element_by_xpath(
                     "//div[@class='collection_item'][%i]/div/ul/li[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
@@ -997,7 +995,7 @@ def Wishbykorea():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Aspeed():
