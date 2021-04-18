@@ -995,7 +995,7 @@ def Wishbykorea():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Aspeed():
@@ -1113,7 +1113,7 @@ def Openlady():
             chrome.quit()
             break
         url = "https://www.openlady.tw/item.html?&id=157172&page=" + \
-            str(p) + "&total=622"
+            str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -1131,7 +1131,6 @@ def Openlady():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.replace("&id=", "")
-                # page_id = ""
             except:
                 close += 1
 
@@ -1672,9 +1671,9 @@ def Amesoeur():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('product-id')
+
                 find_href = chrome.find_element_by_xpath(
                     "//li[%i]/a/div[1]/div" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
@@ -7249,7 +7248,7 @@ def Mihara():
                 page_id = make_id.query
                 page_id = page_id.lstrip("action=detail&pid=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('src')
+                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@data-original]" % (i,)).get_attribute('data-original')
             except:
                 i += 1
                 if(i == 81):
