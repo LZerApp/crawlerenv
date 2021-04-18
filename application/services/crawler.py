@@ -135,6 +135,7 @@ class GracegiftCrawler(BaseCrawler):
             "a").text.strip()
         link_id = item.find("a").get("href")
         link = self.base_url + link_id
+        link_id = link_id.replace("/product/detail/pmc/", "").replace("/cid/239", "")
         image_url = item.find("img").get("src")
         original_price = (
             self.get_price(item.find("div", {"class": "OrPrice"}).text)
