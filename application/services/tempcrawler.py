@@ -4671,7 +4671,6 @@ def Sivir():
         url = "https://www.sivir.com.tw/collections/new-all-%E6%89%80%E6%9C%89?page=" + \
             str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -4684,16 +4683,15 @@ def Sivir():
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@data-id]" % (i,)).get_attribute('data-id')
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[1]/a/img" % (i,)).get_attribute('src')
+                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[1]/a/img" % (i,)).get_attribute('data-src')
+                pic_link = f"https:{pic_link}"
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[4]/span" % (i,)).text
                 sale_price = sale_price.replace('NT$', '')
@@ -4721,7 +4719,7 @@ def Sivir():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Nana():
