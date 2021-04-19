@@ -1290,7 +1290,7 @@ def Roxy():
         if (close == 1):
             chrome.quit()
             break
-        url = "https://www.roxytaiwan.com.tw/new-collection/new-arrival/2017+%E6%97%A9%E6%98%A5%E5%95%86%E5%93%81?p=" + \
+        url = "https://www.roxytaiwan.com.tw/new-collection?p=" + \
             str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
@@ -1315,13 +1315,12 @@ def Roxy():
                 break
             try:
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div[@class='product-img']/a[@class='img-link']/picture[@class='main-picture']/img[@src]" % (i,)).get_attribute("src")
+                    "//div[@class='product-container product-thumb'][%i]/div[@class='product-img']/a[@class='img-link']/picture[@class='main-picture']/img[@data-src]" % (i,)).get_attribute("data-src")
                 sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div/div/div/span[@class='special-price']/span/span" % (i,)).text
-                sale_price = sale_price.strip('TWD')
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div/div/div/span[@class='old-price']/span/span" % (i,)).text
-                ori_price = ori_price.strip('TWD')
+                    "//div[@class='product-container product-thumb'][%i]//span[@class='price-dollars']" % (i,)).text
+                sale_price = sale_price.replace('TWD', "")
+                ori_price = ""
+
             except:
                 i += 1
                 if(i == 65):
