@@ -135,6 +135,7 @@ class GracegiftCrawler(BaseCrawler):
             "a").text.strip()
         link_id = item.find("a").get("href")
         link = self.base_url + link_id
+        link_id = link_id.replace("/product/detail/pmc/", "").replace("/cid/239", "")
         image_url = item.find("img").get("src")
         original_price = (
             self.get_price(item.find("div", {"class": "OrPrice"}).text)
@@ -270,9 +271,10 @@ class BasicCrawler(BaseCrawler):
 
     def parse_product(self, item):
         title = item.find("p", {"class": "pdbox_name"}).text.strip()
-        link_id = item.find("a").findNext("a").get("href")
+        link_id = item.find("a").find_next_sibling("a").get("href")
         link = f"{self.base_url}/{link_id}"
         image_url = item.find("img").get("src")
+        link_id = link_id.replace("product?saleid=", "")
         original_price = (
             self.get_price(
                 item.find("span", {"class": "pdbox_price-origin"}).text)

@@ -157,7 +157,7 @@ def Gracegift():
                     "//li[@class='SaleItem'][%i]/div[1]/a[@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path
-                page_id = page_id.lstrip("/product/detail/pmc/")
+                page_id = page_id.replace("/product/detail/pmc/", "").replace("/cid/239", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//li[@class='SaleItem'][%i]/div[1]/a/img" % (i,)).get_attribute('src')
             except:
@@ -924,7 +924,7 @@ def Wishbykorea():
         if(close == 1):
             chrome.quit()
             break
-        url = "https://www.wishbykorea.com/collection-729&pgno=" + str(p)
+        url = "https://www.wishbykorea.com/collection-727&pgno=" + str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -944,9 +944,7 @@ def Wishbykorea():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='collection_item'][%i]/a[@href]" % (i,)).get_attribute('href')
-                page_id = page_link.strip(
-                    "https://www.wishbykorea.com/collection-view-")
-                page_id = page_id.replace("&ca=729", "")
+                page_id = page_link.replace("https://www.wishbykorea.com/collection-view-", "").replace("&ca=727", "")
                 find_href = chrome.find_element_by_xpath(
                     "//div[@class='collection_item'][%i]/div/ul/li[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
@@ -1115,7 +1113,7 @@ def Openlady():
             chrome.quit()
             break
         url = "https://www.openlady.tw/item.html?&id=157172&page=" + \
-            str(p) + "&total=622"
+            str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -1133,7 +1131,6 @@ def Openlady():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.replace("&id=", "")
-                # page_id = ""
             except:
                 close += 1
 
@@ -1293,7 +1290,7 @@ def Roxy():
         if (close == 1):
             chrome.quit()
             break
-        url = "https://www.roxytaiwan.com.tw/new-collection/new-arrival/2017+%E6%97%A9%E6%98%A5%E5%95%86%E5%93%81?p=" + \
+        url = "https://www.roxytaiwan.com.tw/new-collection?p=" + \
             str(p)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
@@ -1318,13 +1315,12 @@ def Roxy():
                 break
             try:
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div[@class='product-img']/a[@class='img-link']/picture[@class='main-picture']/img[@src]" % (i,)).get_attribute("src")
+                    "//div[@class='product-container product-thumb'][%i]/div[@class='product-img']/a[@class='img-link']/picture[@class='main-picture']/img[@data-src]" % (i,)).get_attribute("data-src")
                 sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div/div/div/span[@class='special-price']/span/span" % (i,)).text
-                sale_price = sale_price.strip('TWD')
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]/div/div/div/span[@class='old-price']/span/span" % (i,)).text
-                ori_price = ori_price.strip('TWD')
+                    "//div[@class='product-container product-thumb'][%i]//span[@class='price-dollars']" % (i,)).text
+                sale_price = sale_price.replace('TWD', "")
+                ori_price = ""
+
             except:
                 i += 1
                 if(i == 65):
@@ -1674,9 +1670,9 @@ def Amesoeur():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('product-id')
+
                 find_href = chrome.find_element_by_xpath(
                     "//li[%i]/a/div[1]/div" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
@@ -4674,7 +4670,6 @@ def Sivir():
         url = "https://www.sivir.com.tw/collections/new-all-%E6%89%80%E6%9C%89?page=" + \
             str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -4687,16 +4682,15 @@ def Sivir():
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@data-id]" % (i,)).get_attribute('data-id')
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[1]/a/img" % (i,)).get_attribute('src')
+                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[1]/a/img" % (i,)).get_attribute('data-src')
+                pic_link = f"https:{pic_link}"
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[4]/span" % (i,)).text
                 sale_price = sale_price.replace('NT$', '')
@@ -4724,7 +4718,7 @@ def Sivir():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Nana():
@@ -7251,7 +7245,7 @@ def Mihara():
                 page_id = make_id.query
                 page_id = page_id.lstrip("action=detail&pid=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('src')
+                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@data-original]" % (i,)).get_attribute('data-original')
             except:
                 i += 1
                 if(i == 81):
