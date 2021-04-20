@@ -5174,9 +5174,8 @@ def Suitangtang():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='product-list'][%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + make_id.query
-                page_id = page_id.replace("/Product/", '')
+                page_id = stripID(page_link,"/Product/")
+                page_id = page_id[:page_id.find("?c=")]
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='product-list'][%i]/a/img" % (i,)).get_attribute('data-original')
             except:
