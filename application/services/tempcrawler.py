@@ -5174,7 +5174,7 @@ def Suitangtang():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='product-list'][%i]/a[@href]" % (i,)).get_attribute('href')
-                page_id = stripID(page_link,"/Product/")
+                page_id = stripID(page_link, "/Product/")
                 page_id = page_id[:page_id.find("?c=")]
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='product-list'][%i]/a/img" % (i,)).get_attribute('data-original')
@@ -6505,9 +6505,8 @@ def Pixelcake():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@id='category-item-wrap']/div[1]/div[%i]/div[1]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + make_id.query
-                page_id = page_id.lstrip("/zh-tw/market/n/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@id='category-item-wrap']/div[1]/div[%i]/div[2]//div[@class='like-counter ']" % (i,)).get_attribute('data-custommarketid')
                 pic_link = chrome.find_element_by_xpath(
                     "//div[%i]/div[1]/a/picture/img" % (i,)).get_attribute('src')
             except:
