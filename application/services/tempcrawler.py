@@ -12,6 +12,12 @@ from os.path import getsize
 fold_path = "./crawler_data/"
 
 
+def stripID(url, wantStrip):
+    loc = url.find(wantStrip)
+    length = len(wantStrip)
+    return url[loc+length:]
+
+
 def Legust():
     shop_id = 2
     name = 'legust'
@@ -2374,7 +2380,7 @@ def Cereal():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Jcjc():
@@ -2973,7 +2979,7 @@ def Queen():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
+
         i = 1
         while(i < 17):
             try:
@@ -2986,10 +2992,9 @@ def Queen():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//ul[@class='items-list list-array-4']/li[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
+                page_id = stripID(page_link, "SaleID=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//ul[@class='items-list list-array-4']/li[%i]/a/img[1]" % (i,)).get_attribute('src')
+                    "//ul[@class='items-list list-array-4']/li[%i]/a/img[1]" % (i,)).get_attribute('data-src')
             except:
                 i += 1
                 if(i == 17):
@@ -3031,7 +3036,7 @@ def Queen():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Need():
@@ -5537,7 +5542,7 @@ def Asobi():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.replace("mNo1=", "")
-                page_id = page_id.replace("&m=1&p=54&o=5&sa=1", "")
+                page_id = page_id.replace("&&m=1&o=5&sa=1", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]//a/img[@src]" % (i,)).get_attribute("src")
                 sale_price = chrome.find_element_by_xpath(
