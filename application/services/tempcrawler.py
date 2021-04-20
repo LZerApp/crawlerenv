@@ -3347,7 +3347,7 @@ def Cozyfee():
                 page_id = make_id.query
                 page_id = page_id.lstrip("action=detail&pid=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//li[%i]/div[1]/a/img[1]" % (i,)).get_attribute('src')
+                    "//li[%i]/div[1]/a/img[1]" % (i,)).get_attribute('data-original')
                 sale_price = chrome.find_element_by_xpath(
                     "//li[%i]/div[3]/span" % (i,)).text
                 sale_price = sale_price.strip('NT.')
