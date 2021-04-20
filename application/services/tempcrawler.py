@@ -2310,7 +2310,7 @@ def Cereal():
                 "//button[@class='mfp-close']").click()
         except:
             pass
-        time.sleep(1)
+
         i = 1
         while(i < 25):
             try:
@@ -2327,9 +2327,10 @@ def Cereal():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@data-loop='%i']/div[1]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/new/")
+
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@data-loop='%i']" % (i,)).get_attribute('data-id')
+
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@data-loop='%i']/div[1]/a/img" % (i,)).get_attribute('src')
 
@@ -2373,7 +2374,7 @@ def Cereal():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Jcjc():
@@ -4718,7 +4719,7 @@ def Sivir():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Nana():
@@ -5840,7 +5841,6 @@ def Sumi():
             chrome.quit()
             break
         url = "https://www.sumi-life.com/product/all"
-        print("處理頁面:", url)
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
@@ -5858,17 +5858,16 @@ def Sumi():
                     "//li[%i]/a//h4" % (i,)).text
             except:
                 flag += 1
-                print(i, "title")
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
-                    "//div/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
+                    "//div/ul/li[%i]/a[@class='clearfix']" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path
                 page_id = page_id.lstrip("/product/detail/")
             except:
                 i += 1
-                if(i % 20 == 1):
+                if(i % 12 == 1):
                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
                     time.sleep(1)
                 continue
@@ -5880,14 +5879,14 @@ def Sumi():
                 pic_link = bg_url.lstrip('url("').rstrip('");')
                 if(pic_link == "none"):
                     i += 1
-                    if(i % 20 == 1):
+                    if(i % 12 == 1):
                         chrome.find_element_by_tag_name(
                             'body').send_keys(Keys.END)
                         time.sleep(1)
                     continue
             except:
                 i += 1
-                if(i % 20 == 1):
+                if(i % 12 == 1):
                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
                     time.sleep(1)
                 continue
@@ -5905,7 +5904,7 @@ def Sumi():
                     sale_price = sale_price.strip('$')
                     if(sale_price == "已售完"):
                         i += 1
-                        if(i % 20 == 1):
+                        if(i % 12 == 1):
                             chrome.find_element_by_tag_name(
                                 'body').send_keys(Keys.END)
                             time.sleep(1)
@@ -5913,14 +5912,14 @@ def Sumi():
                     ori_price = ""
                 except:
                     i += 1
-                    if(i % 20 == 1):
+                    if(i % 12 == 1):
                         chrome.find_element_by_tag_name(
                             'body').send_keys(Keys.END)
                         time.sleep(1)
                     continue
 
             i += 1
-            if(i % 20 == 1):
+            if(i % 12 == 1):
                 chrome.find_element_by_tag_name('body').send_keys(Keys.END)
                 time.sleep(1)
 
@@ -5937,7 +5936,7 @@ def Sumi():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Oolala():
