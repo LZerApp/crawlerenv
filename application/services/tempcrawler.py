@@ -3578,9 +3578,7 @@ def Wstyle():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.replace("mNo1=", "")
+                page_id = stripID(page_link, "cno=")
                 page_id = page_id.replace("&m=22", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]//a/img[@src]" % (i,)).get_attribute("src")
