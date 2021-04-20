@@ -3036,7 +3036,7 @@ def Queen():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Need():
@@ -3260,7 +3260,7 @@ def Circlescinema():
                 page_id = page_id.replace("mNo1=", "")
                 page_id = page_id.replace("&m=9", "")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[4]/div/img[@src]" % (i,)).get_attribute("src")
+                    "//div[@class='itemListDiv'][%i]/div/center/a/img" % (i,)).get_attribute("src")
             except:
                 i += 1
                 if(i == 17):
