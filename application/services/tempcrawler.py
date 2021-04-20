@@ -4409,7 +4409,6 @@ def Mouggan():
 
         except:
             pass
-        time.sleep(1)
         i = 1
         while(i < 19):
             try:
@@ -4422,9 +4421,7 @@ def Mouggan():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[2]/div[%i]/div[2]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + "?" + make_id.query
-                page_id = page_id.lstrip("/zh-tw/market/n/")
+                page_id = stripID(page_link, "c=")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[2]/div[%i]/div[1]/div/a/img" % (i,)).get_attribute('src')
             except:
