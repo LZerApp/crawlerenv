@@ -6791,12 +6791,12 @@ def Nab():
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]/div/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.replace("PC=", "")
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('href')
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('data-product-goodscode')
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]/div/a/img[@src]" % (i,)).get_attribute("src")
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a/img" % (i,)).get_attribute("data-src")
+                pic_link = f"https://www.nab.com.tw/{pic_link}"
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[2]" % (i,)).text
                 sale_price = sale_price.replace('NT$ ', '')
