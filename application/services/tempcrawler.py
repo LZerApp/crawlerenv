@@ -4764,7 +4764,7 @@ def Nana():
                 page_id = make_id.query
                 page_id = page_id.lstrip("action=detail&pid=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[1]/a/img" % (i,)).get_attribute('src')
+                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[1]/a/img" % (i,)).get_attribute('data-original')
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[2]/div[2]/span" % (i,)).text
                 sale_price = sale_price.strip('NT.')
