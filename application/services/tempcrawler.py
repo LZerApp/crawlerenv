@@ -4232,7 +4232,6 @@ def Lurehsu():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
         i = 1
         while(i < 28):
             try:
@@ -4248,6 +4247,7 @@ def Lurehsu():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.lstrip("SaleID=")
+                page_id = page_id[:page_id.find("&Color")]
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='grid-item'][%i]/a/div/img" % (i,)).get_attribute('src')
             except:
