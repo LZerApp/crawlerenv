@@ -4589,9 +4589,7 @@ def Mercci():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//li[%i]/div[@class='items__info']/div[@class='pdname']/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + '?' + make_id.query
-                page_id = page_id.lstrip("/zh-tw/market/n/")
+                page_id = stripID(page_link, "c=")
                 pic_link = chrome.find_element_by_xpath(
                     "//li[%i]/a[@class='items__image js-loaded']/img" % (i,)).get_attribute('src')
             except:
