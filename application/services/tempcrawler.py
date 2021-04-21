@@ -7971,9 +7971,8 @@ def Daf():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='commoditys'][%i]/div/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/product/show/")
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@class='commoditys'][%i]/p[2]" % (i,)).get_attribute('id')
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='commoditys'][%i]/div/a/img" % (i,)).get_attribute('src')
 
@@ -9047,7 +9046,7 @@ def get_tempcrawler(crawler_id):
         # '113': Stayfoxy,
         '115': Gracechow,
         '118': Righton,
-        # '120': Daf,
+        '120': Daf,
         '122': Sexyinshape,
         # '123': Bonjour,
         '125': Miniqueen,
