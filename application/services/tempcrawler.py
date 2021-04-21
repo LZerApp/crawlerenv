@@ -6897,7 +6897,7 @@ def Mojp():
                 page_id = make_id.query
                 page_id = page_id.lstrip("action=detail&pid=")
                 pic_link = chrome.find_element_by_xpath(
-                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('src')
+                    "//div[1]/section[3]/div/div[1]/div[%i]/div/div[1]/a/img[@src]" % (i,)).get_attribute('data-original')
             except:
                 i += 1
                 continue
@@ -9034,7 +9034,7 @@ def get_tempcrawler(crawler_id):
         '97': Miyuki,
         '99': Percha,
         '100': Nab,
-        # '102': Mojp,
+        '102': Mojp,
         '103': Goddess,
         '104': Pleats,
         '105': Zebra,
