@@ -7326,8 +7326,9 @@ def Eyescream():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.lstrip("yano=")
+                page_id = page_id[:page_id.find("&color")]
                 pic_link = chrome.find_element_by_xpath(
-                    "//figure[%i]/div/img" % (i,)).get_attribute('src')
+                    "//figure[%i]/div/img" % (i,)).get_attribute('data-original')
             except:
                 i += 1
                 if(i == 49):
@@ -9039,7 +9040,7 @@ def get_tempcrawler(crawler_id):
         '104': Pleats,
         '105': Zebra,
         '107': Mihara,
-        # '108': Eyescream,
+        '108': Eyescream,
         '109': Candybox,
         '111': Oiiv,
         # '112': Veryyou,
