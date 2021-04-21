@@ -8160,7 +8160,7 @@ def Bonjour():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.replace("pid=", '')
-                page_id = page_id.replace("&cid=40&scid=0", '')
+                page_id = page_id[:page_id.find("&c=")]
                 pic_link = chrome.find_element_by_xpath(
                     "//li[%i]/div/a/img" % (i,)).get_attribute('src')
                 sale_price = chrome.find_element_by_xpath(
@@ -9048,7 +9048,7 @@ def get_tempcrawler(crawler_id):
         '118': Righton,
         '120': Daf,
         '122': Sexyinshape,
-        # '123': Bonjour,
+        '123': Bonjour,
         '125': Miniqueen,
         # '126': Sandaru,
         '127': Bonbons,
