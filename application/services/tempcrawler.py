@@ -4343,12 +4343,20 @@ def Pufii():
                 page_id = page_id.replace("&m=6", "")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]//a/img[@src]" % (i,)).get_attribute("src")
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[4]/span[1]" % (i,)).text
-                sale_price = sale_price.strip('活動價NT')
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[4]/span[1]" % (i,)).text
-                ori_price = ori_price.strip('NT')
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='itemListDiv'][%i]/div[@class='pricediv']/span[2]" % (i,)).text
+                    sale_price = sale_price.strip('活動價NT')
+
+                    ori_price = chrome.find_element_by_xpath(
+                        "//div[@class='itemListDiv'][%i]/div[@class='pricediv']/span[1]" % (i,)).text
+                    ori_price = ori_price.strip('NT')
+                except:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='itemListDiv'][%i]/div[@class='pricediv']/span[1]" % (i,)).text
+                    sale_price = sale_price.strip('NT')
+                    ori_price = ""
+
             except:
                 i += 1
                 if(i == 37):
@@ -9005,7 +9013,7 @@ def get_tempcrawler(crawler_id):
         '57': Meierq,
         '58': Harper,
         '59': Lurehsu,
-        # '61': Pufii,
+        '61': Pufii,
         '62': Mouggan,
         '63': Jendes,
         '64': Mercci,
