@@ -3646,42 +3646,55 @@ def Applestarry():
         while(i < 33):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[@class='itemListMerName']/a" % (i,)).text
+                    "//div[@class='itemListDiv'][%i]//img" % (i,)).get_attribute('title')
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[@class='itemListMerName']/a[@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
                 page_id = page_id.replace("mNo1=", "")
-                page_id = page_id.replace("&m=1", "")
+                page_id = page_id[:page_id.find("&m=")]
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[@class='ilImg1']/a/img[@src]" % (i,)).get_attribute("src")
             except:
                 close += 1
                 break
+
             try:
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span/span" % (i,)).text
+                ori_price = ori_price.strip("NT.")
                 sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='noofferprice']" % (i,)).text
+                    "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span" % (i,)).text
+                sale_price = sale_price.strip('NT.')
+            except:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span" % (i,)).text
                 sale_price = sale_price.strip('NT.')
                 ori_price = ""
-            except:
-                try:
-                    ori_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerline']/span[@class='oriprice']" % (i,)).text
-                    ori_price = ori_price.strip('NT.')
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
-                    sale_price = sale_price.strip('NT.')
-                except:
-                    try:
-                        sale_price = chrome.find_element_by_xpath(
-                            "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
-                        sale_price = sale_price.strip('NT.')
-                        ori_price = ""
-                    except:
-                        i += 1
-                        if(i == 33):
-                            p += 1
-                        continue
+            # try:
+            #     sale_price = chrome.find_element_by_xpath(
+            #         "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='noofferprice']" % (i,)).text
+            #     sale_price = sale_price.strip('NT.')
+            #     ori_price = ""
+            # except:
+            #     try:
+            #         ori_price = chrome.find_element_by_xpath(
+            #             "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerline']/span[@class='oriprice']" % (i,)).text
+            #         ori_price = ori_price.strip('NT.')
+            #         sale_price = chrome.find_element_by_xpath(
+            #             "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
+            #         sale_price = sale_price.strip('NT.')
+            #     except:
+            #         try:
+            #             sale_price = chrome.find_element_by_xpath(
+            #                 "//div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
+            #             sale_price = sale_price.strip('NT.')
+            #             ori_price = ""
+            #         except:
+            #             i += 1
+            #             if(i == 33):
+            #                 p += 1
+            #             continue
 
             i += 1
             if(i == 33):
@@ -8962,24 +8975,23 @@ def upload(shop_id, name):
     except Exception as e:
         print(e)
 
-
 def get_tempcrawler(crawler_id):
     crawlers = {
         '1': Gracegift,
-        '2': Legust,
-        '4': Ajpeace,
-        '5': Majormade,
-        '7': Basic,
-        '8': Airspace,
-        '9': Yoco,
+        # '2': Legust,
+        # '4': Ajpeace,
+        # '5': Majormade,
+        # '7': Basic,
+        # '8': Airspace,
+        # '9': Yoco,
         '10': Efshop,
-        '11': Moda,
-        '13': Kklee,
+        # '11': Moda,
+        # '13': Kklee,
         '14': Wishbykorea,
         '15': Aspeed,
         '17': Openlady,
-        '20': Azoom,
-        '21': Roxy,
+        # '20': Azoom,
+        # '21': Roxy,
         '22': Shaxi,
         '23': Cici,
         '24': Inshop,
@@ -8993,19 +9005,19 @@ def get_tempcrawler(crawler_id):
         '33': Cereal,
         '35': Jcjc,
         '36': Ccshop,
-        '37': Iris,
+        # '37': Iris,
         '39': Nook,
         '40': Greenpea,
         '41': Rainbow,
-        '42': Queen,
+        # '42': Queen,
         '43': Need,
         '45': Gogosing,
-        '47': Circlescinema,
+        # '47': Circlescinema,
         '48': Cozyfee,
         '49': Reishop,
         '50': Yourz,
         '51': Wstyle,
-        # '52': Applestarry,
+        '52': Applestarry,
         # '53': Kerina,
         '54': Seoulmate,
         '55': Sweesa,
@@ -9026,10 +9038,10 @@ def get_tempcrawler(crawler_id):
         '74': Suitangtang,
         '76': Miustar,
         '78': Chochobee,
-        '79': Basezoo,
+        # '79': Basezoo,
         '80': Asobi,
         '81': Kiyumi,
-        '82': Genquo,
+        # '82': Genquo,
         '83': Potatochicks,
         # '85': Sumi,
         '86': Oolala,
