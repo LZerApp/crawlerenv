@@ -667,8 +667,7 @@ def Efshop():
             chrome.quit()
             break
         url = "https://www.efshop.com.tw/category/21/" + str(p)
-        #
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+
         try:
             chrome.get(url)
         except:
@@ -4167,9 +4166,7 @@ def Harper():
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
     while True:
-        if (close == 1):
-            chrome.quit()
-            break
+
         url = "https://www.harper.com.tw/Shop/itemList.aspx?&m=13&smfp=" + \
             str(p)
 
@@ -4180,13 +4177,12 @@ def Harper():
             break
         time.sleep(1)
         i = 1
-        while(i < 63):
+        while(i < 100):
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).text
             except:
-                close += 1
-
+                p += 1
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -4201,13 +4197,9 @@ def Harper():
                 ori_price = ""
             except:
                 i += 1
-                if(i == 63):
-                    p += 1
                 continue
 
             i += 1
-            if(i == 63):
-                p += 1
 
             df = pd.DataFrame(
                 {
