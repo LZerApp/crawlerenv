@@ -4034,15 +4034,24 @@ def Pazzo():
                 page_id = page_id.lstrip("c=")
                 pic_link = chrome.find_element_by_xpath(
                     "//li[@class='item'][%i]/div[@class='item__images']/a/picture/img[@class='img-fluid']" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/div[2]/p[2]/span" % (i,)).text
-                sale_price = sale_price.strip('NT.')
-                ori_price = ""
+
             except:
                 i += 1
                 if(i == 41):
                     p += 1
                 continue
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//li[%i]/div[2]/p[2]/span[2]" % (i,)).text
+                sale_price = sale_price.strip('NT.')
+                ori_price = chrome.find_element_by_xpath(
+                    "//li[%i]/div[2]/p[2]/span[1]" % (i,)).text
+                ori_price = ori_price.strip('NT.')
+            except:
+                sale_price = chrome.find_element_by_xpath(
+                    "//li[%i]/div[2]/p[2]/span" % (i,)).text
+                sale_price = sale_price.strip('NT.')
+                ori_price = ""
 
             i += 1
             if(i == 41):
