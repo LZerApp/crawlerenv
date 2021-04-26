@@ -609,27 +609,20 @@ class SumiCrawler(BaseCrawler):
     base_url = "https://www.sumi-life.com"
 
     def parse(self):
-        urls = [
-            f"{self.base_url}/product/all?type=product&value=all&sort=default&page={i}" for i in range(1, page_Max)]
-        for url in urls:
-            response = requests.request("POST", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all("a", {"class": "clearfix"})
-            except:
-                break
-
-            self.result.extend([self.parse_product(item) for item in items])
+        url = f"{self.base_url}/product/all"
+        response = requests.request("GET", url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        try:
+            items = soup.find_all("li", {"class": " item_block js_is_photo_style  has_listing_cart "})
+        except:
+            return
+        self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("span").get("title")
-        link = item.get("href")
+        title = item.find("h4").text
+        link = item.find("a").get("href")
         link_id = link.replace("https://www.sumi-life.com/product/detail/", "")
-        try:
-            image_url = item.find("span").get("style")
-            image_url = image_url.replace('display: block; background-image: url("', "").replace('");')
-        except:
-            image_url = item.find("span").get("data-src")
+        image_url = item.find("span").get("data-src")
 
         if (item.find("li", {"class": "item_origin item_actual"})):
             original_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
@@ -652,22 +645,24 @@ class BisouCrawler(BaseCrawler):
             f"{self.base_url}/collections/all?page={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
+            # print("response=", response.text)
             soup = BeautifulSoup(response.text, features="html.parser")
             try:
                 items = soup.find_all(
-                    "div", {"class": "block-inner"})
+                    "div", {"class": "product-block detail-mode-permanent  main-image-loaded"})
+
             except:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.find("div", {"class": "title"}).text
-        link_id = item.find("a").get("href")
-        link = f"{self.base_url}{link_id}"
+        link_id = item.find("div", {"class": "data-product-id"})
+        link = item.find("a").get("href")
         image_url = f"https:{item.find('img').get('src')}"
         original_price = ""
         sale_price = self.get_price(
-            item.find("div", {"class": "innerer"}).find("span").find("span").text)
+            item.find("span", {"class": "price"}).find("span").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1207,7 +1202,7 @@ def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
         # "2": LegustCrawler(),
-        "4": AjpeaceCrawler(),
+        # "4": AjpeaceCrawler(),
         # "5": MajormadeCrawler(),
         # "7": BasicCrawler(),
         # "8": AirspaceCrawler(),
@@ -1218,8 +1213,8 @@ def get_crawler(crawler_id):
         "63": JendesCrawler(),
         "65": SivirCrawler(),
         "83": PotatochicksCrawler(),
-        # "85": SumiCrawler(), 有bug
-        # "92": BisouCrawler(),
+        "85": SumiCrawler(),
+        "92": BisouCrawler(),
         # "112": VeryyouCrawler(),
         # "126": SandaruCrawler(),
         "142": LovfeeCrawler(),
