@@ -12,6 +12,12 @@ from config import ENV_VARIABLE
 fold_path = "./crawler_data"
 page_Max = 100
 
+def stripID(url, wantStrip):
+    loc = url.find(wantStrip)
+    length = len(wantStrip)
+    return url[loc+length:]
+
+
 # Product = namedtuple('Product', ['title', 'url', 'page_id', 'image_url', 'original_price', 'sale_price'])
 Product = namedtuple(
     "Product", ["title", "page_link", "page_id",
@@ -379,6 +385,42 @@ class YocoCrawler(BaseCrawler):
         )
         sale_price = self.get_price(
             item.find("span", {"class": "price_discount"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 10_EFSHOP
+class EfshopCrawler(BaseCrawler):
+    id = 10
+    name = "efshop"
+    prefix_urls = [
+        "https://www.efshop.com.tw/category/123",
+        "https://www.efshop.com.tw/category/541",
+        "https://www.efshop.com.tw/category/1",
+        "https://www.efshop.com.tw/category/72",
+        "https://www.efshop.com.tw/category/491/1",
+        "https://www.efshop.com.tw/category/11",
+        "https://www.efshop.com.tw/category/478",
+        "https://www.efshop.com.tw/category/10",
+        "https://www.efshop.com.tw/category/498",
+    ]
+    urls = [
+        f"{prefix}/{i}" for prefix in prefix_urls for i in range(1, 14)]
+
+    def parse(self):
+        for url in self.urls:
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "idx_pro2"})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("a").get("title")
+        link = item.find("a").get("href")
+        link_id = stripID(link, "/product/")
+        image_url = item.find("img").get("src")
+        original_price = ""
+        sale_price = self.get_price(
+            item.find("span", {"class": "monenyBig"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1125,9 +1167,10 @@ def get_crawler(crawler_id):
         # "2": LegustCrawler(),
         # "4": AjpeaceCrawler(),
         # "5": MajormadeCrawler(),
-        # # "7": BasicCrawler(),
+        # "7": BasicCrawler(),
         # "8": AirspaceCrawler(),
         # "9": YocoCrawler(),
+        "10": EfshopCrawler(),
         # "11": ModaCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
