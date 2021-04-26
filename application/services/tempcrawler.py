@@ -8458,9 +8458,8 @@ def Bonbons():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div/div/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/product/")
+                locate = page_link.find("?")
+                page_id = page_link[locate-6:locate]
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div/div/a/img" % (i,)).get_attribute('src')
                 sale_price = chrome.find_element_by_xpath(
