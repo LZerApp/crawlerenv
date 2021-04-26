@@ -404,13 +404,16 @@ class EfshopCrawler(BaseCrawler):
         "https://www.efshop.com.tw/category/498",
     ]
     urls = [
-        f"{prefix}/{i}" for prefix in prefix_urls for i in range(1, 14)]
+        f"{prefix}/{i}" for prefix in prefix_urls for i in range(1, page_Max)]
 
     def parse(self):
         for url in self.urls:
             response = requests.get(url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "idx_pro2"})
+            try:
+                items = soup.find_all("div", {"class": "idx_pro2"})
+            except:
+                breal
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
@@ -454,6 +457,44 @@ class ModaCrawler(BaseCrawler):
             "div", {"class": "itemListMoney"}).find('span').text)
         sale_price = self.get_price(
             item.find("div", {"class": "itemListMoney"}).find('span').find_next('span').text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 53_KERINA
+class KerinaCrawler(BaseCrawler):
+    id = 53
+    name = "kerina"
+    base_url = "https://www.kerina.com.tw"
+
+    def parse(self):
+        url = f"{self.base_url}/Catalog/ALLPRODUCT"
+        response = requests.request("GET", url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        try:
+            items = soup.find_all("div", {"class": "product-list"})
+        except:
+            return
+        self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("span", {"class": "Sold_Out OutOfStock"})):
+            return
+        title = item.find("div", {"class": "name"}).text
+        link = item.find("a").get("href")
+        link_id = stripID(link, "/Product/")
+        locate = link_id.find("?")
+        link_id = link_id[:locate]
+        image_url = item.find("img").get("data-original")
+        try:
+            original_price = self.get_price(item.find(
+                "div", {"class": "price"}).find('span').text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("div", {"class": "price"}).text)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1172,6 +1213,7 @@ def get_crawler(crawler_id):
         # "9": YocoCrawler(),
         "10": EfshopCrawler(),
         # "11": ModaCrawler(),
+        "53": KerinaCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
         "83": PotatochicksCrawler(),
