@@ -3708,105 +3708,105 @@ def Applestarry():
     upload(shop_id, name)
 
 
-def Kerina():
-    shop_id = 53
-    name = 'kerina'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-    i = 2
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.kerina.com.tw/Catalog/ALLPRODUCT"
+# def Kerina():
+#     shop_id = 53
+#     name = 'kerina'
+#     options = Options()                  # 啟動無頭模式
+#     options.add_argument('--headless')   # 規避google bug
+#     options.add_argument('--disable-gpu')
+#     options.add_argument('--ignore-certificate-errors')
+#     options.add_argument('--no-sandbox')
+#     options.add_argument('--disable-dev-shm-usage')
+#     options.add_argument("--remote-debugging-port=5566")
+#     chrome = webdriver.Chrome(
+#         executable_path='./chromedriver', chrome_options=options)
+#     i = 2
+#     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+#     dfAll = pd.DataFrame()  # 存放所有資料
+#     close = 0
+#     while True:
+#         if (close == 1):
+#             chrome.quit()
+#             break
+#         url = "https://www.kerina.com.tw/Catalog/ALLPRODUCT"
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
+#         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+#         try:
+#             chrome.get(url)
+#         except:
+#             break
+#         time.sleep(1)
 
-        while(True):
-            if(chrome.find_element_by_xpath("//span[@class='Sold_Out OutOfStock']")):
-                i += 1
-                if(i % 30 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
-                continue
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='collection']/div[%i]/div[2]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='collection']/div[%i]/a" % (i,)).get_attribute('href')
-                page_id = stripID(page_link, "/Product/")
-                locate = page_id.find("?")
-                page_id = page_id[:locate]
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='collection']/div[%i]/a/img" % (i,)).get_attribute('src')
-            except:
-                i += 1
-                if(i % 30 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
-                continue
+#         while(True):
+#             if(chrome.find_element_by_xpath("//span[@class='Sold_Out OutOfStock']")):
+#                 i += 1
+#                 if(i % 30 == 1):
+#                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+#                     time.sleep(1)
+#                 continue
+#             try:
+#                 title = chrome.find_element_by_xpath(
+#                     "//div[@class='collection']/div[%i]/div[2]" % (i,)).text
+#             except:
+#                 close += 1
+#                 break
+#             try:
+#                 page_link = chrome.find_element_by_xpath(
+#                     "//div[@class='collection']/div[%i]/a" % (i,)).get_attribute('href')
+#                 page_id = stripID(page_link, "/Product/")
+#                 locate = page_id.find("?")
+#                 page_id = page_id[:locate]
+#                 pic_link = chrome.find_element_by_xpath(
+#                     "//div[@class='collection']/div[%i]/a/img" % (i,)).get_attribute('src')
+#             except:
+#                 i += 1
+#                 if(i % 30 == 1):
+#                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+#                     time.sleep(1)
+#                 continue
 
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='collection']/div[%i]/div[@class='price']" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                k = sale_price.find("NT$")
-                sale_price = sale_price[k+3:len(sale_price)]
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='collection']/div[%i]/div[@class='price']/span" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='collection']/div[%i]/div[@class='price']" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i % 30 == 1):
-                        chrome.find_element_by_tag_name(
-                            'body').send_keys(Keys.END)
-                        time.sleep(1)
-                    continue
+#             try:
+#                 sale_price = chrome.find_element_by_xpath(
+#                     "//div[@class='collection']/div[%i]/div[@class='price']" % (i,)).text
+#                 sale_price = sale_price.strip('NT$')
+#                 k = sale_price.find("NT$")
+#                 sale_price = sale_price[k+3:len(sale_price)]
+#                 ori_price = chrome.find_element_by_xpath(
+#                     "//div[@class='collection']/div[%i]/div[@class='price']/span" % (i,)).text
+#                 ori_price = ori_price.strip('NT$')
+#             except:
+#                 try:
+#                     sale_price = chrome.find_element_by_xpath(
+#                         "//div[@class='collection']/div[%i]/div[@class='price']" % (i,)).text
+#                     sale_price = sale_price.strip('NT$')
+#                     ori_price = ""
+#                 except:
+#                     i += 1
+#                     if(i % 30 == 1):
+#                         chrome.find_element_by_tag_name(
+#                             'body').send_keys(Keys.END)
+#                         time.sleep(1)
+#                     continue
 
-            i += 1
-            if(i % 30 == 1):
-                chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                time.sleep(1)
+#             i += 1
+#             if(i % 30 == 1):
+#                 chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+#                 time.sleep(1)
 
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
+#             df = pd.DataFrame(
+#                 {
+#                     "title": [title],
+#                     "page_link": [page_link],
+#                     "page_id": [page_id],
+#                     "pic_link": [pic_link],
+#                     "ori_price": [ori_price],
+#                     "sale_price": [sale_price]
+#                 })
 
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
+#             dfAll = pd.concat([dfAll, df])
+#             dfAll = dfAll.reset_index(drop=True)
+#     save(shop_id, name, dfAll)
+#     upload(shop_id, name)
 
 
 def Seoulmate():
@@ -7725,7 +7725,6 @@ def Stayfoxy():
                 left = bg_url.find('https')
                 right = bg_url.find('g")')
                 pic_link = bg_url[left:right+1]
-                
 
             except:
                 i += 1
@@ -9018,7 +9017,7 @@ def get_tempcrawler(crawler_id):
         '50': Yourz,
         '51': Wstyle,
         '52': Applestarry,
-        # '53': Kerina,已轉bs4
+        # '53': Kerina bs4
         '54': Seoulmate,
         '55': Sweesa,
         '56': Pazzo,
