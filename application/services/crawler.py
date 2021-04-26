@@ -219,6 +219,7 @@ class AjpeaceCrawler(BaseCrawler):
         title = item.find("h5").text.strip()
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
+        link_id = stripID(link_id, "id=")
         image_url = item.find("img").get("src")
         original_price = (
             self.get_price(item.find("span", {"class": "deltxt"}).text)
@@ -1206,7 +1207,7 @@ def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
         # "2": LegustCrawler(),
-        # "4": AjpeaceCrawler(),
+        "4": AjpeaceCrawler(),
         # "5": MajormadeCrawler(),
         # "7": BasicCrawler(),
         # "8": AirspaceCrawler(),
