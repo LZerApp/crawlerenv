@@ -176,7 +176,7 @@ class LegustCrawler(BaseCrawler):
             "div", {"class": "title text-primary-color"}
         ).text.strip()
         link = item.find("a").get("href")
-        link_id = link.split('products/')[-1]
+        link_id = item.get("product-id")
         image_url = (
             item.find("div", {
                       "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
@@ -255,6 +255,8 @@ class MajormadeCrawler(BaseCrawler):
         title = item["mername"]
         link_id = f"mNo1={item['merNo1']}&cno={item['orderNum']}"
         link = f"{self.base_url}/Shop/itemDetail.aspx?{link_id}"
+        link_id = stripID(link_id, "mNo1=")
+        link_id = link_id[:link_id.find("&cno")]
         image_url = f"http://{item['photosmpath'].replace('//', '')}"
         original_price = item["originalPrice"]
         sale_price = item["price"]
@@ -323,6 +325,8 @@ class AirspaceCrawler(BaseCrawler):
         title = item.find("div", {"class": "pdtext"}).find("a").text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
+        link_id = stripID(link_id, "yano=")
+        link_id = link_id[:link_id.find("&yacolor")]
         image_url = item.find("img").get("src")
         original_price = ""
         sale_price = self.get_price(item.find("p", {"class": "pdprice"}).text)
@@ -1201,14 +1205,14 @@ class LamochaCrawler(BaseCrawler):
 def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
-        # "2": LegustCrawler(),
-        # "4": AjpeaceCrawler(),
-        # "5": MajormadeCrawler(),
-        # "7": BasicCrawler(),
-        # "8": AirspaceCrawler(),
-        # "9": YocoCrawler(),
+        "2": LegustCrawler(),
+        "4": AjpeaceCrawler(),
+        "5": MajormadeCrawler(),
+        "7": BasicCrawler(),
+        "8": AirspaceCrawler(),
+        "9": YocoCrawler(),
         "10": EfshopCrawler(),
-        # "11": ModaCrawler(),
+        "11": ModaCrawler(),
         "53": KerinaCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
