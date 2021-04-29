@@ -503,6 +503,37 @@ class KerinaCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# 58_HARPER
+class HarperCrawler(BaseCrawler):
+    id = 58
+    name = "harper"
+    base_url = "https://www.harper.com.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/Shop/itemList.aspx?&m=13&smfp={i}" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            try:
+                items = soup.find_all(
+                    "div", {"class": "itemListDiv"})
+            except:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "itemListMerName"}).find("a").text
+        link = item.find("a").get("href")
+        link_id = stripID(link, "cno=")
+        link_id = link_id.replace("&m=13", "")
+        image_url = item.find("img").get("src")
+        original_price = ""
+        sale_price = self.get_price(
+            item.find("div", {"class": "m_itemListMoney"}).find("span").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 63_JENDES
 class JendesCrawler(BaseCrawler):
     id = 63
@@ -1214,11 +1245,12 @@ def get_crawler(crawler_id):
         "10": EfshopCrawler(),
         "11": ModaCrawler(),
         "53": KerinaCrawler(),
+        # "58": HarperCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
         "83": PotatochicksCrawler(),
-        "85": SumiCrawler(),
-        "92": BisouCrawler(),
+        # "85": SumiCrawler(),
+        # "92": BisouCrawler(),
         # "112": VeryyouCrawler(),
         # "126": SandaruCrawler(),
         "142": LovfeeCrawler(),
