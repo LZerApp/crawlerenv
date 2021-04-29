@@ -1236,7 +1236,7 @@ def Azoom():
                 find_href = chrome.find_element_by_xpath(
                     "//div[@class='product-item'][%i]/product-item/a/div[1]/div[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')')
+                pic_link = bg_url.lstrip('url("').rstrip('")')
             except:
                 i += 1
                 if(i == 24):
@@ -1311,32 +1311,38 @@ def Roxy():
                     "//div[@class='product-container product-thumb'][%i]/div[@class='product-thumb-info']/p[@class='product-title']/a" % (i,)).text
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='product-container product-thumb'][%i]/div[@class='product-thumb-info']/p[@class='product-title']/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + make_id.query
-                page_id = page_id.replace("/", "")
+                page_id = stripID(page_link, "default=")
             except:
                 close += 1
-
                 break
             try:
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='product-container product-thumb'][%i]/div[@class='product-img']/a[@class='img-link']/picture[@class='main-picture']/img[@data-src]" % (i,)).get_attribute("data-src")
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-container product-thumb'][%i]//span[@class='price-dollars']" % (i,)).text
-                sale_price = sale_price.replace('TWD', "")
-                ori_price = ""
 
             except:
                 i += 1
                 if(i == 65):
                     p += 1
                 continue
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='product-container product-thumb'][%i]//span[@class='special-price']//span[@class='price-dollars']" % (i,)).text
+                sale_price = sale_price.replace('TWD', "")
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@class='product-container product-thumb'][%i]//span[@class='old-price']//span[@class='price-dollars']" % (i,)).text
+                ori_price = ori_price.replace('TWD', "")
 
-            if(sale_price == ""):
-                i += 1
-                if(i == 65):
-                    p += 1
-                continue
+            except:
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='product-container product-thumb'][%i]//span[@class='price-dollars']" % (i,)).text
+                    sale_price = sale_price.replace('TWD', "")
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 65):
+                        p += 1
+                    continue
 
             i += 1
             if(i == 65):
@@ -4164,7 +4170,9 @@ def Harper():
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
     while True:
-
+        if (close == 1):
+            chrome.quit()
+            break
         url = "https://www.harper.com.tw/Shop/itemList.aspx?&m=13&smfp=" + \
             str(p)
 
@@ -4172,16 +4180,16 @@ def Harper():
         try:
             chrome.get(url)
         except:
-            break
-        time.sleep(1)
+            close += 1
+            continue
         i = 1
-        while(i < 100):
+        while(i < 80):
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).text
             except:
                 p += 1
-                break
+                continue
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).get_attribute('href')
@@ -4195,9 +4203,13 @@ def Harper():
                 ori_price = ""
             except:
                 i += 1
+                if(i == 79):
+                    p += 1
                 continue
 
             i += 1
+            if(i == 79):
+                p += 1
 
             df = pd.DataFrame(
                 {
@@ -5683,7 +5695,6 @@ def Genquo():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
         i = 1
         while(i < 37):
             try:
@@ -5698,6 +5709,7 @@ def Genquo():
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path + '?' + make_id.query
                 page_id = page_id.lstrip("/zh-tw/market/n/")
+                page_id = page_id[:page_id.find("?c=")]
                 pic_link = chrome.find_element_by_xpath(
                     "//li[@class='item'][%i]/div/a/img" % (i,)).get_attribute('src')
             except:
@@ -8976,59 +8988,49 @@ def upload(shop_id, name):
 
 def get_tempcrawler(crawler_id):
     crawlers = {
-        # '1': Gracegift,
-        # '2': Legust,
-        # '4': Ajpeace,
-        # '5': Majormade,
-        # '7': Basic,
-        # '8': Airspace,
-        # '9': Yoco,
-        # '10': Efshop,
-        # '11': Moda,
-        # '13': Kklee,
+        '13': Kklee,
         '14': Wishbykorea,
         '15': Aspeed,
         '17': Openlady,
-        # '20': Azoom,
-        # '21': Roxy,
+        '20': Azoom,
+        '21': Roxy,
         '22': Shaxi,
         '23': Cici,
         '24': Inshop,
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
-        '29': Corban,
+        # '29': Corban,
         '30': Gmorning,
         '31': July,
         '32': Per,
         '33': Cereal,
         '35': Jcjc,
         '36': Ccshop,
-        # '37': Iris,
+        '37': Iris,
         '39': Nook,
         '40': Greenpea,
         '41': Rainbow,
-        # '42': Queen,
+        '42': Queen,
         '43': Need,
         '45': Gogosing,
-        # '47': Circlescinema,
+        '47': Circlescinema,
         '48': Cozyfee,
         '49': Reishop,
         '50': Yourz,
         '51': Wstyle,
-        '52': Applestarry,
-        # '53': Kerina bs4
+        # '52': Applestarry,
         '54': Seoulmate,
         '55': Sweesa,
         '56': Pazzo,
         '57': Meierq,
-        '58': Harper,
+        # '58': Harper,
         '59': Lurehsu,
         '61': Pufii,
         '62': Mouggan,
-        # '63': Jendes,
+        '63': Jendes,
         '64': Mercci,
-        # '65': Sivir,
+        '65': Sivir,
         '66': Nana,
         '69': Boy2,
         '70': Aachic,
@@ -9037,16 +9039,16 @@ def get_tempcrawler(crawler_id):
         '74': Suitangtang,
         '76': Miustar,
         '78': Chochobee,
-        # '79': Basezoo,
+        '79': Basezoo,
         '80': Asobi,
         '81': Kiyumi,
-        # '82': Genquo,
-        # '83': Potatochicks,
+        '82': Genquo,
+        '83': Potatochicks,
         # '85': Sumi,
         '86': Oolala,
         '87': Pattis,
         '90': Scheminggg,
-        '92': Bisou,
+        # '92': Bisou,
         '94': Laconic,
         '95': Lulus,
         '96': Pixelcake,
