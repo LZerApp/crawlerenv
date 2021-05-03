@@ -2429,11 +2429,9 @@ def Jcjc():
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='grid-uniform grid-link__container']/div[%i]/div/a[1][@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/collections/in-stock/products/")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='grid-uniform grid-link__container']/div[%i]/div/span/a/img" % (i,)).get_attribute('src')
+                page_id = pic_link[pic_link.find("i/")+2:pic_link.find(".j")]
 
             except:
                 i += 1
@@ -7441,7 +7439,6 @@ def Candybox():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
 
         while(True):
             try:
@@ -7460,9 +7457,8 @@ def Candybox():
                     "//li[%i]//a/div/div/figure/img" % (i,)).get_attribute('src')
             except:
                 i += 1
-                if(i % 40 == 1):
+                if(i % 20 == 1):
                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
                 continue
             try:
                 sale_price = chrome.find_element_by_xpath(
@@ -7481,14 +7477,12 @@ def Candybox():
                     ori_price = ""
                 except:
                     i += 1
-                    if(i % 40 == 1):
+                    if(i % 20 == 1):
                         chrome.find_element_by_tag_name(
                             'body').send_keys(Keys.END)
-                        time.sleep(1)
             i += 1
-            if(i % 40 == 1):
+            if(i % 20 == 1):
                 chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                time.sleep(1)
 
             df = pd.DataFrame(
                 {
