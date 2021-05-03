@@ -4110,7 +4110,6 @@ def Meierq():
                     "//li[%i]/div/p/a" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -4166,20 +4165,16 @@ def Harper():
     p = 1
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
     while True:
-        if (close == 1):
-            chrome.quit()
-            break
         url = "https://www.harper.com.tw/Shop/itemList.aspx?&m=13&smfp=" + \
             str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+        if(p > 20):
+            break
         try:
             chrome.get(url)
         except:
-            close += 1
-            continue
+            chrome.quit()
+            break
         i = 1
         while(i < 80):
             try:
@@ -4187,7 +4182,7 @@ def Harper():
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).text
             except:
                 p += 1
-                continue
+                break
             try:
                 page_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]/div[2]/a" % (i,)).get_attribute('href')
@@ -9018,7 +9013,7 @@ def get_tempcrawler(crawler_id):
         '55': Sweesa,
         '56': Pazzo,
         '57': Meierq,
-        # '58': Harper,
+        '58': Harper,
         '59': Lurehsu,
         '61': Pufii,
         '62': Mouggan,
