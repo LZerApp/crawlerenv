@@ -3651,7 +3651,7 @@ def Applestarry():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
+        time.sleep(3)
 
         i = 1
         while(i < 33):
@@ -3669,23 +3669,13 @@ def Applestarry():
             except:
                 close += 1
                 break
-            # try:
-            #     ori_price = chrome.find_element_by_xpath(
-            #         "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span/span" % (i,)).text
-            #     ori_price = ori_price.strip("NT.")
-            #     sale_price = chrome.find_element_by_xpath(
-            #         "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span" % (i,)).text
-            #     sale_price = sale_price.strip('NT.')
-            # except:
-            #     sale_price = chrome.find_element_by_xpath(
-            #         "//div[@class='itemListDiv'][%i]//div[@class='itemListMoney']/span" % (i,)).text
-            #     sale_price = sale_price.strip('NT.')
-            #     ori_price = ""
+
             try:
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]//span[@class='noofferprice']" % (i,)).text
                 sale_price = sale_price.strip('NT.')
                 ori_price = ""
+                print(sale_price)
             except:
                 try:
                     ori_price = chrome.find_element_by_xpath(
@@ -3694,6 +3684,7 @@ def Applestarry():
                     sale_price = chrome.find_element_by_xpath(
                         "/div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
                     sale_price = sale_price.strip('NT.')
+                    print(sale_price, ori_price)
                 except:
                     i += 1
                     print(p, i)
@@ -4178,6 +4169,7 @@ def Harper():
         url = "https://www.harper.com.tw/Shop/itemList.aspx?&m=13&smfp=" + \
             str(p)
         if(p > 20):
+            chrome.quit()
             break
         try:
             chrome.get(url)
@@ -9013,7 +9005,7 @@ def get_tempcrawler(crawler_id):
         '49': Reishop,
         '50': Yourz,
         '51': Wstyle,
-        # '52': Applestarry,
+        '52': Applestarry,
         '54': Seoulmate,
         '55': Sweesa,
         '56': Pazzo,
