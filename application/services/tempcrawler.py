@@ -10,7 +10,7 @@ from config import ENV_VARIABLE
 from os.path import getsize
 
 fold_path = "./crawler_data/"
-
+page_Max = 100
 
 def stripID(url, wantStrip):
     loc = url.find(wantStrip)
@@ -3139,82 +3139,90 @@ def Need():
     upload(shop_id, name)
 
 
-def Gogosing():
-    shop_id = 45
-    name = 'gogosing'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
+# def Gogosing():
+#     shop_id = 45
+#     name = 'gogosing'
+#     options = Options()                  # 啟動無頭模式
+#     options.add_argument('--headless')   # 規避google bug
+#     options.add_argument('--disable-gpu')
+#     options.add_argument('--ignore-certificate-errors')
+#     options.add_argument('--no-sandbox')
+#     options.add_argument('--disable-dev-shm-usage')
+#     options.add_argument("--remote-debugging-port=5566")
+#     chrome = webdriver.Chrome(
+#         executable_path='./chromedriver', chrome_options=options)
 
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://ggsing.tw/category/%E7%95%B6%E5%A4%A9%E5%87%BA%E8%B2%A8/865/?page=" + \
-            str(p)
+#     p = 1
+#     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+#     dfAll = pd.DataFrame()  # 存放所有資料
+#     close = 0
+#     while True:
+#         if (close == 1):
+#             chrome.quit()
+#             break
+#         prefix_urls = ["https://ggsing.tw/category/%E7%95%B6%E5%A4%A9%E5%87%BA%E8%B2%A8/865/?page=",
+#                        "https://ggsing.tw/category/%E8%A4%B2%E5%AD%90/47/?page=",]
+#         urls = [
+#             f"{prefix}/{i}" for prefix in prefix_urls for i in range(1, page_Max)]
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 93):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//ul[@class='prdList column4']/li[%i]/div/p/a/span" % (i,)).text
-            except:
-                close += 1
+#         for url in urls:
+#             try:
+#                 chrome.get(url)
+#             except:
+#                 pass
 
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//ul[@class='prdList column4']/li[%i]/div/div/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.lstrip("product_no=")
-                page_id = page_id.replace("&cate_no=865&display_group=1", "")
-                pic_link = chrome.find_element_by_xpath(
-                    "//ul[@class='prdList column4']/li[%i]/div/div/a/img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//ul[@class='prdList column4']/li[%i]//li[@class=' xans-record-'][1]/span[1]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = ""
-            except:
-                i += 1
-                if(i == 93):
-                    p += 1
-                continue
+#         i = 1
+#         while(i < 93):
+#             try:
+#                 title = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]/div/p/a/span" % (i,)).text
+#             except:
+#                 break
+#             try:
+#                 page_link = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]/div/div/a[@href]" % (i,)).get_attribute('href')
+#                 make_id = parse.urlsplit(page_link)
+#                 page_id = make_id.query
+#                 page_id = page_id.lstrip("product_no=")
+#                 page_id = page_id.replace("&cate_no=865&display_group=1", "")
+#                 pic_link = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]/div/div/a/img" % (i,)).get_attribute('src')
+#             except:
+#                 i += 1
+#                 if(i == 93):
+#                     p += 1
+#                 continue
+#             try:
+#                 sale_price = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]//li[@class=' xans-record-'][2]/span[1]" % (i,)).text
+#                 sale_price = sale_price.strip('NT$')
+#                 ori_price = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]//li[@class=' xans-record-'][1]/span[1]" % (i,)).text
+#                 ori_price = ori_price.strip('NT$')
+#             except:
+#                 sale_price = chrome.find_element_by_xpath(
+#                     "//ul[@class='prdList column4']/li[%i]//li[@class=' xans-record-'][1]/span[1]" % (i,)).text
+#                 sale_price = sale_price.strip('NT$')
+#                 ori_price = ""
 
-            i += 1
-            if(i == 93):
-                p += 1
+#             i += 1
+#             if(i == 93):
+#                 p += 1
 
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
+#             df = pd.DataFrame(
+#                 {
+#                     "title": [title],
+#                     "page_link": [page_link],
+#                     "page_id": [page_id],
+#                     "pic_link": [pic_link],
+#                     "ori_price": [ori_price],
+#                     "sale_price": [sale_price]
+#                 })
 
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
+#             dfAll = pd.concat([dfAll, df])
+#             dfAll = dfAll.reset_index(drop=True)
+#     save(shop_id, name, dfAll)
+#     upload(shop_id, name)
 
 
 def Circlescinema():
@@ -3681,13 +3689,14 @@ def Applestarry():
             except:
                 try:
                     ori_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]//span[@class='oriprice']" % (i,)).text
+                        "/div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerline']/span[@class='oriprice']" % (i,)).text
                     ori_price = ori_price.strip('NT.')
                     sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]//span[@class='offerprice']" % (i,)).text
+                        "/div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
                     sale_price = sale_price.strip('NT.')
                 except:
                     i += 1
+                    print(p, i)
                     if(i == 33):
                         p += 1
                     continue
@@ -8965,7 +8974,7 @@ def upload(shop_id, name):
         }
         path = fold_path + filename + '.xlsx'
         size = getsize(path)
-        if (size <= 4760):
+        if (size <= 5000):
             print(size)
             return
         response = requests.post(verify=False, url=url, files=files,
@@ -9002,7 +9011,6 @@ def get_tempcrawler(crawler_id):
         '41': Rainbow,
         '42': Queen,
         '43': Need,
-        '45': Gogosing,
         '47': Circlescinema,
         '48': Cozyfee,
         '49': Reishop,
