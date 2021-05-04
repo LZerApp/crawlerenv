@@ -6882,7 +6882,7 @@ def Nab():
             dfAll = dfAll.reset_index(drop=True)
 
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Mojp():
@@ -7501,7 +7501,7 @@ def Candybox():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Oiiv():
