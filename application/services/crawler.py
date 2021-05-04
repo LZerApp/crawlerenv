@@ -81,6 +81,7 @@ class BaseCrawler(object):
             response = requests.post(
                 verify=False, url=url, files=files, headers=headers
             )
+            print(response.status_code)
             # os.remove(filename+'.xlsx')
         except Exception as e:
             print(e)
