@@ -271,26 +271,33 @@ class ApplestarryCrawler(BaseCrawler):
     base_url = "https://www.applestarry.com.tw"
 
     def parse(self):
-        url = [f"{self.base_url}/Shop/itemList.aspx?m=1&smfp={i}" for i in range(1, page_Max)]
-        response = requests.request("POST", url, headers=self.headers)
-        soup = BeautifulSoup(response.text, features="html.parser")
-        items = list(
-            json.loads(
-                soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
-                .find("script")
-                .findNext("script")
-                .string.replace(" var itemListJson = '", "")
-                .replace("';", "")
-            )["Data"]["StItem"].values()
-        )
+        urls = [f"{self.base_url}/Shop/itemList.aspx?m=1&smfp={i}" for i in range(1, 10)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            try:
+                items = list(
+                    json.loads(
+                        soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
+                        .find("script")
+                        .findNext("script")
+                        .string.replace(" var itemListJson = '", "")
+                        .replace("';", "")
+                    )["Data"]["StItem"].values()
+                )
+            except:
+                break
         self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item["mername"]
-        link_id = item['orderNum']
-        link = f"{self.base_url}/Shop/itemDetail.aspx?mNo1={item['merNo1']}&cno={item['orderNum']}"
-        image_url = f"http://{item['photosmpath'].replace('//', '')}"
-        original_price = item["originalPrice"]
+        link_id = item["idno"]
+        link = f"{self.base_url}/Shop/itemDetail.aspx?mNo1={item['merNo1']}&cno={item['ordernum']}"
+        image_url = item['photosmpath']
+        if(item["originalPrice"]):
+            original_price = item["originalPrice"]
+        else:
+            original_price = ""
         sale_price = item["price"]
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -571,37 +578,6 @@ class KerinaCrawler(BaseCrawler):
             sale_price = self.get_price(
                 item.find("div", {"class": "price"}).text)
 
-        return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
-# 58_HARPER
-class HarperCrawler(BaseCrawler):
-    id = 58
-    name = "harper"
-    base_url = "https://www.harper.com.tw"
-
-    def parse(self):
-        urls = [
-            f"{self.base_url}/Shop/itemList.aspx?&m=13&smfp={i}" for i in range(1, page_Max)]
-        for url in urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all(
-                    "div", {"class": "itemListDiv"})
-            except:
-                break
-            self.result.extend([self.parse_product(item) for item in items])
-
-    def parse_product(self, item):
-        title = item.find("div", {"class": "itemListMerName"}).find("a").text
-        link = item.find("a").get("href")
-        link_id = stripID(link, "cno=")
-        link_id = link_id.replace("&m=13", "")
-        image_url = item.find("img").get("src")
-        original_price = ""
-        sale_price = self.get_price(
-            item.find("div", {"class": "m_itemListMoney"}).find("span").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1317,8 +1293,7 @@ def get_crawler(crawler_id):
         "11": ModaCrawler(),
         "45": GogosingCrawler(),
         "53": KerinaCrawler(),
-        "52": ApplestarryCrawler(),
-        # "58": HarperCrawler(),
+        # "52": ApplestarryCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
         "83": PotatochicksCrawler(),
