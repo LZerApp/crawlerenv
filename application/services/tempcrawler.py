@@ -6721,7 +6721,7 @@ def Percha():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
+
         i = 1
         while(i < 33):
             try:
@@ -6805,15 +6805,14 @@ def Nab():
         if (close == 1):
             chrome.quit()
             break
-        url = "https://www.nab.com.tw/product-list.ftl?p=" + \
-            str(p) + "&lg=01&rMinPrice=370&rMaxPrice=1980"
+        url = "https://www.nab.com.tw/product-list.ftl?rMinPrice=299&rMaxPrice=1580&lg=02&p=" + \
+            str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
             break
-        time.sleep(1)
+
         i = 1
         while(i < 25):
             try:
@@ -6821,7 +6820,6 @@ def Nab():
                     "//div[@class='card flaps-noPanelBorder'][%i]/div/div[2]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -6882,7 +6880,7 @@ def Nab():
             dfAll = dfAll.reset_index(drop=True)
 
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Mojp():
@@ -7438,7 +7436,6 @@ def Candybox():
             break
         url = "https://candybox.com.tw/v2/official/SalePageCategory/98162?sortMode=Curator"
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -7501,7 +7498,7 @@ def Candybox():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 
 def Oiiv():
@@ -9051,7 +9048,6 @@ def get_tempcrawler(crawler_id):
         '96': Pixelcake,
         '97': Miyuki,
         '99': Percha,
-        '100': Nab,
         '102': Mojp,
         '103': Goddess,
         '104': Pleats,
@@ -9059,6 +9055,7 @@ def get_tempcrawler(crawler_id):
         '107': Mihara,
         '108': Eyescream,
         '109': Candybox,
+        '100': Nab,
         '111': Oiiv,
         # '112': Veryyou,
         '113': Stayfoxy,
