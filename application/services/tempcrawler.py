@@ -6784,104 +6784,103 @@ def Percha():
     upload(shop_id, name)
 
 
-# def Nab():
-#     shop_id = 100
-#     name = 'nab'
-#     options = Options()                  # 啟動無頭模式
-#     options.add_argument('--headless')   # 規避google bug
-#     options.add_argument('--disable-gpu')
-#     options.add_argument('--ignore-certificate-errors')
-#     options.add_argument('--no-sandbox')
-#     options.add_argument('--disable-dev-shm-usage')
-#     options.add_argument("--remote-debugging-port=5566")
-#     chrome = webdriver.Chrome(
-#         executable_path='./chromedriver', chrome_options=options)
+def Nab():
+    shop_id = 100
+    name = 'nab'
+    options = Options()                  # 啟動無頭模式
+    options.add_argument('--headless')   # 規避google bug
+    options.add_argument('--disable-gpu')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--remote-debugging-port=5566")
+    chrome = webdriver.Chrome(
+        executable_path='./chromedriver', chrome_options=options)
 
-#     p = 1
-#     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-#     dfAll = pd.DataFrame()   # 存放所有資料
-#     close = 0
-#     while True:
-#         if (close == 1):
-#             chrome.quit()
-#             break
-#         url = "https://www.nab.com.tw/product-list.ftl?p=" + \
-#             str(p) + "&lg=01&rMinPrice=370&rMaxPrice=1980"
+    p = 1
+    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+    dfAll = pd.DataFrame()   # 存放所有資料
+    close = 0
+    while True:
+        if (close == 1):
+            chrome.quit()
+            break
+        url = "https://www.nab.com.tw/product-list.ftl?rMinPrice=299&rMaxPrice=1580&lg=02&p=" + \
+            str(p)
 
-#         try:
-#             chrome.get(url)
-#         except:
-#             break
+        try:
+            chrome.get(url)
+        except:
+            break
 
-#         i = 1
-#         while(i < 25):
-#             try:
-#                 title = chrome.find_element_by_xpath(
-#                     "//div[@class='card flaps-noPanelBorder'][%i]/div/div[2]" % (i,)).text
-#             except:
-#                 close += 1
+        i = 1
+        while(i < 25):
+            try:
+                title = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]/div/div[2]" % (i,)).text
+            except:
+                close += 1
+                break
+            try:
+                page_link = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('href')
+                page_id = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('data-product-goodscode')
+                pic_link = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]//a/img" % (i,)).get_attribute("data-src")
+                pic_link = f"https://www.nab.com.tw/{pic_link}"
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[2]" % (i,)).text
+                sale_price = sale_price.replace('NT$ ', '')
+                sale_price = sale_price.strip(' ')
 
-#                 break
-#             try:
-#                 page_link = chrome.find_element_by_xpath(
-#                     "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('href')
-#                 page_id = chrome.find_element_by_xpath(
-#                     "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('data-product-goodscode')
-#                 pic_link = chrome.find_element_by_xpath(
-#                     "//div[@class='card flaps-noPanelBorder'][%i]//a/img" % (i,)).get_attribute("data-src")
-#                 pic_link = f"https://www.nab.com.tw/{pic_link}"
-#                 sale_price = chrome.find_element_by_xpath(
-#                     "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[2]" % (i,)).text
-#                 sale_price = sale_price.replace('NT$ ', '')
-#                 sale_price = sale_price.strip(' ')
+            except:
+                i += 1
+                if(i == 25):
+                    p += 1
+                continue
 
-#             except:
-#                 i += 1
-#                 if(i == 25):
-#                     p += 1
-#                 continue
+            if(len(sale_price) < 2):
+                try:
+                    sale_price = chrome.find_element_by_xpath(
+                        "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
+                    sale_price = sale_price.replace('NT$ ', '')
+                    sale_price = sale_price.strip(' ')
+                    ori_price = ""
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
+            else:
+                try:
+                    ori_price = chrome.find_element_by_xpath(
+                        "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
+                    ori_price = ori_price.replace('NT$ ', '')
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
+            i += 1
+            if(i == 25):
+                p += 1
 
-#             if(len(sale_price) < 2):
-#                 try:
-#                     sale_price = chrome.find_element_by_xpath(
-#                         "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
-#                     sale_price = sale_price.replace('NT$ ', '')
-#                     sale_price = sale_price.strip(' ')
-#                     ori_price = ""
-#                 except:
-#                     i += 1
-#                     if(i == 25):
-#                         p += 1
-#                     continue
-#             else:
-#                 try:
-#                     ori_price = chrome.find_element_by_xpath(
-#                         "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
-#                     ori_price = ori_price.replace('NT$ ', '')
-#                 except:
-#                     i += 1
-#                     if(i == 25):
-#                         p += 1
-#                     continue
-#             i += 1
-#             if(i == 25):
-#                 p += 1
+            df = pd.DataFrame(
+                {
+                    "title": [title],
+                    "page_link": [page_link],
+                    "page_id": [page_id],
+                    "pic_link": [pic_link],
+                    "ori_price": [ori_price],
+                    "sale_price": [sale_price]
+                })
 
-#             df = pd.DataFrame(
-#                 {
-#                     "title": [title],
-#                     "page_link": [page_link],
-#                     "page_id": [page_id],
-#                     "pic_link": [pic_link],
-#                     "ori_price": [ori_price],
-#                     "sale_price": [sale_price]
-#                 })
+            dfAll = pd.concat([dfAll, df])
+            dfAll = dfAll.reset_index(drop=True)
 
-#             dfAll = pd.concat([dfAll, df])
-#             dfAll = dfAll.reset_index(drop=True)
-
-#     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    save(shop_id, name, dfAll)
+    upload(shop_id, name)
 
 
 def Mojp():
@@ -7437,7 +7436,6 @@ def Candybox():
             break
         url = "https://candybox.com.tw/v2/official/SalePageCategory/98162?sortMode=Curator"
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -9057,6 +9055,7 @@ def get_tempcrawler(crawler_id):
         '107': Mihara,
         '108': Eyescream,
         '109': Candybox,
+        '100': Nab,
         '111': Oiiv,
         # '112': Veryyou,
         '113': Stayfoxy,
