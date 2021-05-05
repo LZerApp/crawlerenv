@@ -89,7 +89,7 @@ class BaseCrawler(object):
             url = f"{ENV_VARIABLE['SERVER_URL']}/api/import/product"
             files = {
                 "file": (
-                    filename + ".xlsx",
+                    filename + ".csv",
                     open(f"{fold_path}/{filename}.csv", "rb"),
                 ),
             }
