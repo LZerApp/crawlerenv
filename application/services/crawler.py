@@ -4,6 +4,7 @@ from collections import namedtuple
 from datetime import datetime
 
 import requests
+import csv
 from bs4 import BeautifulSoup
 from openpyxl import Workbook
 
@@ -50,17 +51,31 @@ class BaseCrawler(object):
         pass
 
     def save(self):
-        filename = "_".join(
+        name = "_".join(
             [str(self.id), self.name, datetime.today().strftime("%Y%m%d")]
         )
 
-        book = Workbook()
-        sheet = book.active
-        sheet.append(Product._fields)
-        for product in self.result:
-            if product:
-                sheet.append([*product])
-        book.save(f"{fold_path}/{filename}.xlsx")
+        filename = f"{fold_path}/{name}.csv"
+        with open(filename, 'w', newline='') as save_file:
+            file_writer = csv.writer(save_file)
+            file_writer.writerow(Product._fields)
+            for product in self.result:
+                if product:
+                    file_writer.writerow(product)
+
+        # with open(f"{fold_path}/{filename}.csv", 'wb') as out:
+        #     csv_out = csv.writer(out)
+        #     csv_out.writerow(Product._fields)
+        #     for row in self.result:
+        #         csv_out.writerow(row)
+
+        # book = Workbook()
+        # sheet = book.active
+        # sheet.append()
+        # for product in self.result:
+        #     if product:
+        #         sheet.append([*product])
+        # book.save(f"{fold_path}/{filename}.xlsx")
 
     def upload(self):
         filename = "_".join(
@@ -130,7 +145,7 @@ class GracegiftCrawler(BaseCrawler):
     base_url = "https://www.gracegift.com.tw"
 
     def parse(self):
-        url = f"{self.base_url}/product/categoryproducts"
+        url = f"{self.base_url}/product/category"
         payload = {"ajax": "true", "cid": "239", "size": "99999", "page": "1"}
         response = requests.request(
             "POST", url, headers=self.headers, data=payload)
@@ -194,7 +209,6 @@ class LegustCrawler(BaseCrawler):
 
 
 # 004_AjpeaceCrawler()
-
 class AjpeaceCrawler(BaseCrawler):
     id = 4
     name = "ajpease"
@@ -228,6 +242,42 @@ class AjpeaceCrawler(BaseCrawler):
             else ""
         )
         sale_price = self.get_price(item.find("span", {"class": None}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 092_BisouCrawler()
+class BisouCrawler(BaseCrawler):
+    id = 92
+    name = "bisou"
+    base_url = "https://www.cn.bisoubisoustore.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?page={i}"
+            for i in range(1, page_Max)
+        ]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            try:
+                items = soup.find("div", {"class": "product-list"}).find_all(
+                    "div", {"class": "product-block detail-mode-permanent"}
+                )
+            except:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "title"}).text
+        link_id = item.get("data-product-id")
+        link = item.find('a').get('href')
+        link = f"{self.base_url}{link}"
+        image_url = item.find("img").get("src")
+        image_url = f"https:{image_url}"
+        original_price = ""
+        sale_price = self.get_price(item.find("span", {"class": "price"}).text)
+        sale_price = sale_price.replace(".00", "")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -271,33 +321,31 @@ class ApplestarryCrawler(BaseCrawler):
     base_url = "https://www.applestarry.com.tw"
 
     def parse(self):
-        urls = [f"{self.base_url}/Shop/itemList.aspx?m=1&smfp={i}" for i in range(1, 10)]
+        urls = [
+            f"{self.base_url}/Shop/itemList.aspx?m=1&smfp={i}"
+            for i in range(1, 10)
+        ]
         for url in urls:
+            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = list(
-                    json.loads(
-                        soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
-                        .find("script")
-                        .findNext("script")
-                        .string.replace(" var itemListJson = '", "")
-                        .replace("';", "")
-                    )["Data"]["StItem"].values()
-                )
-            except:
-                break
-        self.result.extend([self.parse_product(item) for item in items])
+            items = list(
+                json.loads(
+                    soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
+                    .find("script")
+                    .findNext("script")
+                    .string.replace(" var itemListJson = '", "")
+                    .replace("';", "")
+                )["Data"]["StItem"].values()
+            )
+            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item["mername"]
         link_id = item["idno"]
         link = f"{self.base_url}/Shop/itemDetail.aspx?mNo1={item['merNo1']}&cno={item['ordernum']}"
         image_url = item['photosmpath']
-        if(item["originalPrice"]):
-            original_price = item["originalPrice"]
-        else:
-            original_price = ""
+        original_price = item["originalPrice"]
         sale_price = item["price"]
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -713,38 +761,6 @@ class SumiCrawler(BaseCrawler):
             original_price = ""
             sale_price = self.get_price(item.find("li", {"class": "item_origin"}).find("span").text)
 
-        return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
-# 92_BISOU
-class BisouCrawler(BaseCrawler):
-    id = 92
-    name = "bisou"
-    base_url = "https://www.cn.bisoubisoustore.com"
-
-    def parse(self):
-        urls = [
-            f"{self.base_url}/collections/all?page={i}" for i in range(1, page_Max)]
-        for url in urls:
-            response = requests.request("GET", url, headers=self.headers)
-            # print("response=", response.text)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all(
-                    "div", {"class": "product-block detail-mode-permanent  main-image-loaded"})
-
-            except:
-                break
-            self.result.extend([self.parse_product(item) for item in items])
-
-    def parse_product(self, item):
-        title = item.find("div", {"class": "title"}).text
-        link_id = item.find("div", {"class": "data-product-id"})
-        link = item.find("a").get("href")
-        image_url = f"https:{item.find('img').get('src')}"
-        original_price = ""
-        sale_price = self.get_price(
-            item.find("span", {"class": "price"}).find("span").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1293,12 +1309,13 @@ def get_crawler(crawler_id):
         "11": ModaCrawler(),
         "45": GogosingCrawler(),
         "53": KerinaCrawler(),
-        # "52": ApplestarryCrawler(),
+        "52": ApplestarryCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
+        "82": SumiCrawler(),
         "83": PotatochicksCrawler(),
         # "85": SumiCrawler(),
-        # "92": BisouCrawler(),
+        "92": BisouCrawler(),
         # "112": VeryyouCrawler(),
         # "126": SandaruCrawler(),
         "142": LovfeeCrawler(),
