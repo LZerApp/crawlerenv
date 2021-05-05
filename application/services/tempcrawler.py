@@ -3622,95 +3622,6 @@ def Wstyle():
     upload(shop_id, name)
 
 
-def Applestarry():
-    shop_id = 52
-    name = 'applestarry'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.applestarry.com.tw/Shop/itemList.aspx?m=1&smfp=" + \
-            str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(3)
-
-        i = 1
-        while(i < 33):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]//img" % (i,)).get_attribute('title')
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[@class='itemListMerName']/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.replace("mNo1=", "")
-                page_id = page_id[:page_id.find("&m=")]
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[@class='ilImg1']/a/img[@src]" % (i,)).get_attribute("src")
-            except:
-                close += 1
-                break
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]//span[@class='noofferprice']" % (i,)).text
-                sale_price = sale_price.strip('NT.')
-                ori_price = ""
-                print(sale_price)
-            except:
-                try:
-                    ori_price = chrome.find_element_by_xpath(
-                        "/div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerline']/span[@class='oriprice']" % (i,)).text
-                    ori_price = ori_price.strip('NT.')
-                    sale_price = chrome.find_element_by_xpath(
-                        "/div[@class='itemListDiv'][%i]/div[@class='itemListMoney']/span[@class='offerprice']" % (i,)).text
-                    sale_price = sale_price.strip('NT.')
-                    print(sale_price, ori_price)
-                except:
-                    i += 1
-                    print(p, i)
-                    if(i == 33):
-                        p += 1
-                    continue
-
-            i += 1
-            if(i == 33):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
 
 # def Kerina():
 #     shop_id = 53
@@ -6208,88 +6119,6 @@ def Scheminggg():
                     continue
             i += 1
             if(i == 37):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
-def Bisou():
-    shop_id = 92
-    name = 'bisou'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.cn.bisoubisoustore.com/collections/all?page=" + \
-            str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 2
-        while(i < 41):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[%i]/div[1]/a/div[2]/div/div/div[1]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='product-block detail-mode-permanent  main-image-loaded'][%i]/div[1]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path + make_id.query
-                page_id = page_id.replace("/collections/all/products/", "")
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product-block detail-mode-permanent  main-image-loaded'][%i]/div[1]/a//img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product-block detail-mode-permanent  main-image-loaded'][%i]/div[1]/a/div[2]/div/div/span/span" % (i,)).text
-                sale_price = sale_price.strip('$')
-                sale_price = sale_price.replace('.00 TWD', '')
-                ori_price = ""
-                if 'AUD' in sale_price:
-                    i += 1
-                    if(i == 41):
-                        p += 1
-                    continue
-            except:
-                i += 1
-                if(i == 41):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 41):
                 p += 1
 
             df = pd.DataFrame(
@@ -9005,7 +8834,6 @@ def get_tempcrawler(crawler_id):
         '49': Reishop,
         '50': Yourz,
         '51': Wstyle,
-        '52': Applestarry,
         '54': Seoulmate,
         '55': Sweesa,
         '56': Pazzo,
@@ -9034,7 +8862,6 @@ def get_tempcrawler(crawler_id):
         '86': Oolala,
         '87': Pattis,
         '90': Scheminggg,
-        # '92': Bisou,
         '94': Laconic,
         '95': Lulus,
         '96': Pixelcake,
