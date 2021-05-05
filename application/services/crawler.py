@@ -90,7 +90,7 @@ class BaseCrawler(object):
             files = {
                 "file": (
                     filename + ".xlsx",
-                    open(f"{fold_path}/{filename}.xlsx", "rb"),
+                    open(f"{fold_path}/{filename}.csv", "rb"),
                 ),
             }
             response = requests.post(
