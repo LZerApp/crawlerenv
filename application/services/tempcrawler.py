@@ -3622,7 +3622,6 @@ def Wstyle():
     upload(shop_id, name)
 
 
-
 # def Kerina():
 #     shop_id = 53
 #     name = 'kerina'
@@ -8242,85 +8241,6 @@ def Sandaru():
     upload(shop_id, name)
 
 
-def Bonbons():
-    shop_id = 127
-    name = 'bonbons'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-    i = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://bonbons.com.tw/product-tag/shoe-style"
-
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        try:
-            chrome.find_element_by_xpath(
-                "//button[@class='mfp-close']").click()
-        except:
-            pass
-
-        while(True):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div[2]//p/a" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div/div/a[@href]" % (i,)).get_attribute('href')
-                locate = page_link.find("?")
-                page_id = page_link[locate-6:locate]
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div/div/a/img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='products row large-columns-4 medium-columns-4 small-columns-2']/div[%i]/div/div[2]/div[2]/div[3]/span/span" % (i,)).text
-                sale_price = sale_price.strip('$')
-                ori_price = ""
-            except:
-                i += 1
-                if(i % 10 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
-                continue
-
-            i += 1
-            if(i % 10 == 1):
-                chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                time.sleep(1)
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Baibeauty():
     shop_id = 130
     name = 'baibeauty'
@@ -8885,7 +8805,6 @@ def get_tempcrawler(crawler_id):
         '123': Bonjour,
         '125': Miniqueen,
         # '126': Sandaru,
-        '127': Bonbons,
         '130': Baibeauty,
         '133': Amissa,
         '136': Daima,
