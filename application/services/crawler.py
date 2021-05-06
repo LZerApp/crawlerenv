@@ -827,6 +827,36 @@ class SandaruCrawler(BaseCrawler):
             item.find("div", {"class": "item_sale"}).find("span").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+# 127_BONBONS
+class BonbonsCrawler(BaseCrawler):
+    id = 127
+    name = "bonbons"
+    urls = [
+        f"https://bonbons.com.tw/product-category/pcat-1/page/{i}"
+        for i in range(1, page_Max)
+    ]
+
+    def parse(self):
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all(
+                "div", {"class": 'product-small box'})
+            if not items:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "box-text box-text-products"}).find("a").text
+        link = item.find("div", {"class": "box-text box-text-products"}).find("a").get("href")
+        link_id = stripID(link, "vid=")
+        image_url = f"https:{item.find('img').get('src')}"
+        original_price = self.get_price(item.find("del").find(
+            "span", {"class": "woocommerce-Price-amount amount"}).text)
+        sale_price = self.get_price(item.find("ins").find("span", {"class": "woocommerce-Price-amount amount"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 
 # 142_LOVFEE
 class LovfeeCrawler(BaseCrawler):
@@ -1318,6 +1348,7 @@ def get_crawler(crawler_id):
         "92": BisouCrawler(),
         # "112": VeryyouCrawler(),
         # "126": SandaruCrawler(),
+        "127": BonbonsCrawler(),
         "142": LovfeeCrawler(),
         "143": MarjorieCrawler(),
         "144": PureeCrawler(),
