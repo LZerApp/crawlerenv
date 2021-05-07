@@ -511,6 +511,65 @@ class YocoCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# 109_CandyboxCrawler()
+class CandyboxCrawler(BaseCrawler):
+    id = 109
+    name = "candybox"
+    base_url = "https://candybox.com.tw"
+    payload = {
+        "pmmNo": "Topic56",
+        "PageSize": "32",
+        "SortCol": "pm_sdate",
+        "SortType": "desc",
+    }
+
+    def get_cookies(self):
+        url = f"{self.base_url}/v2/official/SalePageCategory/98162?sortMode=Curator"
+        cookies = requests.request("GET", url, headers=self.headers).cookies
+        return cookies
+
+    def get_discount_ratio(self, raw_text, pattern="(\d+%)"):
+        discount_off = re.search(pattern, raw_text).group(0).replace("%", "")
+        return 1 - int(discount_off) / 100
+
+    def get_original_price(self, raw_text):
+        sale_price = float(self.get_price(raw_text))
+        discount_ratio = float(self.get_discount_ratio(raw_text))
+        return int(sale_price / discount_ratio)
+
+    def parse(self):
+        url = f"{self.base_url}/AjaxProduct/GetProductCategoryListHtml"
+        for page_index in range(1, 17):
+            cookies = self.get_cookies()
+            response = requests.request(
+                "POST",
+                url,
+                headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
+                data={**self.payload, "PageIndex": page_index},
+                cookies=cookies,
+            )
+            soup = BeautifulSoup(
+                json.loads(response.text)["html"], features="html.parser"
+            )
+            items = soup.find_all("li", {"class": "product-cate_item"})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("span", {"class": "cate-name"}).text.strip()
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        image_url = (
+            item.find("img").get("data-original")
+            if item.find("img").get("data-original")
+            else item.find("img").get("src")
+        )
+        original_price = self.get_original_price(
+            item.find("span", {"class": "price_discount"}).text
+        )
+        sale_price = self.get_price(
+            item.find("span", {"class": "price_discount"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 # 10_EFSHOP
 class EfshopCrawler(BaseCrawler):
     id = 10
@@ -1351,8 +1410,8 @@ def get_crawler(crawler_id):
         # "85": SumiCrawler(),
         "92": BisouCrawler(),
         "112": VeryyouCrawler(),
-        "126": SandaruCrawler(),
-        "127": BonbonsCrawler(),
+        # "126": SandaruCrawler(),
+        # "127": BonbonsCrawler(),
         "142": LovfeeCrawler(),
         "143": MarjorieCrawler(),
         "144": PureeCrawler(),
