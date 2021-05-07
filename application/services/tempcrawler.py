@@ -7606,6 +7606,7 @@ def Righton():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -7626,7 +7627,6 @@ def Righton():
                     "//div[%i]/product-item/a/div[2]/div/div[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -7683,8 +7683,9 @@ def Righton():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Daf():
@@ -7704,6 +7705,8 @@ def Daf():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
+
     while True:
         if (close == 1):
             chrome.quit()
@@ -7772,8 +7775,9 @@ def Daf():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Sexyinshape():
@@ -7793,6 +7797,8 @@ def Sexyinshape():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
+
     while True:
         if (close == 1):
             chrome.quit()
@@ -7868,8 +7874,9 @@ def Sexyinshape():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Bonjour():
@@ -7889,6 +7896,7 @@ def Bonjour():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -7945,8 +7953,9 @@ def Bonjour():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Miniqueen():
@@ -7965,6 +7974,7 @@ def Miniqueen():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8041,8 +8051,9 @@ def Miniqueen():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Sandaru():
@@ -8062,6 +8073,7 @@ def Sandaru():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8145,8 +8157,9 @@ def Sandaru():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Baibeauty():
@@ -8165,6 +8178,7 @@ def Baibeauty():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8240,8 +8254,9 @@ def Baibeauty():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Amissa():
@@ -8261,6 +8276,7 @@ def Amissa():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8333,8 +8349,9 @@ def Amissa():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Daima():
@@ -8353,6 +8370,7 @@ def Daima():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8426,8 +8444,9 @@ def Daima():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Miaki():
@@ -8446,6 +8465,7 @@ def Miaki():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     flag = 0
+    print("Start:", shop_id, name)
     while True:
         if (flag == 1):
             chrome.quit()
@@ -8511,8 +8531,9 @@ def Miaki():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def Vinacloset():
@@ -8531,6 +8552,7 @@ def Vinacloset():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     flag = 0
+    print("Start:", shop_id, name)
     while True:
         if (flag == 1):
             chrome.quit()
@@ -8596,8 +8618,9 @@ def Vinacloset():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
-    upload(shop_id, name)
+    # upload(shop_id, name)
 
 
 def save(shop_id, name, dfAll):
