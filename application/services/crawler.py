@@ -254,16 +254,16 @@ class BisouCrawler(BaseCrawler):
     def parse(self):
         urls = [
             f"{self.base_url}/collections/all?page={i}"
-            for i in range(1, page_Max)
+            for i in range(1, 14)
         ]
         for url in urls:
             print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find("div", {"class": "product-list"}).find_all(
-                "div", {"class": "product-block detail-mode-permanent"}
-            )
-            if not items:
+            try:
+                items = soup.find("div", {"class": "product-list"}).find_all("div",
+                                                                             {"class": "product-block detail-mode-permanent"})
+            except:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -1405,7 +1405,6 @@ def get_crawler(crawler_id):
         "52": ApplestarryCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
-        "82": SumiCrawler(),
         "83": PotatochicksCrawler(),
         # "85": SumiCrawler(),
         "92": BisouCrawler(),
