@@ -1570,66 +1570,73 @@ def Inshop():
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
     while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.inshop.tw/v2/Official/NewestSalePage/6300"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-
-        while(True):
+        urls = [
+            "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales",
+            "https://www.inshop.tw/v2/official/SalePageCategory/247685?sortMode=Newest",
+            "https://www.inshop.tw/v2/official/SalePageCategory/115050?sortMode=Sales",
+            "https://www.inshop.tw/v2/official/SalePageCategory/247684?sortMode=Newest",
+            "https://www.inshop.tw/v2/official/SalePageCategory/181353?sortMode=Newest",
+            "https://www.inshop.tw/v2/official/SalePageCategory/115051?sortMode=Sales",
+            "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
+            "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
+        for url in urls:
+            
             try:
-                title = chrome.find_element_by_xpath(
-                    "//li[%i]/div/a/h3" % (i,)).text
+                chrome.get(url)
+                print(url)
             except:
-                close += 1
-
                 break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/div/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/SalePage/Index/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/a[1]/div" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/div/a/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = chrome.find_element_by_xpath(
-                    "//li[%i]/div/a/div[1]/del" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-                ori_price = ori_price.split()
-                ori_price = ori_price[0]
-            except:
+
+            if (close == 1):
+                chrome.quit()
+                break
+            while(True):
+                try:
+                    title = chrome.find_element_by_xpath(
+                        "//li[%i]/div/a/h3" % (i,)).text
+                except:
+                    close += 1
+                    break
+                try:
+                    page_link = chrome.find_element_by_xpath(
+                        "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/div/a[@href]" % (i,)).get_attribute('href')
+                    make_id = parse.urlsplit(page_link)
+                    page_id = make_id.path
+                    page_id = page_id.lstrip("/SalePage/Index/")
+                    find_href = chrome.find_element_by_xpath(
+                        "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/a[1]/div" % (i,))
+                    bg_url = find_href.value_of_css_property('background-image')
+                    pic_link = bg_url.lstrip('url("').rstrip(')"')
+                    sale_price = chrome.find_element_by_xpath(
+                        "//li[%i]/div/a/div[2]" % (i,)).text
+                    sale_price = sale_price.strip('NT$')
+                    ori_price = chrome.find_element_by_xpath(
+                        "//li[%i]/div/a/div[1]/del" % (i,)).text
+                    ori_price = ori_price.strip('NT$')
+                    ori_price = ori_price.split()
+                    ori_price = ori_price[0]
+                except:
+                    i += 1
+                    if(i == 25):
+                        p += 1
+                    continue
+
                 i += 1
                 if(i == 25):
                     p += 1
-                continue
 
-            i += 1
-            if(i == 25):
-                p += 1
+                df = pd.DataFrame(
+                    {
+                        "title": [title],
+                        "page_link": [page_link],
+                        "page_id": [page_id],
+                        "pic_link": [pic_link],
+                        "ori_price": [ori_price],
+                        "sale_price": [sale_price]
+                    })
 
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
+                dfAll = pd.concat([dfAll, df])
+                dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -7606,7 +7613,7 @@ def Righton():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -7683,7 +7690,7 @@ def Righton():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -7705,7 +7712,7 @@ def Daf():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
 
     while True:
         if (close == 1):
@@ -7775,7 +7782,7 @@ def Daf():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -7797,7 +7804,7 @@ def Sexyinshape():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
 
     while True:
         if (close == 1):
@@ -7874,7 +7881,7 @@ def Sexyinshape():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -7896,7 +7903,7 @@ def Bonjour():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -7953,7 +7960,7 @@ def Bonjour():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -7974,7 +7981,7 @@ def Miniqueen():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8051,7 +8058,7 @@ def Miniqueen():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8073,7 +8080,7 @@ def Sandaru():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8157,7 +8164,7 @@ def Sandaru():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8178,7 +8185,7 @@ def Baibeauty():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8254,7 +8261,7 @@ def Baibeauty():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8276,7 +8283,7 @@ def Amissa():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()   # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8349,7 +8356,7 @@ def Amissa():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8370,7 +8377,7 @@ def Daima():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (close == 1):
             chrome.quit()
@@ -8444,7 +8451,7 @@ def Daima():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8465,7 +8472,7 @@ def Miaki():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     flag = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (flag == 1):
             chrome.quit()
@@ -8531,7 +8538,7 @@ def Miaki():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8552,7 +8559,7 @@ def Vinacloset():
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     flag = 0
-    print("Start:",shop_id,name)
+    print("Start:", shop_id, name)
     while True:
         if (flag == 1):
             chrome.quit()
@@ -8618,7 +8625,7 @@ def Vinacloset():
 
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
-    print("Finish:",shop_id,name)
+    print("Finish:", shop_id, name)
     save(shop_id, name, dfAll)
     upload(shop_id, name)
 
@@ -8663,7 +8670,7 @@ def get_tempcrawler(crawler_id):
         '21': Roxy,
         '22': Shaxi,
         '23': Cici,
-        '24': Inshop,
+        # '24': Inshop,
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
