@@ -1565,7 +1565,6 @@ def Inshop():
     chrome = webdriver.Chrome(
         executable_path='./chromedriver', chrome_options=options)
     i = 1
-    p = 1
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
@@ -1580,7 +1579,6 @@ def Inshop():
             "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
             "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
         for url in urls:
-            
             try:
                 chrome.get(url)
                 print(url)
@@ -1590,40 +1588,37 @@ def Inshop():
             if (close == 1):
                 chrome.quit()
                 break
+
             while(True):
                 try:
                     title = chrome.find_element_by_xpath(
-                        "//li[%i]/div/a/h3" % (i,)).text
+                        "//li[@class='column-grid-container__column'][%i]//img[@alt]" % (i,)).text
                 except:
                     close += 1
                     break
                 try:
                     page_link = chrome.find_element_by_xpath(
-                        "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/div/a[@href]" % (i,)).get_attribute('href')
-                    make_id = parse.urlsplit(page_link)
-                    page_id = make_id.path
-                    page_id = page_id.lstrip("/SalePage/Index/")
-                    find_href = chrome.find_element_by_xpath(
-                        "//li[@class='cabinet-li blind-li cabinet-in-pc'][%i]/a[1]/div" % (i,))
-                    bg_url = find_href.value_of_css_property('background-image')
-                    pic_link = bg_url.lstrip('url("').rstrip(')"')
+                        "//li[@class='column-grid-container__column'][%i]//div/a[@href]" % (i,)).get_attribute('href')
+                    page_id = stripID(page_link, "/SalePage/Index/")
+                    pic_link = chrome.find_element_by_xpath(
+                        "//li[@class='column-grid-container__column'][%i]//img[@src]" % (i,))
                     sale_price = chrome.find_element_by_xpath(
-                        "//li[%i]/div/a/div[2]" % (i,)).text
+                        "//li[%i]//div[@class='sc-AykKJ erEvLr']" % (i,)).text
                     sale_price = sale_price.strip('NT$')
                     ori_price = chrome.find_element_by_xpath(
-                        "//li[%i]/div/a/div[1]/del" % (i,)).text
+                        "//li[%i]//div[@class='sc-AykKI fKrTXn']" % (i,)).text
                     ori_price = ori_price.strip('NT$')
-                    ori_price = ori_price.split()
-                    ori_price = ori_price[0]
                 except:
                     i += 1
-                    if(i == 25):
-                        p += 1
+                    if(i % 20 == 1):
+                        chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+                        time.sleep(1)
                     continue
 
                 i += 1
-                if(i == 25):
-                    p += 1
+                if(i % 20 == 1):
+                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+                    time.sleep(1)
 
                 df = pd.DataFrame(
                     {
@@ -6606,105 +6601,6 @@ def Percha():
     upload(shop_id, name)
 
 
-def Nab():
-    shop_id = 100
-    name = 'nab'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.nab.com.tw/product-list.ftl?rMinPrice=299&rMaxPrice=1580&lg=02&p=" + \
-            str(p)
-
-        try:
-            chrome.get(url)
-        except:
-            break
-
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]/div/div[2]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('href')
-                page_id = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]//a" % (i,)).get_attribute('data-product-goodscode')
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]//a/img" % (i,)).get_attribute("data-src")
-                pic_link = f"https://www.nab.com.tw/{pic_link}"
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[2]" % (i,)).text
-                sale_price = sale_price.replace('NT$ ', '')
-                sale_price = sale_price.strip(' ')
-
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            if(len(sale_price) < 2):
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
-                    sale_price = sale_price.replace('NT$ ', '')
-                    sale_price = sale_price.strip(' ')
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 25):
-                        p += 1
-                    continue
-            else:
-                try:
-                    ori_price = chrome.find_element_by_xpath(
-                        "//div[@class='card flaps-noPanelBorder'][%i]/div/div[3]//span[1]" % (i,)).text
-                    ori_price = ori_price.replace('NT$ ', '')
-                except:
-                    i += 1
-                    if(i == 25):
-                        p += 1
-                    continue
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Mojp():
     shop_id = 102
     name = 'mojp'
@@ -8670,7 +8566,7 @@ def get_tempcrawler(crawler_id):
         '21': Roxy,
         '22': Shaxi,
         '23': Cici,
-        # '24': Inshop,
+        '24': Inshop,
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
@@ -8730,8 +8626,7 @@ def get_tempcrawler(crawler_id):
         '105': Zebra,
         '107': Mihara,
         '108': Eyescream,
-        '109': Candybox,
-        '100': Nab,
+        # '109': Candybox,
         '111': Oiiv,
         '113': Stayfoxy,
         '115': Gracechow,
