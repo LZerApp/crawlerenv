@@ -222,11 +222,11 @@ class AjpeaceCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-
-            items = soup.find("div", {"id": "goods-list"}).find_all(
-                "div", {"class": "col-sm-4 col-xs-6"}
-            )
-            if not items:
+            if (soup.find("div", {"id": "goods-list"})):
+                items = soup.find("div", {"id": "goods-list"}).find_all(
+                    "div", {"class": "col-sm-4 col-xs-6"}
+                )
+            else:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -254,16 +254,16 @@ class BisouCrawler(BaseCrawler):
     def parse(self):
         urls = [
             f"{self.base_url}/collections/all?page={i}"
-            for i in range(1, 14)
+            for i in range(1, page_Max)
         ]
         for url in urls:
             print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            try:
+            if (soup.find("div", {"class": "product-list"})):
                 items = soup.find("div", {"class": "product-list"}).find_all("div",
                                                                              {"class": "product-block detail-mode-permanent"})
-            except:
+            else:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -511,64 +511,124 @@ class YocoCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-# 109_CandyboxCrawler()
-class CandyboxCrawler(BaseCrawler):
-    id = 109
-    name = "candybox"
-    base_url = "https://candybox.com.tw"
-    payload = {
-        "pmmNo": "Topic56",
-        "PageSize": "32",
-        "SortCol": "pm_sdate",
-        "SortType": "desc",
-    }
+# # 024_InshopCrawler()
+# class InshopCrawler(BaseCrawler):
+#     id = 24
+#     name = "inshop"
+#     urls = [
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/247685?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115050?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/247684?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/181353?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115051?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
 
-    def get_cookies(self):
-        url = f"{self.base_url}/v2/official/SalePageCategory/98162?sortMode=Curator"
-        cookies = requests.request("GET", url, headers=self.headers).cookies
-        return cookies
+#     url = "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales"
 
-    def get_discount_ratio(self, raw_text, pattern="(\d+%)"):
-        discount_off = re.search(pattern, raw_text).group(0).replace("%", "")
-        return 1 - int(discount_off) / 100
+#     # payload = {
+#     #     "pmmNo": "Topic56",
+#     #     "PageSize": "32",
+#     #     "SortCol": "pm_sdate",
+#     #     "SortType": "desc",
+#     # }
 
-    def get_original_price(self, raw_text):
-        sale_price = float(self.get_price(raw_text))
-        discount_ratio = float(self.get_discount_ratio(raw_text))
-        return int(sale_price / discount_ratio)
+#     def get_cookies(self):
+#         cookies = requests.request("GET", url, headers=self.headers).cookies
+#         return cookies
 
-    def parse(self):
-        url = f"{self.base_url}/AjaxProduct/GetProductCategoryListHtml"
-        for page_index in range(1, 17):
-            cookies = self.get_cookies()
-            response = requests.request(
-                "POST",
-                url,
-                headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
-                data={**self.payload, "PageIndex": page_index},
-                cookies=cookies,
-            )
-            soup = BeautifulSoup(
-                json.loads(response.text)["html"], features="html.parser"
-            )
-            items = soup.find_all("li", {"class": "product-cate_item"})
-            self.result.extend([self.parse_product(item) for item in items])
+#     def parse(self):
+#         for page_index in range(1, 17):
+#             cookies = self.get_cookies()
+#             response = requests.request(
+#                 "POST",
+#                 url,
+#                 headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
+#                 data={**self.payload, "PageIndex": page_index},
+#                 cookies=cookies,
+#             )
+#             soup = BeautifulSoup(
+#                 json.loads(response.text)["html"], features="html.parser"
+#             )
+#             items = soup.find_all("li", {"class": "product-cate_item"})
+#             self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, item):
-        title = item.find("span", {"class": "cate-name"}).text.strip()
-        link_id = item.find("a").get("href")
-        link = f"{self.base_url}{link_id}"
-        image_url = (
-            item.find("img").get("data-original")
-            if item.find("img").get("data-original")
-            else item.find("img").get("src")
-        )
-        original_price = self.get_original_price(
-            item.find("span", {"class": "price_discount"}).text
-        )
-        sale_price = self.get_price(
-            item.find("span", {"class": "price_discount"}).text)
-        return Product(title, link, link_id, image_url, original_price, sale_price)
+#     def parse_product(self, item):
+#         title = item.find("span", {"class": "cate-name"}).text.strip()
+#         link_id = item.find("a").get("href")
+#         link = f"{self.base_url}{link_id}"
+#         image_url = (
+#             item.find("img").get("data-original")
+#             if item.find("img").get("data-original")
+#             else item.find("img").get("src")
+#         )
+#         original_price = self.get_original_price(
+#             item.find("span", {"class": "price_discount"}).text
+#         )
+#         sale_price = self.get_price(
+#             item.find("span", {"class": "price_discount"}).text)
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# # 109_CandyboxCrawler()
+# class CandyboxCrawler(BaseCrawler):
+#     id = 109
+#     name = "candybox"
+#     base_url = "https://candybox.com.tw"
+#     payload = {
+#         "pmmNo": "Topic56",
+#         "PageSize": "32",
+#         "SortCol": "pm_sdate",
+#         "SortType": "desc",
+#     }
+
+#     def get_cookies(self):
+#         url = f"{self.base_url}/v2/official/SalePageCategory/98162?sortMode=Curator"
+#         cookies = requests.request("GET", url, headers=self.headers).cookies
+#         return cookies
+
+#     def get_discount_ratio(self, raw_text, pattern="(\d+%)"):
+#         discount_off = re.search(pattern, raw_text).group(0).replace("%", "")
+#         return 1 - int(discount_off) / 100
+
+#     def get_original_price(self, raw_text):
+#         sale_price = float(self.get_price(raw_text))
+#         discount_ratio = float(self.get_discount_ratio(raw_text))
+#         return int(sale_price / discount_ratio)
+
+#     def parse(self):
+#         url = f"{self.base_url}/AjaxProduct/GetProductCategoryListHtml"
+#         for page_index in range(1, 17):
+#             cookies = self.get_cookies()
+#             response = requests.request(
+#                 "POST",
+#                 url,
+#                 headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
+#                 data={**self.payload, "PageIndex": page_index},
+#                 cookies=cookies,
+#             )
+#             soup = BeautifulSoup(
+#                 json.loads(response.text)["html"], features="html.parser"
+#             )
+#             items = soup.find_all("li", {"class": "product-cate_item"})
+#             self.result.extend([self.parse_product(item) for item in items])
+
+#     def parse_product(self, item):
+#         title = item.find("span", {"class": "cate-name"}).text.strip()
+#         link_id = item.find("a").get("href")
+#         link = f"{self.base_url}{link_id}"
+#         image_url = (
+#             item.find("img").get("data-original")
+#             if item.find("img").get("data-original")
+#             else item.find("img").get("src")
+#         )
+#         original_price = self.get_original_price(
+#             item.find("span", {"class": "price_discount"}).text
+#         )
+#         sale_price = self.get_price(
+#             item.find("span", {"class": "price_discount"}).text)
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 10_EFSHOP
 class EfshopCrawler(BaseCrawler):
@@ -678,6 +738,40 @@ class GogosingCrawler(BaseCrawler):
         image_url = f"https:{image_url}"
         original_price = ""
         sale_price = self.get_price(item.find("ul").find("span").find_next("span").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 100_NAB
+class NabCrawler(BaseCrawler):
+    id = 100
+    name = "nab"
+    prefix_urls = ["https://www.nab.com.tw/product-list.ftl?rMinPrice=340&rMaxPrice=664&mid=02-01&p=",
+                   "https://www.nab.com.tw/product-list.ftl?mid=02-02&p=",
+                   "https://www.nab.com.tw/product-list.ftl?mid=02-03&p=",
+                   "https://www.nab.com.tw/product-list.ftl?rMinPrice=390&rMaxPrice=880&mid=02-04&p=",
+                   "https://www.nab.com.tw/product-list.ftl?mid=02-05&p=",
+                   "https://www.nab.com.tw/product-list.ftl?mid=02-06&p=", ]
+    urls = [
+        f"{prefix}{i}" for prefix in prefix_urls for i in range(1, 5)]
+
+    def parse(self):
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "card flaps-noPanelBorder"})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "cardName"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("a").get("data-product-goodscode")
+        image_url = f"https://www.nab.com.tw/{item.find('a').find('img').get('data-src')}"
+        if (item.find("span", {"class": "del"})):
+            original_price = self.get_price(item.find("div", {"class": "caption"}).find("span").text)
+        else:
+            original_price = ""
+        sale_price = self.get_price(item.find("a").get("data-product-price"))
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1408,6 +1502,7 @@ def get_crawler(crawler_id):
         "83": PotatochicksCrawler(),
         # "85": SumiCrawler(),
         "92": BisouCrawler(),
+        "100": NabCrawler(),
         "112": VeryyouCrawler(),
         "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
