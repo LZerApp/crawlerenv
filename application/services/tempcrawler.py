@@ -1552,88 +1552,88 @@ def Cici():
     upload(shop_id, name)
 
 
-def Inshop():
-    shop_id = 24
-    name = 'inshop'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-    i = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        urls = [
-            "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales",
-            "https://www.inshop.tw/v2/official/SalePageCategory/247685?sortMode=Newest",
-            "https://www.inshop.tw/v2/official/SalePageCategory/115050?sortMode=Sales",
-            "https://www.inshop.tw/v2/official/SalePageCategory/247684?sortMode=Newest",
-            "https://www.inshop.tw/v2/official/SalePageCategory/181353?sortMode=Newest",
-            "https://www.inshop.tw/v2/official/SalePageCategory/115051?sortMode=Sales",
-            "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
-            "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
-        for url in urls:
-            try:
-                chrome.get(url)
-                print(url)
-            except:
-                break
+# def Inshop():
+#     shop_id = 24
+#     name = 'inshop'
+#     options = Options()                  # 啟動無頭模式
+#     options.add_argument('--headless')   # 規避google bug
+#     options.add_argument('--disable-gpu')
+#     options.add_argument('--ignore-certificate-errors')
+#     options.add_argument('--no-sandbox')
+#     options.add_argument('--disable-dev-shm-usage')
+#     options.add_argument("--remote-debugging-port=5566")
+#     chrome = webdriver.Chrome(
+#         executable_path='./chromedriver', chrome_options=options)
+#     i = 1
+#     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+#     dfAll = pd.DataFrame()  # 存放所有資料
+#     close = 0
+#     while True:
+#         urls = [
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/247685?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115050?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/247684?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/181353?sortMode=Newest",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115051?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
+#             "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
+#         for url in urls:
+#             try:
+#                 chrome.get(url)
+#                 print(url)
+#             except:
+#                 break
 
-            if (close == 1):
-                chrome.quit()
-                break
+#             if (close == 1):
+#                 chrome.quit()
+#                 break
 
-            while(True):
-                try:
-                    title = chrome.find_element_by_xpath(
-                        "//li[@class='column-grid-container__column'][%i]//img[@alt]" % (i,)).text
-                except:
-                    close += 1
-                    break
-                try:
-                    page_link = chrome.find_element_by_xpath(
-                        "//li[@class='column-grid-container__column'][%i]//div/a[@href]" % (i,)).get_attribute('href')
-                    page_id = stripID(page_link, "/SalePage/Index/")
-                    pic_link = chrome.find_element_by_xpath(
-                        "//li[@class='column-grid-container__column'][%i]//img[@src]" % (i,))
-                    sale_price = chrome.find_element_by_xpath(
-                        "//li[%i]//div[@class='sc-AykKJ erEvLr']" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    ori_price = chrome.find_element_by_xpath(
-                        "//li[%i]//div[@class='sc-AykKI fKrTXn']" % (i,)).text
-                    ori_price = ori_price.strip('NT$')
-                except:
-                    i += 1
-                    if(i % 20 == 1):
-                        chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                        time.sleep(1)
-                    continue
+#             while(True):
+#                 try:
+#                     title = chrome.find_element_by_xpath(
+#                         "//li[@class='column-grid-container__column'][%i]//img[@alt]" % (i,)).text
+#                 except:
+#                     close += 1
+#                     break
+#                 try:
+#                     page_link = chrome.find_element_by_xpath(
+#                         "//li[@class='column-grid-container__column'][%i]//div/a[@href]" % (i,)).get_attribute('href')
+#                     page_id = stripID(page_link, "/SalePage/Index/")
+#                     pic_link = chrome.find_element_by_xpath(
+#                         "//li[@class='column-grid-container__column'][%i]//img[@src]" % (i,))
+#                     sale_price = chrome.find_element_by_xpath(
+#                         "//li[%i]//div[@class='sc-AykKJ erEvLr']" % (i,)).text
+#                     sale_price = sale_price.strip('NT$')
+#                     ori_price = chrome.find_element_by_xpath(
+#                         "//li[%i]//div[@class='sc-AykKI fKrTXn']" % (i,)).text
+#                     ori_price = ori_price.strip('NT$')
+#                 except:
+#                     i += 1
+#                     if(i % 20 == 1):
+#                         chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+#                         time.sleep(1)
+#                     continue
 
-                i += 1
-                if(i % 20 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
+#                 i += 1
+#                 if(i % 20 == 1):
+#                     chrome.find_element_by_tag_name('body').send_keys(Keys.END)
+#                     time.sleep(1)
 
-                df = pd.DataFrame(
-                    {
-                        "title": [title],
-                        "page_link": [page_link],
-                        "page_id": [page_id],
-                        "pic_link": [pic_link],
-                        "ori_price": [ori_price],
-                        "sale_price": [sale_price]
-                    })
+#                 df = pd.DataFrame(
+#                     {
+#                         "title": [title],
+#                         "page_link": [page_link],
+#                         "page_id": [page_id],
+#                         "pic_link": [pic_link],
+#                         "ori_price": [ori_price],
+#                         "sale_price": [sale_price]
+#                     })
 
-                dfAll = pd.concat([dfAll, df])
-                dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
+#                 dfAll = pd.concat([dfAll, df])
+#                 dfAll = dfAll.reset_index(drop=True)
+#     save(shop_id, name, dfAll)
+#     upload(shop_id, name)
 
 
 def Amesoeur():
@@ -8566,7 +8566,7 @@ def get_tempcrawler(crawler_id):
         '21': Roxy,
         '22': Shaxi,
         '23': Cici,
-        '24': Inshop,
+        # '24': Inshop,
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
