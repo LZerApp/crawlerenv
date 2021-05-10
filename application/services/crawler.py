@@ -645,23 +645,29 @@ class EfshopCrawler(BaseCrawler):
         "https://www.efshop.com.tw/category/10",
         "https://www.efshop.com.tw/category/498",
     ]
-    urls = [
-        f"{prefix}/{i}" for prefix in prefix_urls for i in range(1, page_Max)]
 
     def parse(self):
-        for url in self.urls:
-            response = requests.get(url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all("div", {"class": "idx_pro2"})
-            except:
+        for prefix in self.prefix_urls:
+            for i in range(1, 20):
+                urls = [f"{prefix}/{i}"]
+                for url in urls:
+                    print(url)
+                    response = requests.get(url, headers=self.headers)
+                    soup = BeautifulSoup(response.text, features="html.parser")
+                    if (soup.find_all("div", {"class": "idx_pro2"})):
+                        items = soup.find_all("div", {"class": "idx_pro2"})
+                    else:
+                        print("break")
+                        break
+                    self.result.extend([self.parse_product(item) for item in items])
+                else:
+                    continue
                 break
-            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.find("a").get("title")
         link = item.find("a").get("href")
-        link_id = stripID(link, "/product/")
+        link_id = item.find("input").get("value")
         image_url = item.find("img").get("src")
         original_price = ""
         sale_price = self.get_price(
@@ -823,16 +829,17 @@ class JendesCrawler(BaseCrawler):
         urls = [
             f"{self.base_url}?c=de8eed41-acbf-4da7-a441-e6028d8b28c9&page={i}" for i in range(1, page_Max)]
         for url in urls:
+            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all(
-                    "div", {"class": "col-xl-3 col-lg-3 col-mb-3 col-sm-6 col-xs-6 squeeze-padding"})
-            except:
+            items = soup.find_all(
+                "div", {"class": "col-xl-3 col-lg-3 col-mb-3 col-sm-6 col-xs-6 squeeze-padding"})
+            if not items:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+
         title = item.find("h3", {"class": "product-title"}).find("a").text
         link = item.find("a").get("href")
         link_id = link.replace("https://www.jendesstudio.com/product/",
