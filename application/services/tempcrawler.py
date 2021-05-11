@@ -1147,17 +1147,14 @@ def Corban():
         offset = (p-1) * 50
         url = "https://www.corban.com.tw/products?limit=50&offset=" + \
             str(offset) + "&price=0%2C10000&sort=createdAt-desc&tags=ALL%20ITEMS"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
             break
 
-        time.sleep(1)
-
         while(i < 51):
             try:
+
                 title = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
             except:
@@ -1177,8 +1174,7 @@ def Corban():
                 ori_price = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[1]/span/s" % (i,)).text
                 ori_price = ori_price.strip('NT$ ')
-                ori_price = ori_price.split()
-                ori_price = ori_price[0]
+
             except:
                 i += 1
                 if(i == 51):
@@ -1188,6 +1184,8 @@ def Corban():
             i += 1
             if(i == 51):
                 p += 1
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            time.sleep(1)
 
             df = pd.DataFrame(
                 {
@@ -6157,108 +6155,6 @@ def Mihara():
     upload(shop_id, name)
 
 
-def Eyescream():
-    shop_id = 108
-    name = 'eyescream'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.eyescream.com.tw/PDList2.asp?item=all&ob=D3&pageno=" + \
-            str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
-        i = 1
-        while(i < 49):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//figure[%i]/figcaption/div[1]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//figure[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.lstrip("yano=")
-                page_id = page_id[:page_id.find("&color")]
-                pic_link = chrome.find_element_by_xpath(
-                    "//figure[%i]/div/img" % (i,)).get_attribute('data-original')
-            except:
-                i += 1
-                if(i == 49):
-                    p += 1
-                if(i % 4 == 3):
-                    chrome.find_element_by_tag_name(
-                        'body').send_keys(Keys.PAGE_DOWN)
-                continue
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//figure[%i]/figcaption/div[2]/span[2]" % (i,)).text
-                sale_price = sale_price.strip('NTD.')
-                ori_price = chrome.find_element_by_xpath(
-                    "//figure[%i]/figcaption/div[2]/span/del" % (i,)).text
-                ori_price = ori_price.strip('NTD.')
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//figure[%i]/figcaption/div[2]/span" % (i,)).text
-                    sale_price = sale_price.strip('NTD.')
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 49):
-                        p += 1
-                    if(i % 4 == 3):
-                        chrome.find_element_by_tag_name(
-                            'body').send_keys(Keys.PAGE_DOWN)
-
-            i += 1
-            if(i == 49):
-                p += 1
-            if(i % 4 == 3):
-                chrome.find_element_by_tag_name(
-                    'body').send_keys(Keys.PAGE_DOWN)
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Candybox():
     shop_id = 109
     name = 'candybox'
@@ -7086,110 +6982,110 @@ def Miniqueen():
     upload(shop_id, name)
 
 
-def Sandaru():
-    shop_id = 126
-    name = 'sandaru'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
+# def Sandaru():
+#     shop_id = 126
+#     name = 'sandaru'
+#     options = Options()                  # 啟動無頭模式
+#     options.add_argument('--headless')   # 規避google bug
+#     options.add_argument('--disable-gpu')
+#     options.add_argument('--ignore-certificate-errors')
+#     options.add_argument('--no-sandbox')
+#     options.add_argument('--disable-dev-shm-usage')
+#     options.add_argument("--remote-debugging-port=5566")
+#     chrome = webdriver.Chrome(
+#         executable_path='./chromedriver', chrome_options=options)
 
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    print("Start:", shop_id, name)
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://sandarushop.com/product/all?page=" + str(p)
+#     p = 1
+#     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+#     dfAll = pd.DataFrame()   # 存放所有資料
+#     close = 0
+#     print("Start:", shop_id, name)
+#     while True:
+#         if (close == 1):
+#             chrome.quit()
+#             break
+#         url = "https://sandarushop.com/product/all?page=" + str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
+#         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+#         try:
+#             chrome.get(url)
+#         except:
+#             break
+#         time.sleep(1)
 
-        for k in range(10):
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-            k += 1
+#         for k in range(10):
+#             chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+#             k += 1
 
-        time.sleep(1)
-        i = 2
-        while(i < 33):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/h4" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/product/detail/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/span" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip('");')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/ul/li[2]/span" % (i,)).text
-                sale_price = sale_price.replace('$', '')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = chrome.find_element_by_xpath(
-                    "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/ul/li[1]/span" % (i,)).text
-                ori_price = ori_price.strip('$')
-                ori_price = ori_price.split()
-                ori_price = ori_price[0]
-                if(pic_link == "none"):
-                    i += 1
-                    if(i == 33):
-                        p += 1
-                    if(i % 4 == 1):
-                        chrome.find_element_by_tag_name(
-                            'body').send_keys(Keys.PAGE_DOWN)
-                    continue
-            except:
-                i += 1
-                if(i == 33):
-                    p += 1
-                if(i % 4 == 1):
-                    chrome.find_element_by_tag_name(
-                        'body').send_keys(Keys.PAGE_DOWN)
-                continue
+#         time.sleep(1)
+#         i = 2
+#         while(i < 33):
+#             try:
+#                 title = chrome.find_element_by_xpath(
+#                     "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/h4" % (i,)).text
+#             except:
+#                 close += 1
+#                 break
+#             try:
+#                 page_link = chrome.find_element_by_xpath(
+#                     "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a[@href]" % (i,)).get_attribute('href')
+#                 make_id = parse.urlsplit(page_link)
+#                 page_id = make_id.path
+#                 page_id = page_id.lstrip("/product/detail/")
+#                 find_href = chrome.find_element_by_xpath(
+#                     "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/span" % (i,))
+#                 bg_url = find_href.value_of_css_property('background-image')
+#                 pic_link = bg_url.lstrip('url("').rstrip('");')
+#                 sale_price = chrome.find_element_by_xpath(
+#                     "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/ul/li[2]/span" % (i,)).text
+#                 sale_price = sale_price.replace('$', '')
+#                 sale_price = sale_price.split()
+#                 sale_price = sale_price[0]
+#                 ori_price = chrome.find_element_by_xpath(
+#                     "//li[@class=' item_block js_is_photo_style img_polaroid has_listing_cart '][%i]/a/div/span/div/div/ul/li[1]/span" % (i,)).text
+#                 ori_price = ori_price.strip('$')
+#                 ori_price = ori_price.split()
+#                 ori_price = ori_price[0]
+#                 if(pic_link == "none"):
+#                     i += 1
+#                     if(i == 33):
+#                         p += 1
+#                     if(i % 4 == 1):
+#                         chrome.find_element_by_tag_name(
+#                             'body').send_keys(Keys.PAGE_DOWN)
+#                     continue
+#             except:
+#                 i += 1
+#                 if(i == 33):
+#                     p += 1
+#                 if(i % 4 == 1):
+#                     chrome.find_element_by_tag_name(
+#                         'body').send_keys(Keys.PAGE_DOWN)
+#                 continue
 
-            i += 1
-            if(i == 33):
-                p += 1
-            if(i % 4 == 1):
-                chrome.find_element_by_tag_name(
-                    'body').send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.3)
+#             i += 1
+#             if(i == 33):
+#                 p += 1
+#             if(i % 4 == 1):
+#                 chrome.find_element_by_tag_name(
+#                     'body').send_keys(Keys.PAGE_DOWN)
+#                 time.sleep(0.3)
 
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
+#             df = pd.DataFrame(
+#                 {
+#                     "title": [title],
+#                     "page_link": [page_link],
+#                     "page_id": [page_id],
+#                     "pic_link": [pic_link],
+#                     "ori_price": [ori_price],
+#                     "sale_price": [sale_price]
+#                 })
 
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    print("Finish:", shop_id, name)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
+#             dfAll = pd.concat([dfAll, df])
+#             dfAll = dfAll.reset_index(drop=True)
+#     print("Finish:", shop_id, name)
+#     save(shop_id, name, dfAll)
+#     upload(shop_id, name)
 
 
 def Baibeauty():
@@ -7697,7 +7593,7 @@ def get_tempcrawler(crawler_id):
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
-        # '29': Corban,
+        '29': Corban,
         '30': Gmorning,
         '31': July,
         '32': Per,
@@ -7751,7 +7647,6 @@ def get_tempcrawler(crawler_id):
         '104': Pleats,
         '105': Zebra,
         '107': Mihara,
-        '108': Eyescream,
         # '109': Candybox,
         '111': Oiiv,
         '113': Stayfoxy,
