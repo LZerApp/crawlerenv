@@ -451,6 +451,40 @@ class VeryyouCrawler(BaseCrawler):
             sale_price = self.get_price(item.find("span", {"class": "retail"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+# 108_EyescreamCrawler()
+class EyecreamCrawler(BaseCrawler):
+    id = 108
+    name = "eyescream"
+    base_url = "https://www.eyescream.com.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/PDList2.asp?item=all&ob=D3&pageno={i}" for i in range(1, 15)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("figure", {"class": "p-item col-lg-3 col-md-4 col-xs-6 wow fadeInUp animated"})
+            if not items:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "title"}).text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}/{link_id}"
+        link_id = stripID(link_id, "yano=")
+        link_id = link_id[:link_id.find("&color")]
+        image_url = item.find("img").get("data-original")
+        try:
+            original_price = self.get_price(item.find("span", {"class": "retail"}).text)
+            sale_price = self.get_price(item.find("span", {"class": "on-sale"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("span", {"class": "retail"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 # 009_YocoCrawler()
 class YocoCrawler(BaseCrawler):
     id = 9
@@ -829,7 +863,6 @@ class JendesCrawler(BaseCrawler):
         urls = [
             f"{self.base_url}?c=de8eed41-acbf-4da7-a441-e6028d8b28c9&page={i}" for i in range(1, page_Max)]
         for url in urls:
-            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all(
@@ -1510,6 +1543,7 @@ def get_crawler(crawler_id):
         # "85": SumiCrawler(),
         "92": BisouCrawler(),
         "100": NabCrawler(),
+        "108": EyecreamCrawler(),
         "112": VeryyouCrawler(),
         "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
