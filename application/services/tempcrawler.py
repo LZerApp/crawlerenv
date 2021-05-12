@@ -4279,96 +4279,6 @@ def Suitangtang():
     upload(shop_id, name)
 
 
-def Miustar():
-    shop_id = 76
-    name = 'miustar'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-    i = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.miu-star.com.tw/v2/official/SalePageCategory/43374?sortMode=Curator"
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        while(True):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[@class='column-grid-container__column'][%i]//a/div/div[2]/div[1]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[%i]//div[@class='product-card__vertical product-card__vertical--hover']/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/SalePage/Index/")
-                pic_link = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div/figure/img" % (i,)).get_attribute('src')
-            except:
-                i += 1
-                if(i % 40 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
-                continue
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div[2]/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div[2]/div[2]/div/div[1]" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-                ori_price = ori_price.split()
-                ori_price = ori_price[0]
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//li[%i]//a/div/div[2]/div[2]/div/div[2]" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i % 40 == 1):
-                        chrome.find_element_by_tag_name(
-                            'body').send_keys(Keys.END)
-                        time.sleep(1)
-                    continue
-            i += 1
-            if(i % 40 == 1):
-                chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                time.sleep(1)
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
 
 def Chochobee():
     shop_id = 78
@@ -7627,7 +7537,6 @@ def get_tempcrawler(crawler_id):
         '71': Lovso,
         '72': Bowwow,
         '74': Suitangtang,
-        # '76': Miustar,
         '78': Chochobee,
         '79': Basezoo,
         '80': Asobi,
