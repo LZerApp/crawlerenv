@@ -462,7 +462,6 @@ class EyecreamCrawler(BaseCrawler):
         urls = [
             f"{self.base_url}/PDList2.asp?item=all&ob=D3&pageno={i}" for i in range(1, 15)]
         for url in urls:
-            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("figure", {"class": "p-item col-lg-3 col-md-4 col-xs-6 wow fadeInUp animated"})
@@ -545,124 +544,63 @@ class YocoCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-# # 024_InshopCrawler()
-# class InshopCrawler(BaseCrawler):
-#     id = 24
-#     name = "inshop"
-#     urls = [
-#             "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/247685?sortMode=Newest",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/115050?sortMode=Sales",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/247684?sortMode=Newest",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/181353?sortMode=Newest",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/115051?sortMode=Sales",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/181287?sortMode=Sales",
-#             "https://www.inshop.tw/v2/official/SalePageCategory/115052?sortMode=Newest"]
+# 076_MiustarCrawler()
+class MiustarCrawler(BaseCrawler):
+    id = 76
+    name = "miustar"
+    base_url = "https://www.miu-star.com.tw/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
 
-#     url = "https://www.inshop.tw/v2/official/SalePageCategory/115047?sortMode=Sales"
+    variables = {"shopId": 1317, "categoryId": 43374,
+                 "fetchCount": 20000, "orderBy": "Curator", "isShowCurator": True, "locationId": 0}
 
-#     # payload = {
-#     #     "pmmNo": "Topic56",
-#     #     "PageSize": "32",
-#     #     "SortCol": "pm_sdate",
-#     #     "SortType": "desc",
-#     # }
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(20):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
 
-#     def get_cookies(self):
-#         cookies = requests.request("GET", url, headers=self.headers).cookies
-#         return cookies
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = item.get("suggestPrice")
+        sale_price = item.get("price")
 
-#     def parse(self):
-#         for page_index in range(1, 17):
-#             cookies = self.get_cookies()
-#             response = requests.request(
-#                 "POST",
-#                 url,
-#                 headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
-#                 data={**self.payload, "PageIndex": page_index},
-#                 cookies=cookies,
-#             )
-#             soup = BeautifulSoup(
-#                 json.loads(response.text)["html"], features="html.parser"
-#             )
-#             items = soup.find_all("li", {"class": "product-cate_item"})
-#             self.result.extend([self.parse_product(item) for item in items])
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
-#     def parse_product(self, item):
-#         title = item.find("span", {"class": "cate-name"}).text.strip()
-#         link_id = item.find("a").get("href")
-#         link = f"{self.base_url}{link_id}"
-#         image_url = (
-#             item.find("img").get("data-original")
-#             if item.find("img").get("data-original")
-#             else item.find("img").get("src")
-#         )
-#         original_price = self.get_original_price(
-#             item.find("span", {"class": "price_discount"}).text
-#         )
-#         sale_price = self.get_price(
-#             item.find("span", {"class": "price_discount"}).text)
-#         return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
-# # 109_CandyboxCrawler()
-# class CandyboxCrawler(BaseCrawler):
-#     id = 109
-#     name = "candybox"
-#     base_url = "https://candybox.com.tw"
-#     payload = {
-#         "pmmNo": "Topic56",
-#         "PageSize": "32",
-#         "SortCol": "pm_sdate",
-#         "SortType": "desc",
-#     }
-
-#     def get_cookies(self):
-#         url = f"{self.base_url}/v2/official/SalePageCategory/98162?sortMode=Curator"
-#         cookies = requests.request("GET", url, headers=self.headers).cookies
-#         return cookies
-
-#     def get_discount_ratio(self, raw_text, pattern="(\d+%)"):
-#         discount_off = re.search(pattern, raw_text).group(0).replace("%", "")
-#         return 1 - int(discount_off) / 100
-
-#     def get_original_price(self, raw_text):
-#         sale_price = float(self.get_price(raw_text))
-#         discount_ratio = float(self.get_discount_ratio(raw_text))
-#         return int(sale_price / discount_ratio)
-
-#     def parse(self):
-#         url = f"{self.base_url}/AjaxProduct/GetProductCategoryListHtml"
-#         for page_index in range(1, 17):
-#             cookies = self.get_cookies()
-#             response = requests.request(
-#                 "POST",
-#                 url,
-#                 headers={**self.headers, "X-Requested-With": "XMLHttpRequest"},
-#                 data={**self.payload, "PageIndex": page_index},
-#                 cookies=cookies,
-#             )
-#             soup = BeautifulSoup(
-#                 json.loads(response.text)["html"], features="html.parser"
-#             )
-#             items = soup.find_all("li", {"class": "product-cate_item"})
-#             self.result.extend([self.parse_product(item) for item in items])
-
-#     def parse_product(self, item):
-#         title = item.find("span", {"class": "cate-name"}).text.strip()
-#         link_id = item.find("a").get("href")
-#         link = f"{self.base_url}{link_id}"
-#         image_url = (
-#             item.find("img").get("data-original")
-#             if item.find("img").get("data-original")
-#             else item.find("img").get("src")
-#         )
-#         original_price = self.get_original_price(
-#             item.find("span", {"class": "price_discount"}).text
-#         )
-#         sale_price = self.get_price(
-#             item.find("span", {"class": "price_discount"}).text)
-#         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 10_EFSHOP
 class EfshopCrawler(BaseCrawler):
@@ -961,26 +899,45 @@ class SumiCrawler(BaseCrawler):
     id = 85
     name = "sumi"
     base_url = "https://www.sumi-life.com"
+    payload = {'type': ' product',
+               'value': ' all',
+               'sort': ' default',
+               }
 
     def parse(self):
-        url = f"{self.base_url}/product/all"
-        response = requests.request("GET", url, headers=self.headers)
-        soup = BeautifulSoup(response.text, features="html.parser")
-        items = soup.find_all("li", {"class": " item_block js_is_photo_style  has_listing_cart "})
-        self.result.extend([self.parse_product(item) for item in items])
+        for i in range(0, 20):
+            url = "https://www.sumi-life.com/productlist"
+            response = requests.request("POST", url, headers=self.headers, data={**self.payload, "page": i})
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("a", {"class": "clearfix"})
+            if not items:
+                print(i)
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def get_id(
+        self,
+        raw_text,
+        pattern="'id': '(.*)'",
+    ):
+        return re.search(pattern, raw_text).group(1)
 
     def parse_product(self, item):
         title = item.find("h4").text
-        link = item.find("a").get("href")
-        link_id = link.replace("https://www.sumi-life.com/product/detail/", "")
+        link = item.get("href")
+        link_id = self.get_id(item.get('onclick'))
         image_url = item.find("span").get("data-src")
 
-        if (item.find("li", {"class": "item_origin item_actual"})):
-            original_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
-            sale_price = self.get_price(item.find("li", {"class": "item_origin item_actual"}).find("span").text)
-        else:
+        if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
             original_price = ""
-            sale_price = self.get_price(item.find("li", {"class": "item_origin"}).find("span").text)
+            if(item.find("span", {"class": "font_montserrat"})):
+                sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
+            else:
+                print(title)
+                return
+        else:
+            original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
+            sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -1539,6 +1496,7 @@ def get_crawler(crawler_id):
         "52": ApplestarryCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
+        "76": MiustarCrawler(),
         "83": PotatochicksCrawler(),
         # "85": SumiCrawler(),
         "92": BisouCrawler(),
