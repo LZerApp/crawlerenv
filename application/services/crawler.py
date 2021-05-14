@@ -601,6 +601,233 @@ class MiustarCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# 125_MiniqueenCrawler()
+class MiniqueenCrawler(BaseCrawler):
+    id = 125
+    name = "miniqueen"
+    base_url = "https://www.miniqueen.tw/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 1426, "categoryId": 0, "fetchCount": 200,
+                 "orderBy": "", "isShowCurator": False, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(10):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = item.get("suggestPrice")
+        sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+# 130_BaibeautyCrawler()
+class BaibeautyCrawler(BaseCrawler):
+    id = 130
+    name = "baibeauty"
+    base_url = "https://www.baibeauty.com/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 576, "categoryId": 275337, "fetchCount": 200,
+                 "orderBy": "", "isShowCurator": True, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(10):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = item.get("suggestPrice")
+        sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 136_DaimaCrawler()
+class DaimaCrawler(BaseCrawler):
+    id = 136
+    name = "daima"
+    base_url = "https://www.daima.asia/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 488, "categoryId": 0, "fetchCount": 200,
+                 "orderBy": "", "isShowCurator": False, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(20):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = item.get("suggestPrice")
+        sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 138_MiakiCrawler()
+class MiakiCrawler(BaseCrawler):
+    id = 138
+    name = "miaki"
+    base_url = "https://www.miaki.com.tw/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 385, "categoryId": 0, "fetchCount": 200,
+                 "orderBy": "", "isShowCurator": False, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(20):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = item.get("suggestPrice")
+        sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 爬取多個頁面
 # 024_InshopCrawler()
 class InshopCrawler(BaseCrawler):
@@ -1346,6 +1573,45 @@ class PotatochicksCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# 069_Boy2
+class Boy2Crawler(BaseCrawler):
+    id = 69
+    name = "boy2"
+    base_url = "https://www.boy2.com.tw/Shop/"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}itemList.aspx?m=31&p=0&o=5&sa=1&smfp={i}" for i in range(1, 35)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            try:
+                items = soup.find_all(
+                    "div", {"class": "itemListDiv"})
+            except:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "itemListMerName"}).find(
+            "a").text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = stripID(link, "cno=")
+        link_id = link_id[:link_id.find('&m')]
+        image_url = item.find("a").find("img").get("src")
+        try:
+            original_price = self.get_price(
+                item.find("span", {"class": "itemPrice itemListSaleMoney"}).text)
+            sale_price = self.get_price(
+                item.find("span", {"class": "itemPrice itemListOrigMoney"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("div", {"class": "itemListMoney"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 # 85_SumiCrawler()
 class SumiCrawler(BaseCrawler):
     id = 85
@@ -1458,9 +1724,11 @@ class BonbonsCrawler(BaseCrawler):
         link = item.find("div", {"class": "box-text box-text-products"}).find("a").get("href")
         link_id = stripID(link, "vid=")
         image_url = f"https:{item.find('img').get('src')}"
-        original_price = self.get_price(item.find("del").find(
-            "span", {"class": "woocommerce-Price-amount amount"}).text)
-        sale_price = self.get_price(item.find("ins").find("span", {"class": "woocommerce-Price-amount amount"}).text)
+
+        original_price = ""
+        # self.get_price(item.find("del").find(
+        #     "span", {"class": "woocommerce-Price-amount amount"}).text)
+        sale_price = self.get_price(item.find("button").get("data-price"))
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1952,6 +2220,7 @@ def get_crawler(crawler_id):
         "62": MougganCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
+        "69": Boy2Crawler(),
         "76": MiustarCrawler(),
         "79": BasezooCrawler(),
         "83": PotatochicksCrawler(),
@@ -1963,8 +2232,12 @@ def get_crawler(crawler_id):
         "108": EyecreamCrawler(),
         "109": CandyboxCrawler(),
         "112": VeryyouCrawler(),
+        "125": MiniqueenCrawler(),
         "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
+        "130": BaibeautyCrawler(),
+        "136": DaimaCrawler(),
+        "138": MiakiCrawler(),
         "142": LovfeeCrawler(),
         "143": MarjorieCrawler(),
         "144": PureeCrawler(),
