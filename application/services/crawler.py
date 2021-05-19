@@ -1286,6 +1286,55 @@ class EfshopCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# # 57_Meierq
+# class MeierqCrawler(BaseCrawler):
+#     id = 57
+#     name = "meierq"
+#     prefix_urls = [
+#         "https://www.meierq.com/zh-tw/category/outerclothing?P=",
+#         "https://www.meierq.com/zh-tw/category/bottomclothing?P=",
+#         "https://www.meierq.com/zh-tw/category/jewelry?P=",
+#         "https://www.meierq.com/zh-tw/category/accessories?P=",
+#     ]
+
+#     def parse(self):
+#         for prefix in self.prefix_urls:
+#             for i in range(1, 3):
+#                 urls = [f"{prefix}{i}"]
+#                 for url in urls:
+#                     print(url)
+#                     response = requests.get(url, headers=self.headers)
+#                     soup = BeautifulSoup(response.text, features="html.parser")
+#                     print(soup.text)
+#                     items = soup.find("ul", {"class": "items"})
+#                     if not items:
+#                         print(url, "break")
+#                         break
+#                     self.result.extend([self.parse_product(item) for item in items])
+#                 else:
+#                     continue
+#                 break
+
+#     def parse_product(self, item):
+#         title = item.find("p").text
+#         link = item.find("a").get("href")
+#         link = f"https://www.meierq.com{link}"
+#         link_id = stripID(link, "n/")
+#         link_id = link_id[:link_id.find("/")]
+#         image_url = item.find("img").get("src")
+#         try:
+#             original_price = self.get_price(item.find("span", {"class": "old"}).text)
+#         except:
+#             original_price = ""
+#             print("empty")
+#         if (original_price != ""):
+#             sale_price = self.get_price(item.find("span", {"class": "old"}).find_next("span").text)
+#         else:
+#             # sale_price = self.get_price(item.find("p", {"class": "price"}).find("span").text)
+#             sale_price = ""
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 11_MODA
 class ModaCrawler(BaseCrawler):
     id = 11
@@ -2217,6 +2266,7 @@ def get_crawler(crawler_id):
         "45": GogosingCrawler(),
         "53": KerinaCrawler(),
         "52": ApplestarryCrawler(),
+        # "57": MeierqCrawler(),
         "62": MougganCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
