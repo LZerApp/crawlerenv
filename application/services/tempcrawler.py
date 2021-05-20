@@ -2841,27 +2841,25 @@ def Meierq():
     close = 0
     page = 0
     prefix_urls = [
-
         "https://www.meierq.com/zh-tw/category/bottomclothing?P=",
         "https://www.meierq.com/zh-tw/category/jewelry?P=",
-        "https://www.meierq.com/zh-tw/category/accessories?P=",
         "https://www.meierq.com/zh-tw/category/outerclothing?P=",
+        "https://www.meierq.com/zh-tw/category/accessories?P=",
     ]
     for prefix in prefix_urls:
         page += 1
-        if (page == 5):
-            chrome.quit()
-            print('page_break')
-            break
-        for i in range(1, 3):
+        for i in range(1, page_Max):
             url = f"{prefix}{i}"
             try:
                 print(url)
                 chrome.get(url)
-                chrome.find_element_by_xpath("//ul[@class='items']")
+                chrome.find_element_by_xpath("//div[@class='items__image']")
             except:
-                print("find_element_by_xpath_break")
-
+                print("find_element_by_xpath_break", page)
+                if(page == 4):
+                    chrome.quit()
+                    print("break")
+                    break
                 break
             i = 1
             while(i < 41):
@@ -6018,7 +6016,7 @@ def get_tempcrawler(crawler_id):
         '54': Seoulmate,
         '55': Sweesa,
         '56': Pazzo,
-        # '57': Meierq,
+        '57': Meierq,
         '58': Harper,
         '59': Lurehsu,
         '61': Pufii,
