@@ -1735,7 +1735,9 @@ class SumiCrawler(BaseCrawler):
     def parse(self):
         for i in range(0, 20):
             url = "https://www.sumi-life.com/productlist"
-            response = requests.request("POST", url, headers=self.headers, data={**self.payload, "page": i})
+            response = requests.request("POST", url, headers={
+                                        **self.headers, "Accept-language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"}, data={**self.payload, "page": i})
+
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("a", {"class": "clearfix"})
             if not items:
