@@ -889,6 +889,67 @@ class InshopCrawler(BaseCrawler):
 
 
 # 爬取多個頁面
+# 139_VinaclosetCrawler()
+class VinaclosetCrawler(BaseCrawler):
+    id = 139
+    name = "vinacloset"
+    base_url = "https://www.vinacloset.com.tw/SalePage/Index/"
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 1962, "fetchCount": 200, "orderBy": "Sales", "isShowCurator": False, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        categoryids = ["228637", "228646", "322505", "322505", "228639"]
+        for categoryid in categoryids:
+            for i in range(20):
+                start = 200 * i
+                response = requests.request(
+                    "POST",
+                    url,
+                    headers=self.headers,
+                    json={'query': self.query, 'variables': {**self.variables, "categoryId": int(categoryid), "startIndex": start}},)
+                items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+                if not items:
+                    break
+                self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        original_price = ""
+        sale_price = item.get("suggestPrice")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 爬取多個頁面
 # 103_GoddessCrawler()
 class GoddessCrawler(BaseCrawler):
     id = 103
@@ -1689,23 +1750,31 @@ class SumiCrawler(BaseCrawler):
     ):
         return re.search(pattern, raw_text).group(1)
 
+    def get_price(
+        self,
+        raw_text,
+        pattern="'price': '(.*)'",
+    ):
+        return re.search(pattern, raw_text).group(1)
+
     def parse_product(self, item):
         title = item.find("h4").text
         link = item.get("href")
         link_id = self.get_id(item.get('onclick'))
         image_url = item.find("span").get("data-src")
 
-        if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
-            original_price = ""
-            if(item.find("span", {"class": "font_montserrat"})):
-                sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
-            else:
-                print(title)
-                return
-        else:
-            original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
-            sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
-
+        # if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
+        #     original_price = ""
+        #     if(item.find("span", {"class": "font_montserrat"})):
+        #         sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
+        #     else:
+        #         print(title)
+        #         return
+        # else:
+        #     original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
+        #     sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
+        original_price = ""
+        sale_price = self.get_price(item.get('onclick'))
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -2257,7 +2326,7 @@ def get_crawler(crawler_id):
         "5": MajormadeCrawler(),
         "7": BasicCrawler(),
         "8": AirspaceCrawler(),
-        "9": YocoCrawler(),
+        # "9": YocoCrawler(),
         "10": EfshopCrawler(),
         "11": ModaCrawler(),
         "24": InshopCrawler(),
@@ -2266,7 +2335,6 @@ def get_crawler(crawler_id):
         "45": GogosingCrawler(),
         "53": KerinaCrawler(),
         "52": ApplestarryCrawler(),
-        # "57": MeierqCrawler(),
         "62": MougganCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
@@ -2288,6 +2356,7 @@ def get_crawler(crawler_id):
         "130": BaibeautyCrawler(),
         "136": DaimaCrawler(),
         "138": MiakiCrawler(),
+        "139": VinaclosetCrawler(),
         "142": LovfeeCrawler(),
         "143": MarjorieCrawler(),
         "144": PureeCrawler(),
