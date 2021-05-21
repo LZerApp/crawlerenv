@@ -1730,7 +1730,6 @@ class SumiCrawler(BaseCrawler):
     payload = {'type': ' product',
                'value': ' all',
                'sort': ' default',
-               'currency': 'TWD',
                }
 
     def parse(self):
@@ -1742,7 +1741,7 @@ class SumiCrawler(BaseCrawler):
             if not items:
                 print(i)
                 break
-            print(items)
+            # print(items)
             self.result.extend([self.parse_product(item) for item in items])
 
     def get_id(
@@ -1765,19 +1764,19 @@ class SumiCrawler(BaseCrawler):
         link_id = self.get_id(item.get('onclick'))
         image_url = item.find("span").get("data-src")
 
-        if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
-            original_price = ""
-            if(item.find("span", {"class": "font_montserrat"})):
-                sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
-            else:
-                print(title)
-                return
-        else:
-            original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
-            sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
+        # if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
+        #     original_price = ""
+        #     if(item.find("span", {"class": "font_montserrat"})):
+        #         sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
+        #     else:
+        #         print(title)
+        #         return
+        # else:
+        #     original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
+        #     sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
 
-        # original_price = ""
-        # sale_price = self.get_price(item.get('onclick'))
+        original_price = ""
+        sale_price = self.get_price(item.get('onclick'))
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
