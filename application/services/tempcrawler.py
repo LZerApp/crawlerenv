@@ -3866,7 +3866,6 @@ def Chochobee():
         url = "https://www.chochobee.com/catalog.php?m=40&s=0&t=0&sort=&page=" + \
             str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -5801,9 +5800,8 @@ def Amissa():
             chrome.get(url)
         except:
             break
-        time.sleep(1)
         i = 1
-        while(i < 25):
+        while(i < 73):
             try:
                 title = chrome.find_element_by_xpath(
                     "//li[%i]/product-item/a/div[2]/div/div[1]" % (i,)).text
@@ -5821,8 +5819,9 @@ def Amissa():
                 bg_url = find_href.value_of_css_property('background-image')
                 pic_link = bg_url.lstrip('url("').rstrip(')"')
             except:
+                print(p, i, "1")
                 i += 1
-                if(i == 25):
+                if(i == 73):
                     p += 1
                 continue
             try:
@@ -5841,101 +5840,15 @@ def Amissa():
                     sale_price = sale_price[0]
                     ori_price = ""
                 except:
+                    print(p, i, "2")
                     i += 1
-                    if(i == 25):
+                    if(i == 73):
                         p += 1
                     continue
 
             i += 1
-            if(i == 25):
+            if(i == 73):
                 p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    print("Finish:", shop_id, name)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
-def Vinacloset():
-    shop_id = 139
-    name = 'vinacloset'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', options=options)
-    i = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    flag = 0
-    print("Start:", shop_id, name)
-    while True:
-        if (flag == 1):
-            chrome.quit()
-            break
-        url = "https://www.vinacloset.com.tw/v2/official/SalePageCategory/228637?sortMode=Sales"
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-
-        while(True):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[@class='column-grid-container__column'][%i]//a/div/div[2]/div[1]" % (i,)).text
-            except:
-                flag += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[%i]//div[@class='product-card__vertical product-card__vertical--hover']/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/SalePage/Index/")
-                pic_link = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div/figure/img" % (i,)).get_attribute('src')
-            except:
-                i += 1
-                if(i % 40 == 1):
-                    chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                    time.sleep(1)
-                continue
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div[2]/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div[2]/div[2]/div/div[1]" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-                ori_price = ori_price.split()
-                ori_price = ori_price[0]
-            except:
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]//a/div/div[2]/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = ""
-
-            i += 1
-            if(i % 40 == 1):
-                chrome.find_element_by_tag_name('body').send_keys(Keys.END)
-                time.sleep(1)
 
             df = pd.DataFrame(
                 {
@@ -5974,13 +5887,13 @@ def upload(shop_id, name):
         }
         path = fold_path + filename + '.xlsx'
         size = getsize(path)
-        if (size <= 5000):
+        if (size <= 6000):
             print(size)
-            return
-        response = requests.post(verify=False, url=url, files=files,
-                                 headers=headers)
-        print(response.status_code)
-        # os.remove(filename+'.xlsx')
+        else:
+            response = requests.post(verify=False, url=url, files=files,
+                                     headers=headers)
+            print(response.status_code)
+            # os.remove(filename+'.xlsx')
     except Exception as e:
         print(e)
 
@@ -6025,9 +5938,9 @@ def get_tempcrawler(crawler_id):
         '66': Nana,
         '70': Aachic,
         '71': Lovso,
-        '72': Bowwow,
+        # '72': Bowwow,
         '74': Suitangtang,
-        '78': Chochobee,
+        # '78': Chochobee,
         '80': Asobi,
         '81': Kiyumi,
         '82': Genquo,
@@ -6042,7 +5955,7 @@ def get_tempcrawler(crawler_id):
         '104': Pleats,
         '105': Zebra,
         '107': Mihara,
-        '111': Oiiv,
+        # '111': Oiiv,
         '113': Stayfoxy,
         '115': Gracechow,
         '118': Righton,
@@ -6050,6 +5963,5 @@ def get_tempcrawler(crawler_id):
         '122': Sexyinshape,
         '123': Bonjour,
         '133': Amissa,
-        '139': Vinacloset,
     }
     return crawlers.get(str(crawler_id))
