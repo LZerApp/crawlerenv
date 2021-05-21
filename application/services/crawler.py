@@ -1741,6 +1741,7 @@ class SumiCrawler(BaseCrawler):
             if not items:
                 print(i)
                 break
+            print(items)
             self.result.extend([self.parse_product(item) for item in items])
 
     def get_id(
@@ -1750,12 +1751,12 @@ class SumiCrawler(BaseCrawler):
     ):
         return re.search(pattern, raw_text).group(1)
 
-    def get_price(
-        self,
-        raw_text,
-        pattern="'price': '(.*)'",
-    ):
-        return re.search(pattern, raw_text).group(1)
+    # def get_price(
+    #     self,
+    #     raw_text,
+    #     pattern="'price': '(.*)'",
+    # ):
+    #     return re.search(pattern, raw_text).group(1)
 
     def parse_product(self, item):
         title = item.find("h4").text
@@ -1763,18 +1764,19 @@ class SumiCrawler(BaseCrawler):
         link_id = self.get_id(item.get('onclick'))
         image_url = item.find("span").get("data-src")
 
-        # if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
-        #     original_price = ""
-        #     if(item.find("span", {"class": "font_montserrat"})):
-        #         sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
-        #     else:
-        #         print(title)
-        #         return
-        # else:
-        #     original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
-        #     sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
-        original_price = ""
-        sale_price = self.get_price(item.get('onclick'))
+        if (item.find("li", {"class": "item_origin item_actual item_visibility"})):
+            original_price = ""
+            if(item.find("span", {"class": "font_montserrat"})):
+                sale_price = self.get_price(item.find("span", {"class": "font_montserrat"}).text)
+            else:
+                print(title)
+                return
+        else:
+            original_price = self.get_price(item.find("span", {"class": "font_montserrat line_through"}).text)
+            sale_price = self.get_price(item.find("li", {"class": "item_sale"}).find("span").text)
+
+        # original_price = ""
+        # sale_price = self.get_price(item.get('onclick'))
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
