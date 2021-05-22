@@ -1683,22 +1683,24 @@ class PotatochicksCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-# 069_Boy2
-class Boy2Crawler(BaseCrawler):
-    id = 69
-    name = "boy2"
-    base_url = "https://www.boy2.com.tw/Shop/"
-
+# 51_wstyle
+class WstyleCrawler(BaseCrawler):
+    id = 51
+    name = "wstyle"
+    base_url = "https://www.wstyle.com.tw/Shop/"
+    page_list =['24','26','27','28','29']
     def parse(self):
         urls = [
-            f"{self.base_url}itemList.aspx?m=31&p=0&o=5&sa=1&smfp={i}" for i in range(1, 35)]
+            f"{self.base_url}itemList.aspx?m={k}&o=0&sa=0&smfp={i}" for k in self.page_list for i in range(1, 10)]  # 頁碼會變
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             try:
                 items = soup.find_all(
                     "div", {"class": "itemListDiv"})
+                print(url)
             except:
+                print(url,"break")
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -1707,8 +1709,39 @@ class Boy2Crawler(BaseCrawler):
             "a").text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}{link_id}"
-        link_id = stripID(link, "cno=")
-        link_id = link_id[:link_id.find('&m')]
+        link_id = stripID(link, "No1=")
+        link_id = link_id[:link_id.find('&cno')]
+        image_url = item.find("a").find("img").get("src")
+        original_price = ""
+        sale_price = self.get_price(
+            item.find("div", {"class": "itemListMoney"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# 069_Boy2
+class Boy2Crawler(BaseCrawler):
+    id = 69
+    name = "boy2"
+    base_url = "https://www.boy2.com.tw/Shop/"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}itemList.aspx?m=31&p=0&o=5&sa=1&smfp={i}" for i in range(1, 31)]  # 頁碼會變
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all(
+                "div", {"class": "itemListDiv"})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "itemListMerName"}).find(
+            "a").text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = stripID(link, "No1=")
+        link_id = link_id[:link_id.find('&cno')]
         image_url = item.find("a").find("img").get("src")
         try:
             original_price = self.get_price(
@@ -2335,8 +2368,9 @@ def get_crawler(crawler_id):
         "41": RainbowCrawler(),
         "43": NeedCrawler(),
         "45": GogosingCrawler(),
-        "53": KerinaCrawler(),
+        "51": WstyleCrawler(),
         "52": ApplestarryCrawler(),
+        "53": KerinaCrawler(),
         "62": MougganCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
