@@ -141,6 +141,7 @@ def Wishbykorea():
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
+            print(url)
         except:
             break
 
@@ -5617,11 +5618,11 @@ def Amissa():
         if (close == 1):
             chrome.quit()
             break
-        url = "https://www.amissa.co/products?page=" + str(p)
+        url = "https://www.amissa.co/categories/%E6%89%80%E6%9C%89%E5%95%86%E5%93%81?page=" + str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
+            print(url)
         except:
             break
         i = 1
