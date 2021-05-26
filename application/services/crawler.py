@@ -182,6 +182,9 @@ class LegustCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("product-item")
+            if not items:
+                print(url, 'break')
+                break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
@@ -1688,7 +1691,8 @@ class WstyleCrawler(BaseCrawler):
     id = 51
     name = "wstyle"
     base_url = "https://www.wstyle.com.tw/Shop/"
-    page_list =['24','26','27','28','29']
+    page_list = ['24', '26', '27', '28', '29']
+
     def parse(self):
         urls = [
             f"{self.base_url}itemList.aspx?m={k}&o=0&sa=0&smfp={i}" for k in self.page_list for i in range(1, 10)]  # 頁碼會變
@@ -1700,7 +1704,7 @@ class WstyleCrawler(BaseCrawler):
                     "div", {"class": "itemListDiv"})
                 print(url)
             except:
-                print(url,"break")
+                print(url, "break")
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -1771,8 +1775,9 @@ class SumiCrawler(BaseCrawler):
             response = requests.request("POST", url, headers=self.headers, data={**self.payload, "page": i})
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("a", {"class": "clearfix"})
+            print(i)
             if not items:
-                print(i)
+                print(i, 'break')
                 break
             # print(items)
             self.result.extend([self.parse_product(item) for item in items])
@@ -1784,12 +1789,12 @@ class SumiCrawler(BaseCrawler):
     ):
         return re.search(pattern, raw_text).group(1)
 
-    # def get_price(
-    #     self,
-    #     raw_text,
-    #     pattern="'price': '(.*)'",
-    # ):
-    #     return re.search(pattern, raw_text).group(1)
+    def get_price(
+        self,
+        raw_text,
+        pattern="'price': '(.*)'",
+    ):
+        return re.search(pattern, raw_text).group(1)
 
     def parse_product(self, item):
         title = item.find("h4").text
