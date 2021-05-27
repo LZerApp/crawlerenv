@@ -2066,94 +2066,6 @@ def Queen():
     upload(shop_id, name)
 
 
-def Circlescinema():
-    shop_id = 47
-    name = 'circles-cinema'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.circles-cinema.com.tw/Shop/itemList.aspx?m=9&p=0&o=0&sa=0&smfp=" + \
-            str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 17):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[2]/div/a" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div[2]/div[1]/a" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.replace("mNo1=", "")
-                page_id = page_id.replace("&m=9", "")
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]/div/center/a/img" % (i,)).get_attribute("src")
-            except:
-                i += 1
-                if(i == 17):
-                    p += 1
-                continue
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]//div[1]/span" % (i,)).text
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='itemListDiv'][%i]//div[2]/span" % (i,)).text
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]//div[1]/span" % (i,)).text
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 17):
-                        p += 1
-                    continue
-
-            i += 1
-            if(i == 17):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Cozyfee():
     shop_id = 48
     name = 'cozyfee'
@@ -5746,7 +5658,6 @@ def get_tempcrawler(crawler_id):
         '39': Nook,
         '40': Greenpea,
         '42': Queen,
-        '47': Circlescinema,
         '48': Cozyfee,
         '49': Reishop,
         '50': Yourz,
