@@ -1686,6 +1686,40 @@ class PotatochicksCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+# 47_Circlescinema
+class CirclescinemaCrawler(BaseCrawler):
+    id = 47
+    name = "circlescinema"
+    base_url = "https://www.circles-cinema.com.tw/Shop/"
+
+    def parse(self):
+        url = f"{self.base_url}itemList.aspx?m=9&p=0&o=0&sa=0&smfp=0"
+        response = requests.request("GET", url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        items = soup.find_all("div", {"class": "itemListDiv"})
+        self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "itemListMerName"}).find(
+            "a").text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = link_id.replace(
+            "itemDetail.aspx?mNo1=", "").replace("&m=9", "")
+        image_url = item.find("a").find("img").get("src")
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "itemListOrigMoney"}).find("span").text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "itemListMoney itemHasOrig"}).find("span").text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("div", {"class": "itemListMoney"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 51_wstyle
 class WstyleCrawler(BaseCrawler):
     id = 51
@@ -1775,7 +1809,6 @@ class SumiCrawler(BaseCrawler):
             response = requests.request("POST", url, headers=self.headers, data={**self.payload, "page": i})
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("a", {"class": "clearfix"})
-            print(i)
             if not items:
                 print(i, 'break')
                 break
@@ -2373,6 +2406,7 @@ def get_crawler(crawler_id):
         "41": RainbowCrawler(),
         "43": NeedCrawler(),
         "45": GogosingCrawler(),
+        "47": CirclescinemaCrawler(),
         "51": WstyleCrawler(),
         "52": ApplestarryCrawler(),
         "53": KerinaCrawler(),
