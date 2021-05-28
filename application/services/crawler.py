@@ -2422,7 +2422,7 @@ def get_crawler(crawler_id):
         "95": LulusCrawler(),
         "100": NabCrawler(),
         "103": GoddessCrawler(),
-        "108": EyecreamCrawler(),
+        # "108": EyecreamCrawler(),
         "109": CandyboxCrawler(),
         "112": VeryyouCrawler(),
         "125": MiniqueenCrawler(),
