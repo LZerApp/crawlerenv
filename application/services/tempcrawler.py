@@ -1024,7 +1024,6 @@ def Folie():
             i += 1
             if(i == 25):
                 p += 1
-            
 
             df = pd.DataFrame(
                 {
