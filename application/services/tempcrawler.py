@@ -882,7 +882,7 @@ def Singular():
         i = 1
         offset = (p-1) * 50
         url = "https://www.singular-official.com/products?limit=50&offset=" + \
-            str(offset) + "0&price=0%2C10000&sort=createdAt-desc"
+            str(offset) + "&price=0%2C10000&sort=createdAt-desc"
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -924,6 +924,8 @@ def Singular():
             i += 1
             if(i == 51):
                 p += 1
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            time.sleep(1)
 
             df = pd.DataFrame(
                 {
@@ -1022,6 +1024,7 @@ def Folie():
             i += 1
             if(i == 25):
                 p += 1
+            
 
             df = pd.DataFrame(
                 {
