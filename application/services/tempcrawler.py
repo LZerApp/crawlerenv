@@ -1421,40 +1421,47 @@ def Cereal():
     chrome = webdriver.Chrome(
         executable_path='./chromedriver', chrome_options=options)
 
-    p = 1
+    p = 19
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
     dfAll = pd.DataFrame()  # 存放所有資料
     close = 0
+    switch = 0
     while True:
         if (close == 1):
             chrome.quit()
             break
-        url = "https://www.cerealoutfit.com/new/page/" + str(p) + "/"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
+        url = "https://www.cerealoutfit.com/product-tag/clothing/page/" + str(p) + "/"
+        url2 = "https://www.cerealoutfit.com/product-category/accessories/page/" + str(p) + "/"
+        if(switch == 0):
+            try:
+                chrome.get(url)
+                print(url)
+            except:
+                break
+        else:
+            try:
+                chrome.get(url2)
+                print(url2)
+            except:
+                break
         time.sleep(1)
         try:
             chrome.find_element_by_xpath(
                 "//button[@class='mfp-close']").click()
         except:
             pass
-
+        
         i = 1
         while(i < 25):
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@data-loop='%i']/h3/a" % (i,)).text
-                if(title == ""):
-                    i += 1
-                    if(i == 25):
-                        p += 1
-                    continue
             except:
-                close += 1
+                if(switch==1):
+                    close += 1
+                else:
+                    p = 1
+                    switch += 1
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -5061,85 +5068,6 @@ def Stayfoxy():
     upload(shop_id, name)
 
 
-def Gracechow():
-    shop_id = 115
-    name = 'gracechow'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.gracechowtw.com/products?page=" + str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div[2]/div/div[1]" % (i,)).text
-            except:
-                close += 1
-
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div[1]/div" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div/div/div[2]/div[1]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = ""
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
 
 def Righton():
     shop_id = 118
@@ -5653,7 +5581,6 @@ def get_tempcrawler(crawler_id):
         '30': Gmorning,
         '31': July,
         '32': Per,
-        '33': Cereal,
         '35': Jcjc,
         '36': Ccshop,
         '37': Iris,
@@ -5694,7 +5621,6 @@ def get_tempcrawler(crawler_id):
         '107': Mihara,
         # '111': Oiiv,
         '113': Stayfoxy,
-        # '115': Gracechow,
         '118': Righton,
         '120': Daf,
         '122': Sexyinshape,
