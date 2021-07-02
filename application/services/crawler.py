@@ -17,7 +17,10 @@ def stripID(url, wantStrip):
     loc = url.find(wantStrip)
     length = len(wantStrip)
     return url[loc+length:]
-
+def b_stripID(url,wantStrip):
+    loc = url.find(wantStrip)
+    length = len(wantStrip)
+    return url[:loc]
 
 # Product = namedtuple('Product', ['title', 'url', 'page_id', 'image_url', 'original_price', 'sale_price'])
 Product = namedtuple(
@@ -433,10 +436,11 @@ class AirspaceCrawler(BaseCrawler):
     id = 8
     name = "airspace"
     base_url = "https://www.airspaceonline.com"
-
+    
     def parse(self):
         urls = [
-            f"{self.base_url}/PDList.asp?pp1=all&pageno={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/PDList.asp?color=&keyword=&pp1=all&pp2=&pp3=&newpd=&ob=A&pageno={i}" for i in range(1, page_Max)]
+                            
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -586,7 +590,7 @@ class YocoCrawler(BaseCrawler):
 class MiustarCrawler(BaseCrawler):
     id = 76
     name = "miustar"
-    base_url = "https://www.miu-star.com.tw/SalePage/Index/"
+    base_url = "https://www.miu-star.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -634,8 +638,12 @@ class MiustarCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -643,7 +651,7 @@ class MiustarCrawler(BaseCrawler):
 class MiniqueenCrawler(BaseCrawler):
     id = 125
     name = "miniqueen"
-    base_url = "https://www.miniqueen.tw/SalePage/Index/"
+    base_url = "https://www.miniqueen.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -691,15 +699,19 @@ class MiniqueenCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 130_BaibeautyCrawler()
 class BaibeautyCrawler(BaseCrawler):
     id = 130
     name = "baibeauty"
-    base_url = "https://www.baibeauty.com/SalePage/Index/"
+    base_url = "https://www.baibeauty.com/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -747,8 +759,12 @@ class BaibeautyCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -756,7 +772,7 @@ class BaibeautyCrawler(BaseCrawler):
 class DaimaCrawler(BaseCrawler):
     id = 136
     name = "daima"
-    base_url = "https://www.daima.asia/SalePage/Index/"
+    base_url = "https://www.daima.asia/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -804,8 +820,12 @@ class DaimaCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -813,7 +833,7 @@ class DaimaCrawler(BaseCrawler):
 class MiakiCrawler(BaseCrawler):
     id = 138
     name = "miaki"
-    base_url = "https://www.miaki.com.tw/SalePage/Index/"
+    base_url = "https://www.miaki.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -861,8 +881,12 @@ class MiakiCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -871,7 +895,7 @@ class MiakiCrawler(BaseCrawler):
 class InshopCrawler(BaseCrawler):
     id = 24
     name = "inshop"
-    base_url = "https://www.inshop.tw/SalePage/Index/"
+    base_url = "https://www.inshop.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -920,8 +944,12 @@ class InshopCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -931,7 +959,7 @@ class InshopCrawler(BaseCrawler):
 class VinaclosetCrawler(BaseCrawler):
     id = 139
     name = "vinacloset"
-    base_url = "https://www.vinacloset.com.tw/SalePage/Index/"
+    base_url = "https://www.vinacloset.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -992,7 +1020,7 @@ class VinaclosetCrawler(BaseCrawler):
 class GoddessCrawler(BaseCrawler):
     id = 103
     name = "goddess"
-    base_url = "https://www.goddess-shop.com/SalePage/Index/"
+    base_url = "https://www.goddess-shop.com/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -1044,9 +1072,12 @@ class GoddessCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
-
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1054,7 +1085,7 @@ class GoddessCrawler(BaseCrawler):
 class RainbowCrawler(BaseCrawler):
     id = 41
     name = "rainbow"
-    base_url = "https://www.rainbow-shop.com.tw/SalePage/Index/"
+    base_url = "https://www.rainbow-shop.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -1102,9 +1133,12 @@ class RainbowCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
-
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -1112,8 +1146,8 @@ class RainbowCrawler(BaseCrawler):
 class NeedCrawler(BaseCrawler):
     id = 43
     name = "need"
-    base_url = "https://www.need.tw/SalePage/Index/"
-    query = """
+    base_url = "https://www.need.tw/SalePage/Index/" #要記得改
+    query = """ 
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
             salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
@@ -1160,8 +1194,12 @@ class NeedCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -1170,7 +1208,7 @@ class NeedCrawler(BaseCrawler):
 class BasezooCrawler(BaseCrawler):
     id = 79
     name = "basezoo"
-    base_url = "https://www.basezoo.com.tw/SalePage/Index/"
+    base_url = "https://www.basezoo.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -1218,8 +1256,12 @@ class BasezooCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -1228,7 +1270,7 @@ class BasezooCrawler(BaseCrawler):
 class LulusCrawler(BaseCrawler):
     id = 95
     name = "lulus"
-    base_url = "https://www.lulus.tw/SalePage/Index/"
+    base_url = "https://www.lulus.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -1276,8 +1318,12 @@ class LulusCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -1286,7 +1332,7 @@ class LulusCrawler(BaseCrawler):
 class CandyboxCrawler(BaseCrawler):
     id = 109
     name = "candybox"
-    base_url = "https://candybox.com.tw/SalePage/Index/"
+    base_url = "https://candybox.com.tw/SalePage/Index/" #要記得改
     query = """
     query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
         shopCategory(shopId: $shopId, categoryId: $categoryId) {
@@ -1334,11 +1380,75 @@ class CandyboxCrawler(BaseCrawler):
         link_id = item.get("salePageId")
         link = f"{self.base_url}{link_id}"
         image_url = f"https:{item.get('picUrl')}"
-        original_price = item.get("suggestPrice")
-        sale_price = item.get("price")
-
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+
+class CorbanCrawler(BaseCrawler):
+    id = 29
+    name = "corban"
+    base_url = "https://www.corban.com.tw/SalePage/Index/" #要記得改
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                    __typename
+                }
+            totalSize
+            shopCategoryId
+            shopCategoryName
+            statusDef
+            listModeDef
+            orderByDef
+            dataSource
+            __typename
+            }
+            __typename
+        }
+    }
+"""
+
+    variables = {"shopId": 40995, "categoryId": 382947, "fetchCount": 200,
+                 "orderBy": "", "isShowCurator": True, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(20):
+            start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+        
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 10_EFSHOP
 class EfshopCrawler(BaseCrawler):
@@ -1505,6 +1615,49 @@ class GogosingCrawler(BaseCrawler):
         sale_price = self.get_price(item.find("ul").find("span").find_next("span").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+class PazzoCrawler(BaseCrawler):
+    id = 56
+    name = "pazzo"
+    prefix_urls = [
+        "https://www.pazzo.com.tw/zh-tw/category/tops?P=",
+        "https://www.pazzo.com.tw/zh-tw/category/bottoms?P=",
+        "https://www.pazzo.com.tw/zh-tw/category/onepiece?P=",
+        "https://www.pazzo.com.tw/zh-tw/category/darlingme?P=",
+        "https://www.pazzo.com.tw/zh-tw/category/accessories?P=",
+    ]
+
+    def parse(self):
+        for prefix in self.prefix_urls:
+            for i in range(1, page_Max):
+                urls = [f"{prefix}{i}"]
+                for url in urls:
+                    print(url)
+                    response = requests.get(url, headers=self.headers)
+                    soup = BeautifulSoup(response.text, features="html.parser")
+                    items = soup.find_all("li", {"class": "item"})
+                    if not items:
+                        print(url, "break")
+                        break
+                    self.result.extend([self.parse_product(item) for item in items])
+                else:
+                    continue
+                break
+
+    def parse_product(self, item):
+        title = item.find("p", {"class": "item__name"}).text
+        link = item.find("a").get("href")
+        link = f"https://www.pazzo.com.tw{link}"
+        link_id = stripID(link, "/n/")
+        link_id = b_stripID(link_id, "?")
+        image_url = item.find("img").get("src")
+        if (item.find("p", {"class": "item__price"}).find("span").find_next_sibling("span") != None):
+            original_price = self.get_price(item.find("p", {"class": "item__price"}).find("span").text)
+            sale_price = self.get_price(item.find("p", {"class": "item__price"}).find("span").find_next_sibling("span").text)
+        else:
+            original_price = ""
+            sale_price = self.get_price(item.find("p", {"class": "item__price"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
 # 62_Mouggan
@@ -3486,6 +3639,7 @@ def get_crawler(crawler_id):
         "10": EfshopCrawler(),
         "11": ModaCrawler(),
         "24": InshopCrawler(),
+        "29": CorbanCrawler(),
         "33": CerealCrawler(),
         "41": RainbowCrawler(),
         "43": NeedCrawler(),
@@ -3494,6 +3648,7 @@ def get_crawler(crawler_id):
         "51": WstyleCrawler(),
         "52": ApplestarryCrawler(),
         "53": KerinaCrawler(),
+        "56": PazzoCrawler(),
         "62": MougganCrawler(),
         "63": JendesCrawler(),
         "65": SivirCrawler(),
