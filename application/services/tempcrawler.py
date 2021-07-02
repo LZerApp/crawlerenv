@@ -794,19 +794,18 @@ def Amesoeur():
         while(i < 25):
             try:
                 title = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[1]" % (i,)).text
+                    "//div/a[%i]/div[@class='Product-info']/div[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
-                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
+                    "//div[@class='col-xs-12 ProductList-list']/a[%i]" % (i,)).get_attribute('href')
                 page_id = chrome.find_element_by_xpath(
-                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('product-id')
+                    "//div[@class='col-xs-12 ProductList-list']/a[%i]" % (i,)).get_attribute('product-id')
 
                 find_href = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[1]/div" % (i,))
+                    "//div[@class='col-xs-12 ProductList-list']/a[%i]/div[1]/div[1]" % (i,))
                 bg_url = find_href.value_of_css_property('background-image')
                 pic_link = bg_url.lstrip('url("').rstrip(')"')
             except:
@@ -817,17 +816,17 @@ def Amesoeur():
 
             try:
                 sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[3]" % (i,)).text
+                    "//div/a[%i]/div[2]/div[2]" % (i,)).text
                 sale_price = sale_price.strip('NT$')
                 sale_price = sale_price.split()
                 sale_price = sale_price[0]
                 ori_price = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
+                    "//div/a[%i]/div[2]/div[3]" % (i,)).text
                 ori_price = ori_price.strip('NT$')
             except:
                 try:
                     sale_price = chrome.find_element_by_xpath(
-                        "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
+                        "//div/a[%i]/div[2]/div[2]" % (i,)).text
                     sale_price = sale_price.strip('NT$')
                     sale_price = sale_price.split()
                     sale_price = sale_price[0]
@@ -1041,87 +1040,6 @@ def Folie():
     upload(shop_id, name)
 
 
-def Corban():
-    shop_id = 29
-    name = 'corban'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        i = 1
-        offset = (p-1) * 50
-        url = "https://www.corban.com.tw/products?limit=50&offset=" + \
-            str(offset) + "&price=0%2C10000&sort=createdAt-desc&tags=ALL%20ITEMS"
-        try:
-            chrome.get(url)
-        except:
-            break
-
-        while(i < 51):
-            try:
-
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]//a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/product/")
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]//img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$ ')
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[1]/span/s" % (i,)).text
-                ori_price = ori_price.strip('NT$ ')
-
-            except:
-                i += 1
-                if(i == 51):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 51):
-                p += 1
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-            time.sleep(1)
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Gmorning():
     shop_id = 30
     name = 'gmorning'
@@ -1146,7 +1064,6 @@ def Gmorning():
         url = "https://www.gmorning.co/products?page=" + \
             str(p) + "&sort_by=&order_by=&limit=24"
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
         except:
@@ -1159,7 +1076,6 @@ def Gmorning():
                     "//div[%i]/product-item/a/div[2]/div/div[1]" % (i,)).text
             except:
                 close += 1
-
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -1539,10 +1455,11 @@ def Jcjc():
             break
         url = "https://www.jcjc-dailywear.com/collections/in-stock?limit=24&page=" + \
             str(p) + "&sort=featured"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+        if(p > 4):
+            break
         try:
             chrome.get(url)
+            print(url)
         except:
             break
         time.sleep(1)
@@ -5577,8 +5494,7 @@ def get_tempcrawler(crawler_id):
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
-        '29': Corban,
-        '30': Gmorning,
+        # '30': Gmorning,
         '31': July,
         '32': Per,
         '35': Jcjc,
