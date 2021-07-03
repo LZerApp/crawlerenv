@@ -213,6 +213,48 @@ class LegustCrawler(BaseCrawler):
             sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+class ShaxiCrawler(BaseCrawler):
+    id = 22
+    name = "shaxi"
+    base_url = "https://www.shaxi.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}" for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("li", {"class":"boxify-item product-item"})
+            if not items:
+                print(url, 'break')
+                break
+            # print(items)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+
+        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        link = item.find("a").get("href")
+        link = f"https://www.shaxi.tw{link}"
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+            sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+        except:
+            original_price = ""
+            if(item.find("div", {"class": "global-primary dark-primary price"})):
+                sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price"}).text)
+            else:
+                sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 
 # 004_AjpeaceCrawler()
 class AjpeaceCrawler(BaseCrawler):
@@ -3638,6 +3680,7 @@ def get_crawler(crawler_id):
         # "9": YocoCrawler(),
         "10": EfshopCrawler(),
         "11": ModaCrawler(),
+        "22": ShaxiCrawler(),
         "24": InshopCrawler(),
         "29": CorbanCrawler(),
         "33": CerealCrawler(),
@@ -3664,7 +3707,7 @@ def get_crawler(crawler_id):
         # "108": EyecreamCrawler(),
         "109": CandyboxCrawler(),
         "112": VeryyouCrawler(),
-        # "115": GracechowCrawler(),
+        "115": GracechowCrawler(),
         "125": MiniqueenCrawler(),
         "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
