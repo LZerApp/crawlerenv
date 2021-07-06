@@ -115,102 +115,6 @@ def Kklee():
     upload(shop_id, name)
 
 
-def Wishbykorea():
-    shop_id = 14
-    name = 'wishbykorea'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if(close == 1):
-            chrome.quit()
-            break
-        url = "https://www.wishbykorea.com/collection-727&pgno=" + str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-            print(url)
-        except:
-            break
-
-        time.sleep(1)
-        i = 1
-        while(i < 17):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='collection_item'][%i]/div/div/label" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='collection_item'][%i]/a[@href]" % (i,)).get_attribute('href')
-                page_id = page_link.replace("https://www.wishbykorea.com/collection-view-", "").replace("&ca=727", "")
-                find_href = chrome.find_element_by_xpath(
-                    "//div[@class='collection_item'][%i]/a/div" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip('")')
-            except:
-                i += 1
-                if(i == 17):
-                    p += 1
-                continue
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='collection_item'][%i]/div[@class='collection_item_info']/div[2]/label" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                ori_price = ""
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='collection_item'][%i]/div[@class='collection_item_info']/div[2]" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 17):
-                        p += 1
-                    continue
-
-            if(sale_price == "0"):
-                i += 1
-                if(i == 17):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 17):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Aspeed():
     shop_id = 15
     name = 'aspeed'
@@ -5392,7 +5296,6 @@ def upload(shop_id, name):
 def get_tempcrawler(crawler_id):
     crawlers = {
         '13': Kklee,
-        '14': Wishbykorea,
         '15': Aspeed,
         '17': Openlady,
         '20': Azoom,
@@ -5401,7 +5304,6 @@ def get_tempcrawler(crawler_id):
         '25': Amesoeur,
         '27': Singular,
         '28': Folie,
-        # '30': Gmorning,
         '31': July,
         '32': Per,
         '35': Jcjc,
@@ -5425,9 +5327,7 @@ def get_tempcrawler(crawler_id):
         '66': Nana,
         '70': Aachic,
         '71': Lovso,
-        # '72': Bowwow,
         '74': Suitangtang,
-        # '78': Chochobee,
         '80': Asobi,
         '81': Kiyumi,
         '82': Genquo,
@@ -5442,7 +5342,6 @@ def get_tempcrawler(crawler_id):
         '104': Pleats,
         '105': Zebra,
         '107': Mihara,
-        # '111': Oiiv,
         '113': Stayfoxy,
         '118': Righton,
         '120': Daf,
