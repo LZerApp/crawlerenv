@@ -1632,10 +1632,10 @@ class ModaCrawler(BaseCrawler):
     id = 11
     name = "moda"
     base_url = "https://www.modalovemoda.com/Shop"
-
+    
     def parse(self):
         urls = [
-            f"{self.base_url}/itemList.aspx?m=1&p=851&o=0&sa=0&smfp={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/itemList.aspx?m=1&p=0&smfp=1&&o=4&sa={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
