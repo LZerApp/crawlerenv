@@ -4383,9 +4383,9 @@ def Pleats():
             break
         url = "https://www.92pleats.com/products?page=" + str(p)
 
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
+            print(url)
         except:
             break
         time.sleep(1)
@@ -5283,7 +5283,7 @@ def upload(shop_id, name):
         }
         path = fold_path + filename + '.xlsx'
         size = getsize(path)
-        if (size <= 6000):
+        if (size <= 7000):
             print(size)
         else:
             response = requests.post(verify=False, url=url, files=files,
