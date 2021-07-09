@@ -2831,81 +2831,6 @@ def Mercci():
     upload(shop_id, name)
 
 
-def Sivir():
-    shop_id = 65
-    name = 'sivir'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.sivir.com.tw/collections/new-all-%E6%89%80%E6%9C%89?page=" + \
-            str(p)
-
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@href]" % (i,)).get_attribute('href')
-                page_id = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[2]/a[@data-id]" % (i,)).get_attribute('data-id')
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[1]/a/img" % (i,)).get_attribute('data-src')
-                pic_link = f"https:{pic_link}"
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='product col-lg-3 col-sm-4 col-6'][%i]/div[4]/span" % (i,)).text
-                sale_price = sale_price.replace('NT$', '')
-                ori_price = ""
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Nana():
     shop_id = 66
     name = 'nana'
@@ -4360,85 +4285,6 @@ def Mojp():
     upload(shop_id, name)
 
 
-def Pleats():
-    shop_id = 104
-    name = '92pleats'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()   # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.92pleats.com/products?page=" + str(p)
-
-        try:
-            chrome.get(url)
-            print(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[1]" % (i,)).text
-            except:
-                close += 1
-
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[2]/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[1]/div[1]" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/a/div[2]/div/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = ""
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
 
 def Zebra():
     shop_id = 105
@@ -5323,7 +5169,6 @@ def get_tempcrawler(crawler_id):
         '59': Lurehsu,
         '61': Pufii,
         '64': Mercci,
-        '65': Sivir,
         '66': Nana,
         '70': Aachic,
         '71': Lovso,
@@ -5339,7 +5184,6 @@ def get_tempcrawler(crawler_id):
         '97': Miyuki,
         '99': Percha,
         '102': Mojp,
-        '104': Pleats,
         '105': Zebra,
         '107': Mihara,
         '113': Stayfoxy,
