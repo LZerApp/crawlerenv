@@ -185,7 +185,8 @@ class LegustCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("product-item")
+            items = soup.find_all("div", {"class": "product-item"})
+            # print(items)
             if not items:
                 print(url, 'break')
                 break
@@ -199,13 +200,15 @@ class LegustCrawler(BaseCrawler):
             "div", {"class": "title text-primary-color"}
         ).text.strip()
         link = item.find("a").get("href")
-        link_id = item.get("product-id")
+        link_id = item.find("product-item").get("product-id")
         image_url = (
             item.find("div", {
                       "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
             .split("url(")[-1]
             .split("?)")[0]
         )
+        if (title == "滿額贈，訂單滿1699即贈。"):
+            return
         try:
             original_price = self.get_price(
                 item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
