@@ -385,9 +385,10 @@ class WishbykoreaCrawler(BaseCrawler):
         last_page = stripID(last_page, "no=")
         # print(last_page)
         last_page = int(last_page)
+        print(last_page)
         urls = [
             f"{self.base_url}/collection-727&pgno={i}"
-            for i in range(1, last_page)
+            for i in range(1, last_page+1)
         ]
         for url in urls:
             print(url)
