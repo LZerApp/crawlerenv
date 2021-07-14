@@ -219,6 +219,49 @@ class LegustCrawler(BaseCrawler):
             sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+class AachicCrawler(BaseCrawler):
+    id = 70
+    name = "aachic"
+    base_url = "https://www.aachic.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories/all-%E6%89%80%E6%9C%89%E5%95%86%E5%93%81?page={i}&sort_by=&order_by=&limit=24" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
+            return
+
+        title = item.find(
+            "div", {"class": "title"}
+        ).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image js-boxify-image center-contain sl-lazy-image m-fill"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class PleatsCrawler(BaseCrawler):
     id = 104
     name = "92pleats"
@@ -226,7 +269,7 @@ class PleatsCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/products?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/categories/all-items?page={i}&sort_by=&order_by=&limit=24" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -252,7 +295,7 @@ class PleatsCrawler(BaseCrawler):
             .split("?)")[0]
         )
         original_price = ""
-        sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+        sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class ShaxiCrawler(BaseCrawler):
@@ -4119,6 +4162,7 @@ def get_crawler(crawler_id):
         "63": JendesCrawler(),
         "65": SivirCrawler(),
         "69": Boy2Crawler(),
+        "70": AachicCrawler(),
         "76": MiustarCrawler(),
         "79": BasezooCrawler(),
         "83": PotatochicksCrawler(),
