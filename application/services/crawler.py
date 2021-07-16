@@ -452,6 +452,8 @@ class WishbykoreaCrawler(BaseCrawler):
         image_url = f"{self.base_url}{image_url}"
         original_price = ""
         sale_price = self.get_price(item.find("div", {"class": "collection_item_outprice _PRICE"}).text)
+        if(len(sale_price) > 5):
+            return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 115_GracechowCrawler()
@@ -1155,12 +1157,13 @@ class VinaclosetCrawler(BaseCrawler):
     }
 """
 
-    variables = {"shopId": 1962, "fetchCount": 200, "orderBy": "Sales", "isShowCurator": False, "locationId": 0}
+    variables = {"shopId": 1962, "fetchCount": 200, "orderBy": "", "isShowCurator": True, "locationId": 0}
 
     def parse(self):
         url = "https://fts-api.91app.com/pythia-cdn/graphql"
         categoryids = ["228637", "228646", "322505", "322505", "228639"]
         for categoryid in categoryids:
+            print(categoryid)
             for i in range(20):
                 start = 200 * i
                 response = requests.request(
