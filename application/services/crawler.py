@@ -630,6 +630,52 @@ class KkleeCrawler(BaseCrawler):
                     item.find("div", {"class": "Label-price sl-price is-sale tertiary-color-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+class AmesoeurCrawler(BaseCrawler):
+    id = 25
+    name = "amesoeur"
+    base_url = "https://www.amesoeur.co"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories/%E5%85%A8%E9%83%A8%E5%95%86%E5%93%81?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("a", {"class": "Product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "Label-title"}).text
+        link = item.get("href")
+        link_id = item.get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "Image-boxify-image js-image-boxify-image sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            return
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        except:
+            try:
+                original_price = ""
+                sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
+            except:
+                original_price = ""
+                sale_price = self.get_price(
+                    item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class OolalaCrawler(BaseCrawler):
     id = 86
     name = "oolala"
@@ -741,6 +787,52 @@ class PerCrawler(BaseCrawler):
         title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
         link = item.find("a").get("href")
         link = f"https://www.perdot.com.tw{link}"
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+            sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+        except:
+            original_price = ""
+            if(item.find("div", {"class": "global-primary dark-primary price"})):
+                sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price"}).text)
+            else:
+                sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class JulyCrawler(BaseCrawler):
+    id = 31
+    name = "july"
+    base_url = "https://www.july2017.co"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}" for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("li", {"class": "boxify-item product-item"})
+            if not items:
+                print(url, 'break')
+                break
+            # print(items)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "sold-out-item"})):
+            return
+
+        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        link = item.find("a").get("href")
+        link = f"{self.base_url}{link}"
         link_id = item.find("product-item").get("product-id")
         image_url = (
             item.find("div", {
@@ -5281,8 +5373,10 @@ def get_crawler(crawler_id):
         "21": RoxyCrawler(),
         "22": ShaxiCrawler(),
         "24": InshopCrawler(),
+        "25": AmesoeurCrawler(),
         "28": FolieCrawler(),
         "29": CorbanCrawler(),
+        "31": JulyCrawler(),
         "32": PerCrawler(),
         "33": CerealCrawler(),
         "39": NookCrawler(),
