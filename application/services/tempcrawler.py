@@ -113,103 +113,6 @@ def Cici():
     upload(shop_id, name)
 
 
-def Amesoeur():
-    shop_id = 25
-    name = 'amesour'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.amesoeur.co/categories/%E5%85%A8%E9%83%A8%E5%95%86%E5%93%81?page=" + \
-            str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div/a[%i]/div[@class='Product-info']/div[1]" % (i,)).text
-            except:
-                close += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-12 ProductList-list']/a[%i]" % (i,)).get_attribute('href')
-                page_id = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-12 ProductList-list']/a[%i]" % (i,)).get_attribute('product-id')
-
-                find_href = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-12 ProductList-list']/a[%i]/div[1]/div[1]" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div/a[%i]/div[2]/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = chrome.find_element_by_xpath(
-                    "//div/a[%i]/div[2]/div[3]" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//div/a[%i]/div[2]/div[2]" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    sale_price = sale_price.split()
-                    sale_price = sale_price[0]
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 25):
-                        p += 1
-                    continue
-
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Singular():
     shop_id = 27
     name = 'singular'
@@ -368,102 +271,6 @@ def Gmorning():
                     if(i == 25):
                         p += 1
                     continue
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
-def July():
-    shop_id = 31
-    name = 'july'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.july2017.co/products?page=" + str(p)
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div[2]/div/div[1]" % (i,)).text
-            except:
-                close += 1
-
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.path
-                page_id = page_id.lstrip("/products/")
-                find_href = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div[1]/div" % (i,))
-                bg_url = find_href.value_of_css_property('background-image')
-                pic_link = bg_url.lstrip('url("').rstrip(')"')
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-            try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div/div/div[2]/div[2]" % (i,)).text
-                sale_price = sale_price.strip('NT$')
-                sale_price = sale_price.split()
-                sale_price = sale_price[0]
-                ori_price = chrome.find_element_by_xpath(
-                    "//li[%i]/product-item/a/div/div/div[2]/div[1]" % (i,)).text
-                ori_price = ori_price.strip('NT$')
-            except:
-                try:
-                    sale_price = chrome.find_element_by_xpath(
-                        "//li[%i]/product-item/a/div/div/div[2]/div[1]" % (i,)).text
-                    sale_price = sale_price.strip('NT$')
-                    sale_price = sale_price.split()
-                    sale_price = sale_price[0]
-                    ori_price = ""
-                except:
-                    i += 1
-                    if(i == 25):
-                        p += 1
-                    continue
-
             i += 1
             if(i == 25):
                 p += 1
@@ -2479,24 +2286,22 @@ def upload(shop_id, name):
 
 def get_tempcrawler(crawler_id):
     crawlers = {
-        '23': Cici,
-        '25': Amesoeur,
+        '23': Cici,  # 倒
         '27': Singular,
-        '31': July,
         '35': Jcjc,
         '36': Ccshop,
         '37': Iris,
         '40': Greenpea,
         '50': Yourz,
         '55': Sweesa,
-        '61': Pufii,
+        '61': Pufii,  # json
         '66': Nana,
         '74': Suitangtang,
         '80': Asobi,
         '81': Kiyumi,
         '87': Pattis,
         '102': Mojp,
-        '105': Zebra,
+        '105': Zebra,  # json
         '107': Mihara,
         '123': Bonjour,
         '133': Amissa,
