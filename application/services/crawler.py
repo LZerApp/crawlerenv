@@ -311,7 +311,6 @@ class AspeedCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("div", {"class": "product-item"})
-
             if not items:
                 print(url, 'break')
                 break
@@ -462,7 +461,7 @@ class StayfoxyCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/products?page={i}&sort_by=&order_by=&limit=24" for i in range(1, page_Max)]
+            f"{self.base_url}/products?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -2889,10 +2888,10 @@ class MiyukiCrawler(BaseCrawler):
 class QueenshopCrawler(BaseCrawler):
     id = 42
     name = "queenshop"
-    base_url = "https://www.queenshop.com.tw"
+    base_url = "https://www.queenshop.com.tw/zh-TW/QueenShop/"
 
     def parse(self):
-        urls = [f"{self.base_url}/zh-TW/QueenShop/ProductList?item1=01&item2=all&Page={i}" for i in range(1, page_Max)]
+        urls = [f"{self.base_url}ProductList?item1=01&item2=all&Page={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -2908,7 +2907,7 @@ class QueenshopCrawler(BaseCrawler):
         title = item.find("p").text
         link = item.find("a").get("href")
         link_id = stripID(link, "ID=")
-        link = f"{self.base_url}/{link}"
+        link = f"{self.base_url}{link}"
         image_url = item.find("img").get("data-src")
         try:
             sale_price = self.get_price(item.find("span", {"name": "p_sale_d"}).text)
