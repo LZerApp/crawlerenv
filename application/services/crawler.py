@@ -215,8 +215,11 @@ class LegustCrawler(BaseCrawler):
             sale_price = self.get_price(
                 item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
-            original_price = ""
-            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+            try:
+                original_price = ""
+                sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+            except:
+                return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class AachicCrawler(BaseCrawler):
