@@ -162,7 +162,8 @@ class GracegiftCrawler(BaseCrawler):
             "a").text.strip()
         link_id = item.find("a").get("href")
         link = self.base_url + link_id
-        link_id = link_id.replace("/product/detail/pmc/", "").replace("/cid/239", "")
+        link_id = b_stripID(link_id,"/cid/")
+        link_id = stripID(link_id,"/pmc/")
         image_url = item.find("img").get("src")
         original_price = (
             self.get_price(item.find("div", {"class": "OrPrice"}).text)
@@ -1323,7 +1324,7 @@ class BasicCrawler(BaseCrawler):
         link_id = item.find("a").find_next_sibling("a").get("href")
         link = f"{self.base_url}/{link_id}"
         image_url = item.find("img").get("src")
-        link_id = link_id.replace("product?saleid=", "")
+        link_id = stripID(link_id,"saleid=")
         original_price = (
             self.get_price(
                 item.find("span", {"class": "pdbox_price-origin"}).text)
@@ -1365,7 +1366,7 @@ class SchemingggCrawler(BaseCrawler):
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
         image_url = item.find("img").get("src")
-        link_id = link_id.replace("product?saleid=", "")
+        link_id = stripID(link_id,"saleid=")
         original_price = (
             self.get_price(
                 item.find("p", {"class": "pdbox_price-origin"}).text)
@@ -3046,6 +3047,7 @@ class JendesCrawler(BaseCrawler):
             items = soup.find_all(
                 "div", {"class": "col-xl-3 col-lg-3 col-mb-3 col-sm-6 col-xs-6 squeeze-padding"})
             if not items:
+                print(url)
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -3053,8 +3055,8 @@ class JendesCrawler(BaseCrawler):
 
         title = item.find("h3", {"class": "product-title"}).find("a").text
         link = item.find("a").get("href")
-        link_id = link.replace("https://www.jendesstudio.com/product/",
-                               "").replace("?c=de8eed41-acbf-4da7-a441-e6028d8b28c9", "")
+        link_id = stripID(link,"/product/")
+        link_id = b_stripID(link_id,"?c=")
         image_url = item.find("img").get("data-src")
         original_price = ""
         sale_price = self.get_price(
@@ -3070,23 +3072,22 @@ class SivirCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/collections/new-all-%E6%89%80%E6%9C%89?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/collections/new-all-所有?page={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find_all(
-                    "div", {"class": "product col-lg-3 col-sm-4 col-6"})
-            except:
+            items = soup.find_all("div", {"class": "product col-lg-3 col-sm-4 col-6"})
+            if not items:
+                print(url)
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.find("div", {"class": "product_title"}).find(
             "a").get("data-name")
-        link_id = item.find("a").get("href").replace("/products/", "")
-        link = f"{self.base_url}/products/{link_id}"
-        link_id = link_id.replace("/products/", "")
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = stripID(link_id,"/products/")
         image_url = f"https:{item.find('img').get('data-src')}"
         original_price = ""
         sale_price = self.get_price(
@@ -3118,8 +3119,8 @@ class PotatochicksCrawler(BaseCrawler):
             "a").text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}{link_id}"
-        link_id = link_id.replace(
-            "itemDetail.aspx?mNo1=", "").replace("&m=2", "")
+        link_id = b_stripID(link_id,"&m")
+        link_id = stripID(link_id,"mNo1=")
         image_url = item.find("a").find("img").get("src")
         try:
             original_price = self.get_price(
@@ -3188,8 +3189,8 @@ class CirclescinemaCrawler(BaseCrawler):
             "a").text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}{link_id}"
-        link_id = link_id.replace(
-            "itemDetail.aspx?mNo1=", "").replace("&m=9", "")
+        link_id = b_stripID(link_id,"&m")
+        link_id = stripID(link_id,"mNo1=")
         image_url = item.find("a").find("img").get("src")
         try:
             original_price = self.get_price(
