@@ -2489,16 +2489,23 @@ class ModaCrawler(BaseCrawler):
     id = 11
     name = "moda"
     base_url = "https://www.modalovemoda.com/Shop"
-
+    
     def parse(self):
+        get_max_page = "https://www.modalovemoda.com/Shop/itemList.aspx?m=1&o=4&sa=0&smfp=100&"
+        response = requests.request("GET", get_max_page, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        max_page = soup.find("span", {"class": "spCount"}).text
+        max_page = max_page.replace("]","").replace("[","")
+        max_page = int(max_page)
         urls = [
-            f"{self.base_url}/itemList.aspx?m=1&p=0&smfp=1&&o=4&sa={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/itemList.aspx?m=1&o=4&sa=0&smfp={i}" for i in range(1, max_page+1)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             try:
                 items = soup.find_all("div", {"class": "itemListDiv"})
             except:
+                print(url)
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
@@ -2506,8 +2513,9 @@ class ModaCrawler(BaseCrawler):
         title = item.find("div", {"class": "itemListMerName"}).find("a").text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
-        link_id = link_id.replace(
-            "itemDetail.aspx?mNo1=", "").replace("&m=1&p=851", "")
+        link = b_stripID(link, "&m")
+        link_id = b_stripID(link_id,"&m")
+        link_id = stripID(link_id,"mNo1=")
         image_url = item.find("img").get("src")
         image_url = f"https:{image_url}"
         original_price = self.get_price(item.find(
