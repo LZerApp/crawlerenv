@@ -5375,7 +5375,7 @@ def get_crawler(crawler_id):
         "8": AirspaceCrawler(),
         # "9": YocoCrawler(),
         "10": EfshopCrawler(),
-        "11": ModaCrawler(),
+        # "11": ModaCrawler(),
         "13": KkleeCrawler(),
         "14": WishbykoreaCrawler(),
         "15": AspeedCrawler(),
