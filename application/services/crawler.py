@@ -432,6 +432,7 @@ class FolieCrawler(BaseCrawler):
                 print(url, 'break')
                 break
             self.result.extend([self.parse_product(item) for item in items])
+            time.sleep(3)
 
     def parse_product(self, item):
         if item.find("div", {"class": "sold-out-item"}):
@@ -2639,6 +2640,47 @@ class PazzoCrawler(BaseCrawler):
         else:
             original_price = ""
             sale_price = self.get_price(item.find("p", {"class": "item__price"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class KiyumiCrawler(BaseCrawler):
+    id = 81
+    name = "kiyumi"
+    prefix_urls = [
+        "https://www.kiyumishop.com/catalog.php?m=73&s=0&t=0&sort=&page=",
+        "https://www.kiyumishop.com/catalog.php?m=75&s=0&t=0&sort=&page=",
+        "https://www.kiyumishop.com/catalog.php?m=76&s=0&t=0&sort=&page=",
+        "https://www.kiyumishop.com/catalog.php?m=80&s=0&t=0&sort=&page=",
+        "https://www.kiyumishop.com/catalog.php?m=81&s=0&t=0&sort=&page=",
+        "https://www.kiyumishop.com/catalog.php?m=80&s=0&t=0&sort=&page=",
+    ]
+
+    def parse(self):
+        for prefix in self.prefix_urls:
+            for i in range(1, page_Max):
+                urls = [f"{prefix}{i}"]
+                for url in urls:
+                    print(url)
+                    response = requests.get(url, headers=self.headers)
+                    soup = BeautifulSoup(response.text, features="html.parser")
+                    items = soup.find("section", {"class": "cataList"}).find_all("li")
+                    if not items:
+                        print(url, "break")
+                        break
+                    self.result.extend([self.parse_product(item) for item in items])
+                else:
+                    continue
+                break
+
+    def parse_product(self, item):
+        title = item.find("span", {"class": "info"}).text
+        link = item.find("a").get("href")
+        link_id = stripID(link, "id=")
+        link = f"https://www.kiyumishop.com/{link}"
+        image_url = item.find("img").get("src")
+        original_price = ""
+        sale_price = self.get_price(item.find("span", {"class": "price"}).text)
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -5416,6 +5458,7 @@ def get_crawler(crawler_id):
         "71": LovsoCrawler(),
         "76": MiustarCrawler(),
         "79": BasezooCrawler(),
+        "81": KiyumiCrawler(),
         "83": PotatochicksCrawler(),
         "82": GenquoCrawler(),
         "85": SumiCrawler(),
