@@ -1584,79 +1584,6 @@ def Asobi():
     upload(shop_id, name)
 
 
-def Kiyumi():
-    shop_id = 81
-    name = 'kiyumi'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    flag = 0
-    while True:
-        if (flag == 1):
-            chrome.quit()
-            break
-        url = "https://www.kiyumishop.com/catalog.php?m=73&s=0&t=0&sort=&page=" + \
-            str(p)
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 25):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//section/ul/li[%i]/span[2]" % (i,)).text
-            except:
-                flag += 1
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//section/ul/li[%i]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.replace("m=73&s=0&t=0&id=", "")
-                pic_link = chrome.find_element_by_xpath(
-                    "//section/ul/li[%i]/a/div/img" % (i,)).get_attribute('src')
-                sale_price = chrome.find_element_by_xpath(
-                    "//section/ul/li[%i]/span[3]" % (i,)).text
-                sale_price = sale_price.strip('NT.$')
-                ori_price = ""
-            except:
-                i += 1
-                if(i == 25):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 25):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Pattis():
     shop_id = 87
     name = 'pattis'
@@ -2298,7 +2225,6 @@ def get_tempcrawler(crawler_id):
         '66': Nana,
         '74': Suitangtang,
         '80': Asobi,
-        '81': Kiyumi,
         '87': Pattis,
         '102': Mojp,
         '105': Zebra,  # json
