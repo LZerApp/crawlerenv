@@ -5816,7 +5816,7 @@ def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
         "2": LegustCrawler(),
-        "3": RubysCrawler(),
+        # "3": RubysCrawler(),
         "4": AjpeaceCrawler(),
         "5": MajormadeCrawler(),
         "7": BasicCrawler(),
@@ -5854,7 +5854,7 @@ def get_crawler(crawler_id):
         "57": MeierqCrawler(),  # li沒class
         "58": HarperCrawler(),  # json
         "59": LurehsuCrawler(),
-        "60": MosdressCrawler(),
+        # "60": MosdressCrawler(),
         # "61": PufiiCrawler(),  # json
         "62": MougganCrawler(),
         "63": JendesCrawler(),
