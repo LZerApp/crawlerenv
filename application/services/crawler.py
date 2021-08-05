@@ -2737,10 +2737,10 @@ class MeierqCrawler(BaseCrawler):
 class MercciCrawler(BaseCrawler):
     id = 64
     name = "mercci"
-    base_url = "https://www.mercci22.com/"
+    base_url = "https://www.mercci22.com"
 
     def parse(self):
-        urls = [f"{self.base_url}zh-tw/tag/HOTTEST?P={i}" for i in range(1, page_Max)]
+        urls = [f"{self.base_url}/zh-tw/tag/HOTTEST?P={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -2756,7 +2756,7 @@ class MercciCrawler(BaseCrawler):
             title = item.find("div", {"class": "pdname"}).find("a").text
             link = item.find("a").get("href")
             link_id = stripID(link, "c=")
-            link = f"https://www.meierq.com{link}"
+            link = f"{self.base_url}{link}"
             image_url = item.find("img").get("src")
         except:
             return
@@ -5864,7 +5864,7 @@ def get_crawler(crawler_id):
         "70": AachicCrawler(),
         "71": LovsoCrawler(),
         "76": MiustarCrawler(),
-        "79": BasezooCrawler(),
+        "79": BasezooCrawler(),  # 搬家中
         "81": KiyumiCrawler(),
         "83": PotatochicksCrawler(),
         "82": GenquoCrawler(),
