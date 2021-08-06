@@ -2201,7 +2201,7 @@ def upload(shop_id, name):
         }
         path = fold_path + filename + '.xlsx'
         size = getsize(path)
-        if (size <= 7000):
+        if (size <= 5900):
             print(size)
         else:
             response = requests.post(verify=False, url=url, files=files,
