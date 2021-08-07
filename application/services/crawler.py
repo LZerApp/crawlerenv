@@ -830,9 +830,8 @@ class JulyCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        if(item.find("div", {"class": "sold-out-item"})):
+        if(item.find("div", {"class": "sold-out-item"})) or (item.find("div", {"class": "available-time-item"})):
             return
-
         title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
         link = item.find("a").get("href")
         link = f"{self.base_url}{link}"
