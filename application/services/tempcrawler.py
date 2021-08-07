@@ -1183,85 +1183,6 @@ def Zebra():
     upload(shop_id, name)
 
 
-def Nana():
-    shop_id = 66
-    name = 'nana'
-    options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
-    chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
-
-    p = 1
-    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
-    dfAll = pd.DataFrame()  # 存放所有資料
-    close = 0
-    while True:
-        if (close == 1):
-            chrome.quit()
-            break
-        url = "https://www.2nana.tw/product.php?page=" + \
-            str(p) + "&cid=1#prod_list"
-
-        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
-        try:
-            chrome.get(url)
-        except:
-            break
-        time.sleep(1)
-        i = 1
-        while(i < 75):
-            try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[2]/div[1]/a" % (i,)).text
-            except:
-                close += 1
-
-                break
-            try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[1]/a[@href]" % (i,)).get_attribute('href')
-                make_id = parse.urlsplit(page_link)
-                page_id = make_id.query
-                page_id = page_id.lstrip("action=detail&pid=")
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[1]/a/img" % (i,)).get_attribute('data-original')
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[2]/div[2]/span" % (i,)).text
-                sale_price = sale_price.strip('NT.')
-                ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='col-xs-6 col-sm-4 col-md-3'][%i]/div/div[2]/div[2]/del" % (i,)).text
-                ori_price = ori_price.strip('NT.')
-            except:
-                i += 1
-                if(i == 75):
-                    p += 1
-                continue
-
-            i += 1
-            if(i == 75):
-                p += 1
-
-            df = pd.DataFrame(
-                {
-                    "title": [title],
-                    "page_link": [page_link],
-                    "page_id": [page_id],
-                    "pic_link": [pic_link],
-                    "ori_price": [ori_price],
-                    "sale_price": [sale_price]
-                })
-
-            dfAll = pd.concat([dfAll, df])
-            dfAll = dfAll.reset_index(drop=True)
-    save(shop_id, name, dfAll)
-    upload(shop_id, name)
-
-
 def Bowwow():
     shop_id = 72
     name = 'bowwow'
@@ -2222,7 +2143,6 @@ def get_tempcrawler(crawler_id):
         '50': Yourz,
         '55': Sweesa,
         '61': Pufii,  # json
-        '66': Nana,
         '74': Suitangtang,
         '80': Asobi,
         '87': Pattis,
