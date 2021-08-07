@@ -2813,6 +2813,43 @@ class CozyfeeCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class NanaCrawler(BaseCrawler):
+    id = 66
+    name = "nana"
+    base_url = "https://www.2nana.tw"
+
+    def parse(self):
+        url = f"{self.base_url}/product.php?page=1&cid=1#prod_list"
+        response = requests.request("GET", url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        items = soup.find_all("div", {"class": "col-xs-6 col-sm-4 col-md-3"})
+        print(url)
+        # print(items)
+        if not items:
+            print(url, "break")
+            return
+        self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "overflow-sold-out"})):
+            return
+        try:
+            title = item.find("div", {"class": "prod-name"}).find("a").text
+            link = item.find("a").get("href")
+            link_id = stripID(link, "pid=")
+            image_url = item.find("img").get("data-original")
+        except:
+            return
+        try:
+            original_price = self.get_price(item.find("div", {"class": "prod-price"}).find("del").text)
+            sale_price = self.get_price(item.find("div", {"class": "prod-price"}).find("span").text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "prod-price"}).find("span").text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 62_Mouggan
 class MougganCrawler(BaseCrawler):
     id = 62
@@ -6162,6 +6199,7 @@ def get_crawler(crawler_id):
         "63": JendesCrawler(),
         "64": MercciCrawler(),  # li沒class
         "65": SivirCrawler(),
+        "66": NanaCrawler(),
         "69": Boy2Crawler(),
         "70": AachicCrawler(),
         "71": LovsoCrawler(),
