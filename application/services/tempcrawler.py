@@ -16,6 +16,10 @@ def stripID(url, wantStrip):
     loc = url.find(wantStrip)
     length = len(wantStrip)
     return url[loc+length:]
+def b_stripID(url, wantStrip):
+    loc = url.find(wantStrip)
+    length = len(wantStrip)
+    return url[:loc]
 
 def Cici():
     shop_id = 23
@@ -1139,17 +1143,16 @@ def Zebra():
                     "//div[@class='itemListDiv'][%i]/div[1]/a" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.query
-                page_id = page_id.replace("mNo1=", "")
-                page_id = page_id.replace("&m=8", "")
+                page_id = stripID(page_id, "mNo1=")
+                page_id = b_stripID(page_id, "&m")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='itemListDiv'][%i]//a/img[@src]" % (i,)).get_attribute("src")
                 try:
                     sale_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]/div[@class='m_itemListMoney']/span[2]" % (i,)).text
+                        "//div[@class='itemListDiv'][%i]/div[@class='m_itemListMoney']/span[@class='offerprice']" % (i,)).text
                     sale_price = sale_price.strip('NT')
-
                     ori_price = chrome.find_element_by_xpath(
-                        "//div[@class='itemListDiv'][%i]/div[@class='m_itemListMoney']/span[1]" % (i,)).text
+                        "//div[@class='itemListDiv'][%i]/div[@class='m_itemListMoney']/span[1]/span" % (i,)).text
                     ori_price = ori_price.strip('NT')
                 except:
                     sale_price = chrome.find_element_by_xpath(
@@ -2122,7 +2125,7 @@ def upload(shop_id, name):
         }
         path = fold_path + filename + '.xlsx'
         size = getsize(path)
-        if (size <= 5900):
+        if (size <= 5600):
             print(size)
         else:
             response = requests.post(verify=False, url=url, files=files,
