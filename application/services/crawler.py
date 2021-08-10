@@ -1153,7 +1153,7 @@ class ZebraCrawler(BaseCrawler):
                     soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
                     .find("script")
                     .findNext("script")
-                    .string.replace(" var itemListJson = '", "")
+                    .string.replace("var itemListJson = '", "")
                     .replace("';", "")
                     .replace('\\', "")
                 )["Data"]["StItem"].values()
@@ -2775,23 +2775,18 @@ class CozyfeeCrawler(BaseCrawler):
     base_url = "https://www.cozyfee.com"
 
     def parse(self):
-        # get_max_page = "https://www.cozyfee.com/product.php?page=100&cid=55#prod_list"
-        # response = requests.request("GET", get_max_page, headers=self.headers)
-        # soup = BeautifulSoup(response.text, features="html.parser")
-        # max_page = soup.find("span", {"class": "active"}).text
-        # max_page = int(max_page)
-        # urls = [f"{self.base_url}/product.php?page={i}&cid=55#prod_list" for i in range(1, page_Max)]
-        # for url in urls:
-        url = f"https://www.cozyfee.com/product.php?page=1&cid=55#prod_list"
-        response = requests.request("GET", url, headers=self.headers)
-        soup = BeautifulSoup(response.text, features="html.parser")
-        items = soup.find("div", {"class": "wrapper-pdlist"}).find_all("li")
-        print(url)
-        # print(items)
-        if not items:
-            print(url, "break")
-            return
-        self.result.extend([self.parse_product(item) for item in items])
+
+        urls = [f"https://www.cozyfee.com/product.php?page={i}&cid={j}" for j in range(2, 11) for i in range(1, 5)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find("div", {"class": "wrapper-pdlist"}).find_all("li")
+            # print(items)
+            if not items:
+                print(url, "break")
+                return
+            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         if(item.find("div", {"class": "overflow-sold-out"})):
@@ -6221,7 +6216,7 @@ def get_crawler(crawler_id):
         "100": NabCrawler(),
         "103": GoddessCrawler(),
         "104": PleatsCrawler(),
-        # "105": ZebraCrawler(),  # json
+        "105": ZebraCrawler(),  # json
         # "108": EyecreamCrawler(),
         "109": CandyboxCrawler(),
         "112": VeryyouCrawler(),
