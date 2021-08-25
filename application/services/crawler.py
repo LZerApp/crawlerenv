@@ -6327,7 +6327,7 @@ def get_crawler(crawler_id):
         # "150": ChuuCrawler(),
         # "151": AleyCrawler(),
         # "152": TrudamodaCrawler(),
-        # "155": EvermoreCrawler(),
+        "155": EvermoreCrawler(),
         # "159": LamochaCrawler(),
         # "162": BonyreadCrawler(),
         # "167": WemeCrawler(),
