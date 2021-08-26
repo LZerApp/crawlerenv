@@ -5429,7 +5429,7 @@ class ControlfreakCrawler(BaseCrawler):
 class CoochadCrawler(BaseCrawler):
     id = 234
     name = "coochad"
-    prefix_urls = ['https://www.coochadstore.com/products?page={i}&sort_by=&order_by=&limit=24',
+    prefix_urls = ['https://www.coochadstore.com/products?page={i}&sort_by=&order_by=&limit=72',
                    ]
     urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
 
@@ -5489,7 +5489,7 @@ class CoochadCrawler(BaseCrawler):
 
 class GalleryCrawler(BaseCrawler):
     id = 243
-    name = "gallery"
+    name = "gallery-n"
 
     #prefix_urls =  [ 'https://gallery-n.co/']
     #urls = [f'{prefix}'.replace('{i}',str(i))  for prefix in prefix_urls for i in range(1,10)]
@@ -5517,7 +5517,7 @@ class GalleryCrawler(BaseCrawler):
 
             page_id = prod.find('a', {'class': 'button product_type_variable add_to_cart_button'}).get(
                 'data-product_id')
-            # print(page_id)
+            print(page_id)
 
             try:
                 img_url = prod.find('a', {'class': 'card_img'}).find('img').get('data-lazy-src')
@@ -5536,7 +5536,7 @@ class GalleryCrawler(BaseCrawler):
 #                 try:
 #                     sale_price=original_price
 
-            # print(title, url, page_id, img_url, original_price, sale_price)
+            print(title, url, page_id, img_url, original_price, sale_price)
         except:
             title = url = page_id = img_url = original_price = sale_price = None
         return Product(title, url, page_id, img_url, original_price, sale_price)
@@ -5545,7 +5545,7 @@ class GozoCrawler(BaseCrawler):
     id = 246
     name = "gozo"
 
-    prefix_urls = ['https://www.gozo.com.tw/products?page={i}&sort_by&order_by&limit=24'
+    prefix_urls = ['https://www.gozo.com.tw/products?page={i}&sort_by&order_by&limit=72'
                    ]
     urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 50)]
 
@@ -6137,8 +6137,8 @@ class LeatherCrawler(BaseCrawler):
             print(url)
             response = requests.get(url, headers=header)
             soup = BeautifulSoup(response.text, features='html.parser')
-            items = soup.find('ul', {'class': 'boxify-container'}).find_all('li')
             try:
+                items = soup.find('ul', {'class': 'boxify-container'}).find_all('li')
                 if len(items) < 1:
                     break
                 else:
@@ -6179,6 +6179,8 @@ class LeatherCrawler(BaseCrawler):
 
         except:
             title = url = page_id = img_url = original_price = sale_price = ""
+        if len(sale_price) >= 5:
+            return
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
 class YurubraCrawler(BaseCrawler):
@@ -6228,6 +6230,64 @@ class YurubraCrawler(BaseCrawler):
             # print( title, url, page_id, img_url, original_price, sale_price)
         except:
             title = url = page_id = img_url = original_price = sale_price = None
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class QuentinaCrawler(BaseCrawler):
+    id = 242
+    name = "quentina"
+
+    prefix_urls = ['https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E8%A4%B2',
+                   'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&search=%E8%A4%B2&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E8%A3%99',
+                   'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&search=%E5%8C%85&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E5%A4%96%E5%A5%97',
+                   'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E8%A5%AF%E8%A1%AB',
+                   'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E6%B4%8B%E8%A3%9D'
+                   ]
+    urls = prefix_urls  # [f'{prefix}'.replace('{i}',str(i))  for prefix in prefix_urls for i in range(1,10)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            # print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+
+            items = soup.find('div', {'class': 'rmq-478728fa'}).find_all('div', {'class': 'rmq-3ab81ca3'})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, prod):
+
+        try:
+            title = prod.find('img').get('alt').strip()
+
+            url = 'https://www.quentina.com.tw'+prod.find('a').get('href')
+
+            try:
+                page_id = prod.find('a').get('href').split('/')[-1]
+            except:
+                page_id = ""
+
+            try:
+                img_url = prod.find('img').get('src').strip()
+            except:
+                img_url = " "
+            try:
+                orie = prod.find('span')
+                original_price = orie.text.strip().replace("NT$", "").replace(",", "")
+                sale_price = prod.find('div', {'style': 'font-size:15px;font-weight:bold'})
+                sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
+            except:
+                original_price = " "
+                sale_price = prod.find('div', {'style': 'font-size:15px;font-weight:bold'})
+                sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
+
+            print(title, url, page_id, img_url, original_price, sale_price)
+            #print(title, url, page_id, img_url)
+            #print(title, url, page_id, img_url, original_price, sale_price)
+
+        except:
+            title = url = page_id = img_url = original_price = sale_price = ""
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
 
@@ -6356,7 +6416,7 @@ def get_crawler(crawler_id):
         "239": AfadCrawler(),
         "240": KiiwioCrawler(),
         "241": RachelworldCrawler(),
-        # "242": QuentinaCrawler(),
+        "242": QuentinaCrawler(),
         "243": GalleryCrawler(),
         "244": ToofitCrawler(),
         "245": YurubraCrawler(),
