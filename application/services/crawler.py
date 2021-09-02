@@ -2,6 +2,7 @@ import re
 import json
 from collections import namedtuple
 from datetime import datetime
+from typing import ItemsView
 from requests_html import HTMLSession
 import requests
 import csv
@@ -273,7 +274,7 @@ class PleatsCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/categories/all-items?page={i}&sort_by=&order_by=&limit=24" for i in range(1, page_Max)]
+            f"{self.base_url}/categories/all-items?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -759,6 +760,49 @@ class ChiehCrawler(BaseCrawler):
         except:
             original_price = ""
             sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class ChangeuCrawler(BaseCrawler):
+    id = 250
+    name = "changeu"
+    base_url = "https://www.changeu.me"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("a", {"class": "Product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if (item.find("div", {"class": "sold-out-item"})):
+            return
+        title = item.find("div", {"class": "Label-title"}).text
+        link = item.get("href")
+        link_id = stripID(link, "products/")
+        image_url = (
+            item.find("div", {
+                "class": "Image-boxify-image js-image-boxify-image sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class ReallifeCrawler(BaseCrawler):
@@ -6282,10 +6326,6 @@ class QuentinaCrawler(BaseCrawler):
                 sale_price = prod.find('div', {'style': 'font-size:15px;font-weight:bold'})
                 sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
 
-            print(title, url, page_id, img_url, original_price, sale_price)
-            #print(title, url, page_id, img_url)
-            #print(title, url, page_id, img_url, original_price, sale_price)
-
         except:
             title = url = page_id = img_url = original_price = sale_price = ""
         return Product(title, url, page_id, img_url, original_price, sale_price)
@@ -6422,6 +6462,7 @@ def get_crawler(crawler_id):
         "245": YurubraCrawler(),
         "246": GozoCrawler(),
         "248": ChiehCrawler(),
+        "250": ChangeuCrawler(),
 
 
     }
