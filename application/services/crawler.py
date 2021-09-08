@@ -369,8 +369,12 @@ class SeoulmateCrawler(BaseCrawler):
         link_id = stripID(link, "id=")
         link = f"{self.base_url}/{link}"
         image_url = item.find("img").get("src")
-        original_price = ""
-        sale_price = self.get_price(item.find("p", {"class": "price"}).text)
+        if (item.find("del", {"class": "proprice"})):
+            original_price = self.get_price(item.find("del", {"class": "proprice"}).text)
+            sale_price = self.get_price(item.find("p", {"class": "price"}).contents[1])
+        else:
+            original_price = ""
+            sale_price = self.get_price(item.find("p", {"class": "price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class AzoomCrawler(BaseCrawler):
