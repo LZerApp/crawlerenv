@@ -274,7 +274,7 @@ class PleatsCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/categories/all-items?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+            f"{self.base_url}/categories/all-items-1?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -289,8 +289,7 @@ class PleatsCrawler(BaseCrawler):
             return
 
         title = item.find(
-            "div", {"class": "title text-primary-color"}
-        ).text.strip()
+            "div", {"class": "title"}).text
         link = item.find("a").get("href")
         link_id = item.find("product-item").get("product-id")
         image_url = (
@@ -300,7 +299,9 @@ class PleatsCrawler(BaseCrawler):
             .split("?)")[0]
         )
         original_price = ""
-        sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+        if (len(sale_price) == 1):
+            return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -3410,6 +3411,41 @@ class SivirCrawler(BaseCrawler):
         original_price = ""
         sale_price = self.get_price(
             item.find("div", {"class": "product_price"}).find("span").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class SpotlightCrawler(BaseCrawler):
+    id = 298
+    name = "spotlight"
+    base_url = "https://www.s-spotlight.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, 12)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("p", {"class": "grid-link__title"}).text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = stripID(link_id, "/products/")
+        image_url = item.find('img').get('src')
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        if len(sale_price) == 1:
+            return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -6562,6 +6598,7 @@ def get_crawler(crawler_id):
         "248": ChiehCrawler(),
         "250": ChangeuCrawler(),
         "295": DeerwCrawler(),
+        "298": SpotlightCrawler(),
 
 
     }
