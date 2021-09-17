@@ -1399,54 +1399,54 @@ class PufiiCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-class ZebraCrawler(BaseCrawler):
-    id = 105
-    name = "zebra"
-    base_url = "https://www.zebracrossing.com.tw"
+# class ZebraCrawler(BaseCrawler):
+#     id = 105
+#     name = "zebra"
+#     base_url = "https://www.zebracrossing.com.tw"
 
-    def parse(self):
-        urls = [
-            f"{self.base_url}/Shop/itemList.aspx?&m=8&smfp={i}"
-            for i in range(1, page_Max)
-        ]
-        for url in urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            print(url)
-            items = list(
-                json.loads(
-                    soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
-                    .find("script")
-                    .findNext("script")
-                    .string.replace("var itemListJson = '", "")
-                    .replace("';", "")
-                    .replace('\\', "")
-                )["Data"]["StItem"].values()
-            )
-            if not items:
-                break
-            self.result.extend([self.parse_product(item) for item in items])
+#     def parse(self):
+#         urls = [
+#             f"{self.base_url}/Shop/itemList.aspx?&m=8&smfp={i}"
+#             for i in range(1, page_Max)
+#         ]
+#         for url in urls:
+#             response = requests.request("GET", url, headers=self.headers)
+#             soup = BeautifulSoup(response.text, features="html.parser")
+#             print(url)
+#             items = list(
+#                 json.loads(
+#                     soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
+#                     .find("script")
+#                     .findNext("script")
+#                     .string.replace("var itemListJson = '", "")
+#                     .replace("';", "")
+#                     .replace('\\', "")
+#                 )["Data"]["StItem"].values()
+#             )
+#             if not items:
+#                 break
+#             self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, item):
-        # print(item)
-        title = item["mername"]
-        link_id = item["cno"]
-        link = f"{self.base_url}/Shop/itemDetail.aspx?mNo1={item['merNo1']}&cno={item['cno']}"
-        image_url = item['photosmpath']
-        if (image_url == ""):
-            try:
-                image_url = item['PhotoSm']
-            except:
-                try:
-                    image_url = item['Photo']
-                except:
-                    print(title)
-                    return
-        original_price = item["originalPrice"]
-        sale_price = item["price"]
-        if (original_price == sale_price or int(original_price) == 0):
-            original_price = ""
-        return Product(title, link, link_id, image_url, original_price, sale_price)
+    # def parse_product(self, item):
+    #     # print(item)
+    #     title = item["mername"]
+    #     link_id = item["cno"]
+    #     link = f"{self.base_url}/Shop/itemDetail.aspx?mNo1={item['merNo1']}&cno={item['cno']}"
+    #     image_url = item['photosmpath']
+    #     if (image_url == ""):
+    #         try:
+    #             image_url = item['PhotoSm']
+    #         except:
+    #             try:
+    #                 image_url = item['Photo']
+    #             except:
+    #                 print(title)
+    #                 return
+    #     original_price = item["originalPrice"]
+    #     sale_price = item["price"]
+    #     if (original_price == sale_price or int(original_price) == 0):
+    #         original_price = ""
+    #     return Product(title, link, link_id, image_url, original_price, sale_price)
 
 # 052_ApplestarryCrawler()
 class ApplestarryCrawler(BaseCrawler):
