@@ -6652,7 +6652,7 @@ def get_crawler(crawler_id):
         "102": MojpCrawler(),
         "103": GoddessCrawler(),
         "104": PleatsCrawler(),
-        "105": ZebraCrawler(),  # json
+        # "105": ZebraCrawler(),  # json
         "107": MiharaCrawler(),
         # "108": EyecreamCrawler(),
         "109": CandyboxCrawler(),
