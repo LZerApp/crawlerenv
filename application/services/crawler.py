@@ -3880,6 +3880,49 @@ class Boy2Crawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class PixyCrawler(BaseCrawler):
+    id = 166
+    name = "pixy"
+    base_url = "https://www.pixyaccs.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products/Collection/Brand/pixy/?mode=search&lid=8&cid=21&sid=25&minRange=0&maxRange=2480&order=0&limit=32&page={i}" for i in range(1, page_Max)]  # 頁碼會變
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            print(url)
+            if not soup.find("a", {"class": "page page-next"}):
+                break
+            items = soup.find_all(
+                "div", {"class": "productBox"})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        # pre_id = list(
+        #     json.loads(
+        #         item.find("script")
+        #     )
+        # )
+        # link_id = pre_id["sku"]
+        title = item.find("span", {"class": "product-name"}).text
+        link_id = item.find("a").get("serial")
+        pre_link = item.find("a").get("href")
+        link = f"{self.base_url}{pre_link}"
+        image_url = item.find("img").get("src")
+        try:
+            original_price = self.get_price(
+                item.find("del", {"class": "font-delete"}).text)
+            sale_price = self.get_price(
+                item.find("span", {"class": "font-big"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("span", {"class": "font-big"}).text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class RoxyCrawler(BaseCrawler):
     id = 21
     name = "roxy"
@@ -4869,58 +4912,59 @@ class WemeCrawler(BaseCrawler):
             sale_price = ""
 
         return Product(title, url, page_id, img_url, original_price, sale_price)
-class PixyCrawler(BaseCrawler):
-    id = 169
-    name = 'pixy'
-    prefix_urls = ['https://www.pixystyle.com/website/commodity_list/c73/60',
-                   'https://www.pixystyle.com/website/commodity_list/c22/60',
-                   'https://www.pixystyle.com/website/commodity_list/c6/60',
-                   'https://www.pixystyle.com/website/commodity_list/c72/60',
-                   'https://www.pixystyle.com/website/commodity_list/c5/60',
-                   'https://www.pixystyle.com/website/commodity_list/c10/60',
-                   'https://www.pixystyle.com/website/commodity_list/c12/60',
-                   'https://www.pixystyle.com/website/commodity_list/c61/60',
-                   'https://www.pixystyle.com/website/commodity_list/c79/60',
-                   'https://www.pixystyle.com/website/commodity_list/c40/60',
-                   'https://www.pixystyle.com/website/commodity_list/c14/60',
-                   'https://www.pixystyle.com/website/commodity_list/c11/60',
-                   'https://www.pixystyle.com/website/commodity_list/c44/60',
-                   'https://www.pixystyle.com/website/commodity_list/call/60',
-                   'https://www.pixystyle.com/website/commodity_list/c16/60',
-                   'https://www.pixystyle.com/website/commodity_list/c71/60',
-                   'https://www.pixystyle.com/website/commodity_list/c74/60',
-                   'https://www.pixystyle.com/website/commodity_list/c69/60',
-                   'https://www.pixystyle.com/website/commodity_list/c36/60',
-                   'https://www.pixystyle.com/website/commodity_list/c19/60',
-                   'https://www.pixystyle.com/website/commodity_list/c17/60',
-                   'https://www.pixystyle.com/website/commodity_list/c49/60',
-                   'https://www.pixystyle.com/website/commodity_list/c13/60',
-                   'https://www.pixystyle.com/website/commodity_list/c7/60',
-                   'https://www.pixystyle.com/website/commodity_list/c9/60',
-                   'https://www.pixystyle.com/website/commodity_list/c8/60']
-    urls = [f'{prefix}' for prefix in prefix_urls]
+# class PixyCrawler(BaseCrawler):
+#     id = 169
+#     name = 'pixy'
+#     prefix_urls = ['https://www.pixystyle.com/website/commodity_list/c73/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c22/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c6/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c72/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c5/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c10/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c12/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c61/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c79/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c40/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c14/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c11/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c44/60',
+#                    'https://www.pixystyle.com/website/commodity_list/call/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c16/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c71/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c74/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c69/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c36/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c19/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c17/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c49/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c13/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c7/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c9/60',
+#                    'https://www.pixystyle.com/website/commodity_list/c8/60']
+#     urls = [f'{prefix}' for prefix in prefix_urls]
 
-    def parse(self):
-        for url in self.urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find('div', {'class': 'row list_sty_02'}).find_all('div', {'class': 'commodity_card'})
-            self.result.extend([self.parse_product(item) for item in items])
+#     def parse(self):
+#         for url in self.urls:
+#             response = requests.request("GET", url, headers=self.headers)
+#             soup = BeautifulSoup(response.text, features="html.parser")
+#             items = soup.find('div', {'class': 'row list_sty_02'}).find_all('div', {'class': 'commodity_card'})
+#             self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, prod):
-        url = "https://www.pixystyle.com"+prod.find('a').get('href')
-        page_id = (url.split('/')[-2:][0]+"/"+url.split('/')[-2:][1])
-        img_url = "https://www.pixystyle.com"+prod.find('img').get('src')
-        title = (prod.find('h2', {'class': 'name'}).text).strip(' \n ')
-        try:
-            original_price = prod.find('span').text.strip('.').replace("NT.", "").replace(".", "")
-        except:
-            original_price = ""
-        try:
-            sale_price = prod.find('p', {'class': 'price'}).text.replace("NT", "").split('.')[-1]
-        except:
-            sale_price = original_price
-        return Product(title, url, page_id, img_url, original_price, sale_price)
+#     def parse_product(self, prod):
+#         url = "https://www.pixystyle.com"+prod.find('a').get('href')
+#         page_id = (url.split('/')[-2:][0]+"/"+url.split('/')[-2:][1])
+#         img_url = "https://www.pixystyle.com"+prod.find('img').get('src')
+#         title = (prod.find('h2', {'class': 'name'}).text).strip(' \n ')
+#         try:
+#             original_price = prod.find('span').text.strip('.').replace("NT.", "").replace(".", "")
+#         except:
+#             original_price = ""
+#         try:
+#             sale_price = prod.find('p', {'class': 'price'}).text.replace("NT", "").split('.')[-1]
+#         except:
+#             sale_price = original_price
+#         return Product(title, url, page_id, img_url, original_price, sale_price)
+
 class AnnadollyCrawler(BaseCrawler):
     id = 170
     name = "annadolly"
@@ -6682,6 +6726,7 @@ def get_crawler(crawler_id):
         "155": EvermoreCrawler(),
         # "159": LamochaCrawler(),
         # "162": BonyreadCrawler(),
+        "166": PixyCrawler(),
         # "167": WemeCrawler(),
         # "169": PixyCrawler(),
         # "170": AnnadollyCrawler(),
