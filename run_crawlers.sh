@@ -25,7 +25,11 @@ for IDX in $(seq $BEG $END); do
 	run_time=`date`
 	echo $run_time
       	/home/jack_chou/crawlerenv/env/bin/flask run-crawler $IDX
+        #for linode
+        #/home/jack_chou/crawlerenv/env/bin/flask run-crawler
+        #for local
+        #/Users/jack/opt/anaconda3/bin/flask run-crawler
 done
 
 echo "ALL from ${BEG} to ${END} DONE"
-ls -al /home/jack_chou/crawlerenv/crawler_data/
+
