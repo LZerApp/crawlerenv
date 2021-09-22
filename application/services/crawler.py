@@ -1099,7 +1099,7 @@ class IrisCrawler(BaseCrawler):
             "div", {"class": "title text-primary-color title-container ellipsis force-text-align-"}).text.strip()
         link = item.find("a").get("href")
         link = f"{self.base_url}{link}"
-        link_id = stripID(link, "/products/")
+        link_id = item.find("a").get("product-id")
         image_url = (
             item.find("div", {
                       "class": "boxify-image center-contain sl-lazy-image"})["style"]
