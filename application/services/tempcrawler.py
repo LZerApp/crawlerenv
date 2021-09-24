@@ -202,9 +202,9 @@ def Singular():
     upload(shop_id, name)
 
 
-def Singular():
-    shop_id = 27
-    name = 'singular'
+def Quentina():
+    shop_id = 242
+    name = 'quentina'
     options = Options()                  # 啟動無頭模式
     options.add_argument('--headless')   # 規避google bug
     options.add_argument('--disable-gpu')
@@ -225,12 +225,13 @@ def Singular():
             break
         i = 1
         offset = (p-1) * 50
-        url = "https://www.singular-official.com/products?limit=50&offset=" + \
-            str(offset) + "&price=0%2C10000&sort=createdAt-desc"
+        url = "https://www.quentina.com.tw/products?limit=50&offset=" + \
+            str(offset) + "&price=0%2C99999&sort=createdAt-desc"
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
             chrome.get(url)
+            print(url)
         except:
             break
         time.sleep(1)
@@ -251,19 +252,28 @@ def Singular():
                 page_id = page_id.lstrip("/product/")
                 pic_link = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]//img" % (i,)).get_attribute('src')
+            except:
+                print(title)
+                i += 1
+                if(i == 51):
+                    p += 1
+                continue
+            try:
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[2]" % (i,)).text
                 sale_price = sale_price.strip('NT$ ')
                 ori_price = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[1]/span/s" % (i,)).text
-                ori_price = ori_price.strip('NT$ ')
-                ori_price = ori_price.split()
+                ori_price = ori_price.strip('NT$ ').split()
                 ori_price = ori_price[0]
             except:
-                i += 1
-                if(i == 51):
-                    p += 1
-                continue
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]//s" % (i,)).text
+                sale_price = sale_price.strip('NT$ ')
+                ori_price = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[4]/div[2]" % (i,)).text
+                ori_price = ori_price.strip('NT$ ').split()
+                ori_price = ori_price[0]
 
             i += 1
             if(i == 51):
@@ -1801,5 +1811,6 @@ def get_tempcrawler(crawler_id):
         '105': Zebra,  # json
         '123': Bonjour,
         '133': Amissa,
+        '242': Quentina,
     }
     return crawlers.get(str(crawler_id))
