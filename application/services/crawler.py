@@ -6810,7 +6810,7 @@ def get_crawler(crawler_id):
         # "187": YvestoreCrawler(),
         # "189": TennyshopCrawler(),
         # "190": MypopcornCrawler(),
-        # "194": AlmashopCrawler(),
+        "194": AlmashopCrawler(),
         "196": LeatherCrawler(),
         "225": ReallifeCrawler(),
         "234": CoochadCrawler(),
