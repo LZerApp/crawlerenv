@@ -5970,61 +5970,88 @@ class RachelworldCrawler(BaseCrawler):
     def parse_product(self, item):
         title = item.get("ProductName")
         link_id = item.get("ProductID")
-        link = f'https://www.rachelworld.com.tw/pitem/{link_id}'
+        link = f'{self.base_url}/pitem/{link_id}'
         image_url = item.get("SmallPicUrl")
         original_price = item.get("MaxDeletePrice")
         sale_price = item.get("MinDisplayPrice")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
 class AlmashopCrawler(BaseCrawler):
     id = 194
     name = "almashop"
-
-    prefix_urls = ['https://www.alma-shop.com.tw/plist/64/s0/p{i}']
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 500)]
+    base_url = "https://www.alma-shop.com.tw"
 
     def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.urls:
-            print(url)
-            send_request = requests.Session()
-            response = send_request.request("GET", url, headers=self.headers)
-            print(response.text)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            print(soup.find('div', {'class': 'divFormProductListItem gl-box'}))
-            # # r.html.render(keep_page=True, timeout=1000)
-            # prd = r.html.find('#gl-container')
-            # htm = prd[0].html
-            # soup = BeautifulSoup(htm, features='html.parser')
-            try:
-                items = soup.find('#gl-container').find_all('div', {'class': 'divFormProductListItem gl-box'})
-                self.result.extend([self.parse_product(item) for item in items])
-            except:
-                break
+        url = f"{self.base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx"
+        payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
+                            "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
+        response = requests.request("POST", url, headers={
+                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, json=payload)
+        raw_text = re.sub("new Ajax\.Web\.Dictionary\(.*?\)|new Date\(.*?\)",
+                          '""', response.content.decode(encoding='utf-8'))
+        print(raw_text)
+        items = json.loads(raw_text)["value"]["ListData"]
+        self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, prod):
+    def parse_product(self, item):
+        title = item.get("ProductName")
+        link_id = item.get("ProductID")
+        link = f'{self.base_url}/pitem/{link_id}'
+        image_url = item.get("SmallPicUrl")
+        original_price = item.get("MaxDeletePrice")
+        sale_price = item.get("MinDisplayPrice")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
-        title = (prod.find('div', {'class': 'gl-img'})).get('title')
-        if title.find('Title') == -1:
-            try:
-                url = 'https://www.alma-shop.com.tw'+prod.find('a', {'class': 'img-link'}).get('href')
-                page_id = prod.find('a', {'class': 'img-link'}).get('href').split('/')[-1]
-                img_url = prod.find('a', {'class': 'img-link'}).find('img').get('src')
-                orie = prod.find('div', {'class': 'gl-price'})
-            except:
-                return
-            try:
-                original_price = self.get_price(orie.find('span', {'class': 'notranslate'}).text)
-                sale_price = self.get_price(orie.find('span', {'class': 'gl-price-origin-price'}).text)
-            except:
-                original_price = " "
-                sale_price = self.get_price(orie.find('span', {'class': 'notranslate'}).text)
-        else:
-            return
+# class AlmashopCrawler(BaseCrawler):
+#     id = 194
+#     name = "almashop"
 
-        return Product(title, url, page_id, img_url, original_price, sale_price)
+#     prefix_urls = ['https://www.alma-shop.com.tw/plist/64/s0/p{i}']
+#     urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 500)]
+
+#     def parse(self):
+#         header = {
+#             'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+#         }
+#         for url in self.urls:
+#             print(url)
+#             send_request = requests.Session()
+#             response = send_request.request("GET", url, headers=self.headers)
+#             # print(response.text)
+#             soup = BeautifulSoup(response.text, features="html.parser")
+#             print(soup.find('div', {'class': 'divFormProductListItem gl-box'}))
+#             # # r.html.render(keep_page=True, timeout=1000)
+#             # prd = r.html.find('#gl-container')
+#             # htm = prd[0].html
+#             # soup = BeautifulSoup(htm, features='html.parser')
+#             try:
+#                 items = soup.find('#gl-container').find_all('div', {'class': 'divFormProductListItem gl-box'})
+#                 self.result.extend([self.parse_product(item) for item in items])
+#             except:
+#                 break
+
+#     def parse_product(self, prod):
+
+#         title = (prod.find('div', {'class': 'gl-img'})).get('title')
+#         if title.find('Title') == -1:
+#             try:
+#                 url = 'https://www.alma-shop.com.tw'+prod.find('a', {'class': 'img-link'}).get('href')
+#                 page_id = prod.find('a', {'class': 'img-link'}).get('href').split('/')[-1]
+#                 img_url = prod.find('a', {'class': 'img-link'}).find('img').get('src')
+#                 orie = prod.find('div', {'class': 'gl-price'})
+#             except:
+#                 return
+#             try:
+#                 original_price = self.get_price(orie.find('span', {'class': 'notranslate'}).text)
+#                 sale_price = self.get_price(orie.find('span', {'class': 'gl-price-origin-price'}).text)
+#             except:
+#                 original_price = " "
+#                 sale_price = self.get_price(orie.find('span', {'class': 'notranslate'}).text)
+#         else:
+#             return
+
+#         return Product(title, url, page_id, img_url, original_price, sale_price)
 
 class ControlfreakCrawler(BaseCrawler):
     id = 236
@@ -6810,7 +6837,7 @@ def get_crawler(crawler_id):
         # "187": YvestoreCrawler(),
         # "189": TennyshopCrawler(),
         # "190": MypopcornCrawler(),
-        "194": AlmashopCrawler(),
+        # "194": AlmashopCrawler(),
         "196": LeatherCrawler(),
         "225": ReallifeCrawler(),
         "234": CoochadCrawler(),
