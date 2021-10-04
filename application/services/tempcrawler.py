@@ -234,15 +234,15 @@ def Quentina():
             print(url)
         except:
             break
-        time.sleep(1)
 
         while(i < 51):
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
             try:
                 title = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
             except:
                 close += 1
-                # print(i, "title")
                 break
             try:
                 page_link = chrome.find_element_by_xpath(
@@ -260,10 +260,10 @@ def Quentina():
                 continue
             try:
                 sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[2]" % (i,)).text
+                    "//div[@class='rmq-3ab81ca3'][%i]/div/div[2]" % (i,)).text
                 sale_price = sale_price.strip('NT$ ')
                 ori_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div[1]/span/s" % (i,)).text
+                    "//div[@class='rmq-3ab81ca3'][%i]//span/s" % (i,)).text
                 ori_price = ori_price.strip('NT$ ').split()
                 ori_price = ori_price[0]
             except:
@@ -278,8 +278,6 @@ def Quentina():
             i += 1
             if(i == 51):
                 p += 1
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-            time.sleep(1)
 
             df = pd.DataFrame(
                 {
@@ -1811,6 +1809,6 @@ def get_tempcrawler(crawler_id):
         '105': Zebra,  # json
         '123': Bonjour,
         '133': Amissa,
-        '242': Quentina,
+        '242': Quentina,  # lazy load
     }
     return crawlers.get(str(crawler_id))
