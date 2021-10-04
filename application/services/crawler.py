@@ -603,32 +603,34 @@ class DeerwCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "product-item"})
+            items = soup.find_all("product-item")
             if not items:
                 print(url, 'break')
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+        # print(item)
         if item.find("div", {"class": "sold-out-item"}):
             return
 
         title = item.find(
-            "div", {"class": "title text-primary-color"}
+            "div", {"class": "title text-primary-color title-container ellipsis"}
         ).text.strip()
         link = item.find("a").get("href")
-        link_id = item.find("product-item").get("product-id")
+        link = f"{self.base_url}{link}"
+        link_id = item.get("product-id")
         image_url = (
             item.find("div", {
-                      "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
             .split("url(")[-1]
             .split("?)")[0]
         )
         try:
             original_price = self.get_price(
-                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
             sale_price = self.get_price(
-                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+                item.find("div", {"class": "price-sale price"}).text)
         except:
             original_price = ""
             sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
@@ -1739,6 +1741,39 @@ class PerchaCrawler(BaseCrawler):
     def parse_product(self, item):
         title = item["mername"]
         pre_link = f"mNo1={item['merNo1']}&m=7"
+        link = f"{self.base_url}/Shop/itemDetail.aspx?{pre_link}"
+        link_id = item["merNo1"]
+        image_url = item["photosmpath"]
+        original_price = item["originalPrice"]
+        sale_price = item["price"]
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+class ZebraCrawler(BaseCrawler):
+    id = 105
+    name = "zebracrossing"
+    base_url = "https://www.zebracrossing.com.tw"
+
+    def parse(self):
+        url = f"{self.base_url}/Shop/itemList.aspx?&m=8&smfp=0"
+        response = requests.request("GET", url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        file = soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"}).find("script").findNext(
+            "script").string.replace(" var itemListJson = '", "").replace("';", "")
+        print(file)
+        items = list(
+            json.loads(
+                soup.find("div", {"id": "ctl00_ContentPlaceHolder1_ilItems"})
+                .find("script")
+                .findNext("script")
+                .string.replace(" var itemListJson = '", "")
+                .replace("';", "")
+            )["Data"]["StItem"].values()
+        )
+        self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item["mername"]
+        pre_link = f"mNo1={item['merNo1']}&m=8"
         link = f"{self.base_url}/Shop/itemDetail.aspx?{pre_link}"
         link_id = item["merNo1"]
         image_url = item["photosmpath"]
@@ -3054,7 +3089,6 @@ class LovsoCrawler(BaseCrawler):
         response = requests.request("GET", url, headers=self.headers)
         soup = BeautifulSoup(response.text, features="html.parser")
         items = soup.find_all("div", {"class": "itemListDiv"})
-
         self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
@@ -6678,8 +6712,8 @@ def get_crawler(crawler_id):
         "76": MiustarCrawler(),
         "79": BasezooCrawler(),  # 搬家中
         "81": KiyumiCrawler(),
-        "83": PotatochicksCrawler(),
         "82": GenquoCrawler(),
+        "83": PotatochicksCrawler(),
         "85": SumiCrawler(),
         "86": OolalaCrawler(),
         "89": StudioCrawler(),
