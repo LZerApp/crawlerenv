@@ -5290,12 +5290,11 @@ class PureeCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-# 146_Rereburn
 class RereburnCrawler(BaseCrawler):
-    id = 146
+    id = 147
     name = "rereburn"
     urls = [
-        f"https://www.rereburn.com.tw/products?page={i}&sort_by=&order_by=&limit=24"
+        f"https://www.rereburn.com.tw/products?page={i}&sort_by=&order_by=&limit=72"
         for i in range(1, 18)
     ]
 
@@ -5347,51 +5346,51 @@ class RereburnCrawler(BaseCrawler):
 
 
 # 147_STYLENANDA
-class StylenandaCrawler(BaseCrawler):
-    id = 147
-    name = "stylenanda"
-    prefix_urls = [
-        "https://tw.stylenanda.com/product/list.html?cate_no=613",
-        "https://tw.stylenanda.com/product/list_3ce_main.html?cate_no=1784",
-        "https://tw.stylenanda.com/product/list_made_main.html?cate_no=182",
-        "https://tw.stylenanda.com/product/list.html?cate_no=460",
-        "https://tw.stylenanda.com/product/list.html?cate_no=1323",
-        "https://tw.stylenanda.com/product/list.html?cate_no=2094",
-        "https://tw.stylenanda.com/product/list.html?cate_no=51",
-        "https://tw.stylenanda.com/product/list.html?cate_no=50",
-        "https://tw.stylenanda.com/product/list.html?cate_no=54",
-        "https://tw.stylenanda.com/product/list.html?cate_no=52",
-        "https://tw.stylenanda.com/product/list.html?cate_no=53",
-        "https://tw.stylenanda.com/product/list.html?cate_no=56",
-        "https://tw.stylenanda.com/product/list.html?cate_no=77",
-        "https://tw.stylenanda.com/product/list.html?cate_no=55",
-        "https://tw.stylenanda.com/product/list.html?cate_no=174",
-        "https://tw.stylenanda.com/product/list_outlet.html?cate_no=3175",
-    ]
-    urls = [
-        f"{prefix}&page=4={i}" for prefix in prefix_urls for i in range(1, 14)]
+# class StylenandaCrawler(BaseCrawler):
+#     id = 147
+#     name = "stylenanda"
+#     prefix_urls = [
+#         "https://tw.stylenanda.com/product/list.html?cate_no=613",
+#         "https://tw.stylenanda.com/product/list_3ce_main.html?cate_no=1784",
+#         "https://tw.stylenanda.com/product/list_made_main.html?cate_no=182",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=460",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=1323",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=2094",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=51",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=50",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=54",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=52",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=53",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=56",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=77",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=55",
+#         "https://tw.stylenanda.com/product/list.html?cate_no=174",
+#         "https://tw.stylenanda.com/product/list_outlet.html?cate_no=3175",
+#     ]
+#     urls = [
+#         f"{prefix}&page=4={i}" for prefix in prefix_urls for i in range(1, 14)]
 
-    def parse(self):
-        for url in self.urls:
-            response = requests.get(url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("li", {"class": "item xans-record-"})
-            self.result.extend([self.parse_product(item) for item in items])
+#     def parse(self):
+#         for url in self.urls:
+#             response = requests.get(url, headers=self.headers)
+#             soup = BeautifulSoup(response.text, features="html.parser")
+#             items = soup.find_all("li", {"class": "item xans-record-"})
+#             self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, item):
-        pre_title = item.find("div", {"class": "name"}).text
-        title = pre_title.split(":")[1]
-        link = "https://tw.stylenanda.com" + item.find("a").get("href")
-        link_id = link.split("?")[-1]
-        image_url = item.find("img").get("src")
-        price = item.find("p", {"class": "price"})
-        sale_price = (price.find("span").text).replace("→", "")
-        original_price = item.find("p", {"class": "price"}).text.split("→")[0]
-        original_price = original_price.lstrip()
-        original_price = original_price.strip("NT$")
-        sale_price = sale_price.lstrip()
-        sale_price = sale_price.strip("NT$")
-        return Product(title, link, link_id, image_url, original_price, sale_price)
+#     def parse_product(self, item):
+#         pre_title = item.find("div", {"class": "name"}).text
+#         title = pre_title.split(":")[1]
+#         link = "https://tw.stylenanda.com" + item.find("a").get("href")
+#         link_id = link.split("?")[-1]
+#         image_url = item.find("img").get("src")
+#         price = item.find("p", {"class": "price"})
+#         sale_price = (price.find("span").text).replace("→", "")
+#         original_price = item.find("p", {"class": "price"}).text.split("→")[0]
+#         original_price = original_price.lstrip()
+#         original_price = original_price.strip("NT$")
+#         sale_price = sale_price.lstrip()
+#         sale_price = sale_price.strip("NT$")
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
 # 148_THEGIRLWHO
@@ -5642,255 +5641,53 @@ class LamochaCrawler(BaseCrawler):
         )
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
-# 162 BONYREAD
-class BonyreadCrawler(BaseCrawler):
-    prefix_urls = ['https://www.bonnyread.com.tw/categories/03-15',
-                   'https://www.bonnyread.com.tw/categories/03-08',
-                   'https://www.bonnyread.com.tw/categories/03-02',
-                   'https://www.bonnyread.com.tw/categories/02-22',
-                   'https://www.bonnyread.com.tw/categories/02-01',
-                   'https://www.bonnyread.com.tw/categories/01-25',
-                   'https://www.bonnyread.com.tw/categories/01-18',
-                   'https://www.bonnyread.com.tw/categories/01-11',
-                   'https://www.bonnyread.com.tw/categories/12-28',
-                   'https://www.bonnyread.com.tw/categories/12-21',
-                   'https://www.bonnyread.com.tw/categories/petty-girl',
-                   'https://www.bonnyread.com.tw/categories/petty-girl-earring',
-                   'https://www.bonnyread.com.tw/categories/petty-girl-ear-clip',
-                   'https://www.bonnyread.com.tw/categories/petty-girl-necklaces',
-                   'https://www.bonnyread.com.tw/categories/pretty-girl-rings',
-                   'https://www.bonnyread.com.tw/categories/pretty-girl-hair-accessory',
-                   'https://www.bonnyread.com.tw/categories/pretty-girl-sunglasses',
-                   'https://www.bonnyread.com.tw/categories/petty-girl-bracelets',
-                   'https://www.bonnyread.com.tw/categories/special-recommend',
-                   'https://www.bonnyread.com.tw/categories/thanksgiving-1',
-                   'https://www.bonnyread.com.tw/categories/earrings-thank',
-                   'https://www.bonnyread.com.tw/categories/earclip-thank',
-                   'https://www.bonnyread.com.tw/categories/necklaces-thank',
-                   'https://www.bonnyread.com.tw/categories/rings-thank',
-                   'https://www.bonnyread.com.tw/categories/hair-accessory-thank',
-                   'https://www.bonnyread.com.tw/categories/sunglasses-thank',
-                   'https://www.bonnyread.com.tw/categories/pin-thank',
-                   'https://www.bonnyread.com.tw/categories/bracelets-thank',
-                   'https://www.bonnyread.com.tw/categories/1010',
-                   'https://www.bonnyread.com.tw/categories/mothers-day',
-                   'https://www.bonnyread.com.tw/categories/best-selling',
-                   'https://www.bonnyread.com.tw/categories/instock-1',
-                   'https://www.bonnyread.com.tw/categories/earrings',
-                   'https://www.bonnyread.com.tw/categories/recommend',
-                   'https://www.bonnyread.com.tw/categories/silverpost-????',
-                   'https://www.bonnyread.com.tw/categories/multipack-???',
-                   'https://www.bonnyread.com.tw/categories/circle-earrings',
-                   'https://www.bonnyread.com.tw/categories/long-earrings????',
-                   'https://www.bonnyread.com.tw/categories/studearrings',
-                   'https://www.bonnyread.com.tw/categories/chain-earrings',
-                   'https://www.bonnyread.com.tw/categories/earclip-????',
-                   'https://www.bonnyread.com.tw/categories/dangle-earrings',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/studearclip',
-                   'https://www.bonnyread.com.tw/categories/circle-earclips',
-                   'https://www.bonnyread.com.tw/categories/rings??',
-                   'https://www.bonnyread.com.tw/categories/chain-ring',
-                   'https://www.bonnyread.com.tw/categories/tail-ring-??',
-                   'https://www.bonnyread.com.tw/categories/multipack-???',
-                   'https://www.bonnyread.com.tw/categories/lovers-ring',
-                   'https://www.bonnyread.com.tw/categories/adjustable-ring',
-                   'https://www.bonnyread.com.tw/categories/ring16cm',
-                   'https://www.bonnyread.com.tw/categories/ring17cm',
-                   'https://www.bonnyread.com.tw/categories/bracelets',
-                   'https://www.bonnyread.com.tw/categories/bracelet-1',
-                   'https://www.bonnyread.com.tw/categories/bracelet',
-                   'https://www.bonnyread.com.tw/categories/anklets',
-                   'https://www.bonnyread.com.tw/categories/redline',
-                   'https://www.bonnyread.com.tw/categories/necklaces',
-                   'https://www.bonnyread.com.tw/categories/choker-necklace-??',
-                   'https://www.bonnyread.com.tw/categories/clavicle-necklace',
-                   'https://www.bonnyread.com.tw/categories/long-necklaces',
-                   'https://www.bonnyread.com.tw/categories/replacement-necklace',
-                   'https://www.bonnyread.com.tw/categories/silver-necklace',
-                   'https://www.bonnyread.com.tw/categories/mask-chain',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/antiallergy',
-                   'https://www.bonnyread.com.tw/categories/silver',
-                   'https://www.bonnyread.com.tw/categories/s925',
-                   'https://www.bonnyread.com.tw/categories/silver-1',
-                   'https://www.bonnyread.com.tw/categories/silver-needle',
-                   'https://www.bonnyread.com.tw/categories/hello-kitty-silver',
-                   'https://www.bonnyread.com.tw/categories/steel',
-                   'https://www.bonnyread.com.tw/categories/stainless-steel',
-                   'https://www.bonnyread.com.tw/categories/pin',
-                   'https://www.bonnyread.com.tw/categories/hair-accessory',
-                   'https://www.bonnyread.com.tw/categories/headband',
-                   'https://www.bonnyread.com.tw/categories/hair-tie',
-                   'https://www.bonnyread.com.tw/categories/hair-clip',
-                   'https://www.bonnyread.com.tw/categories/hair-band',
-                   'https://www.bonnyread.com.tw/categories/cap',
-                   'https://www.bonnyread.com.tw/categories/hottest',
-                   'https://www.bonnyread.com.tw/categories/2021pantone',
-                   'https://www.bonnyread.com.tw/categories/western',
-                   'https://www.bonnyread.com.tw/categories/flower-space',
-                   'https://www.bonnyread.com.tw/categories/star',
-                   'https://www.bonnyread.com.tw/categories/caramel-coco',
-                   'https://www.bonnyread.com.tw/categories/cream-white',
-                   'https://www.bonnyread.com.tw/categories/pink',
-                   'https://www.bonnyread.com.tw/categories/pearl',
-                   'https://www.bonnyread.com.tw/categories/brass',
-                   'https://www.bonnyread.com.tw/categories/daisy',
-                   'https://www.bonnyread.com.tw/categories/04-29',
-                   'https://www.bonnyread.com.tw/categories/koreaaccessory',
-                   'https://www.bonnyread.com.tw/categories/earrings-k',
-                   'https://www.bonnyread.com.tw/categories/earclip-k',
-                   'https://www.bonnyread.com.tw/categories/necklaces-k',
-                   'https://www.bonnyread.com.tw/categories/rings-k',
-                   'https://www.bonnyread.com.tw/categories/hair-accessory-k',
-                   'https://www.bonnyread.com.tw/categories/sunglasses-k',
-                   'https://www.bonnyread.com.tw/categories/bracelets-k',
-                   'https://www.bonnyread.com.tw/categories/cartoons',
-                   'https://www.bonnyread.com.tw/categories/sanrio-family',
-                   'https://www.bonnyread.com.tw/categories/kikilala',
-                   'https://www.bonnyread.com.tw/categories/hello-kitty-amusement-park',
-                   'https://www.bonnyread.com.tw/categories/the-powerpuff-girls',
-                   'https://www.bonnyread.com.tw/categories/cosmic-mansion',
-                   'https://www.bonnyread.com.tw/categories/candle',
-                   'https://www.bonnyread.com.tw/categories/diffuser',
-                   'https://www.bonnyread.com.tw/categories/roomspray',
-                   'https://www.bonnyread.com.tw/categories/scentedcard',
-                   'https://www.bonnyread.com.tw/categories/swarovski',
-                   'https://www.bonnyread.com.tw/categories/sunglasses',
-                   'https://www.bonnyread.com.tw/categories/carin-sunglasses',
-                   'https://www.bonnyread.com.tw/categories/other-??',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/?????',
-                   'https://www.bonnyread.com.tw/categories/preorder',
-                   'https://www.bonnyread.com.tw/categories/series',
-                   'https://www.bonnyread.com.tw/categories/feedback',
-                   'https://www.bonnyread.com.tw/categories/furry-ball',
-                   'https://www.bonnyread.com.tw/categories/office-lady',
-                   'https://www.bonnyread.com.tw/categories/blogger-recommended',
-                   'https://www.bonnyread.com.tw/categories/yanxi-palace',
-                   'https://www.bonnyread.com.tw/categories/matte-brass',
-                   'https://www.bonnyread.com.tw/categories/coral-orange',
-                   'https://www.bonnyread.com.tw/categories/transparency',
-                   'https://www.bonnyread.com.tw/categories/watercolor',
-                   'https://www.bonnyread.com.tw/categories/teddybear',
-                   'https://www.bonnyread.com.tw/categories/crystal',
-                   'https://www.bonnyread.com.tw/categories/no-rules',
-                   'https://www.bonnyread.com.tw/categories/chain',
-                   'https://www.bonnyread.com.tw/categories/new-year',
-                   'https://www.bonnyread.com.tw/categories/end-of-the-year',
-                   'https://www.bonnyread.com.tw/categories/purple',
-                   'https://www.bonnyread.com.tw/categories/dessert-time',
-                   'https://www.bonnyread.com.tw/categories/planet',
-                   'https://www.bonnyread.com.tw/categories/interview',
-                   'https://www.bonnyread.com.tw/categories/luxury',
-                   'https://www.bonnyread.com.tw/categories/triangle',
-                   'https://www.bonnyread.com.tw/categories/milktea',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/blue',
-                   'https://www.bonnyread.com.tw/categories/baby-blue',
-                   'https://www.bonnyread.com.tw/categories/avocado-green',
-                   'https://www.bonnyread.com.tw/categories/aliceinwonderland',
-                   'https://www.bonnyread.com.tw/categories/wooden',
-                   'https://www.bonnyread.com.tw/categories/feather-earrings',
-                   'https://www.bonnyread.com.tw/categories/cherry-blossoms',
-                   'https://www.bonnyread.com.tw/categories/love',
-                   'https://www.bonnyread.com.tw/categories/retro',
-                   'https://www.bonnyread.com.tw/categories/leopard-print',
-                   'https://www.bonnyread.com.tw/categories/checked',
-                   'https://www.bonnyread.com.tw/categories/glitter',
-                   'https://www.bonnyread.com.tw/categories/shell',
-                   'https://www.bonnyread.com.tw/categories/weave',
-                   'https://www.bonnyread.com.tw/categories/disney-???',
-                   'https://www.bonnyread.com.tw/categories/natural-stone-????',
-                   'https://www.bonnyread.com.tw/categories/tassels',
-                   'https://www.bonnyread.com.tw/categories/cotton-pearl',
-                   'https://www.bonnyread.com.tw/categories/dreamcatcher-???',
-                   'https://www.bonnyread.com.tw/categories/bow',
-                   'https://www.bonnyread.com.tw/categories/black',
-                   'https://www.bonnyread.com.tw/categories/diamond',
-                   'https://www.bonnyread.com.tw/categories/bohemian',
-                   'https://www.bonnyread.com.tw/categories/animal',
-                   'https://www.bonnyread.com.tw/categories/sweet-wedding',
-                   'https://www.bonnyread.com.tw/categories/ocean',
-                   'https://www.bonnyread.com.tw/categories/geometry',
-                   'https://www.bonnyread.com.tw/categories/man-accessory',
-                   'https://www.bonnyread.com.tw/categories/bestieacc',
-                   'https://www.bonnyread.com.tw/categories/xmas',
-                   'https://www.bonnyread.com.tw/categories/letters',
-                   'https://www.bonnyread.com.tw/categories/????',
-                   'https://www.bonnyread.com.tw/categories/top10',
-                   'https://www.bonnyread.com.tw/categories/wind',
-                   'https://www.bonnyread.com.tw/categories/consumable',
-                   'https://www.bonnyread.com.tw/categories/water',
-                   'https://www.bonnyread.com.tw/categories/fire',
-                   'https://www.bonnyread.com.tw/categories/earth',
-                   'https://www.bonnyread.com.tw/categories/twelve-constellation',
-                   'https://www.bonnyread.com.tw/categories/instock',
-                   'https://www.bonnyread.com.tw/categories/revive',
-                   'https://www.bonnyread.com.tw/categories/discount',
-                   'https://www.bonnyread.com.tw/categories/ngsunglasses',
-                   'https://www.bonnyread.com.tw/categories/54630f54e37ec65d35000002',
-                   'https://www.bonnyread.com.tw/categories/hello-kitty',
-                   'https://www.bonnyread.com.tw/categories/hello-kitty-afternoon-tea']
-    urls = [f'{prefix}' for prefix in prefix_urls]
+class BonnyreadCrawler(BaseCrawler):
+    id = 162
+    name = 'bonnyread'
+    prefix_urls = ["https://www.bonnyread.com.tw/products?page={i}&sort_by=&order_by=&limit=72"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 10)]
 
     def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
         for url in self.urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            prod = soup.find('ul', {'class': 'ProductList-categoryMenu is-collapsed is-mobile-collapsed'})
-            items = prod.find_all('div', {'class': 'col-xs-12 ProductList-list'})
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            # try:
+
+            items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}).find_all("a")
 
             self.result.extend([self.parse_product(item) for item in items])
+            # except:
+            #     pass
 
     def parse_product(self, item):
         try:
-            product = item.find('a', {'class': 'Product-item'})
-            page_id = product.get('product-id')
-            img_url = product.find('div', {'class': 'Image-boxify-image js-image-boxify-image sl-lazy-image'}
-                                   ).get('style').split('background-image:url(')[1].replace('?)', "")
-            title = product.find('div', {'class': 'Product-title Label mix-primary-text'}).text
-            sale_price = ""
-            url = product.get('href')
-            original_price = (product.find('div', {'class': 'Product-info'})).find_all('div')[1].text.replace("NT$", "")
-        except:
-            pass
+            page_id = item.get('product-id')
+            img_url = item.find('div', {'class': 'Image-boxify-image js-image-boxify-image sl-lazy-image'}
+                                ).get('style').split('background-image:url(')[1].replace('?)', "")
+            title = item.find('div', {'class': 'Product-title Label mix-primary-text'}).text
 
+            url = item.get('href')
+            try:
+                sale_price = float(item.find('div', {'class': 'DiscountLowest'}
+                                             ).text.replace("NT$", "").replace(",", ""))
+                original_price = float(
+                    item.find('div', {'class': 'Label-price sl-price'}).text.replace("NT$", "").replace(",", ""))
+            except:
+                try:
+                    sale_price = float(item.find('div', {'class': 'Label-price sl-price'}
+                                                 ).text.replace("NT$", "").replace(",", ""))
+                    original_price = ""
+                except:
+                    sale_price = float(item.find(
+                        'div', {'class': 'Label-price sl-price is-sale primary-color-price'}).text.replace("NT$", "").replace(",", ""))
+                    original_price = ""
+        except:
+            return
         return Product(title, url, page_id, img_url, original_price, sale_price)
-
-# 167 WEME
-class WemeCrawler(BaseCrawler):
-    id = 167
-    name = 'weme'
-    prefix_urls = ['https://www.wemekr.com/products']
-    urls = [f'{prefix}' for prefix in prefix_urls]
-
-    def parse(self):
-        for url in self.urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find('ul', {'class': 'boxify-container'}).find_all('li')
-            self.result.extend([self.parse_product(item) for item in items])
-
-    def parse_product(self, item):
-        url = "https://www.wemekr.com"+item.find('a', {'class': 'quick-cart-item'}).get('href')
-        page_id = url.split('/')[-1].replace('.html', "")
-        title = (item.find('div', {'class': 'title text-primary-color title-container ellipsis'}).text).strip(' \n ')
-        img_url = item.find('div', {'class': 'boxify-image center-contain sl-lazy-image'}
-                            ).get('style').split('background-image:url(')[1].replace('?)', "")
-        try:
-            original_price = item.find(
-                'div', {'class': 'global-primary dark-primary price price-crossed'}).text.strip(' \n ').replace("NT$", "")
-        except:
-            original_price = ""
-        try:
-            sale_price = item.find('div', {'class': 'price-sale price'}).text.strip(' \n ').replace("NT$", "")
-        except:
-            sale_price = ""
-
-        return Product(title, url, page_id, img_url, original_price, sale_price)
-
 class AnnadollyCrawler(BaseCrawler):
     id = 170
     name = "annadolly"
@@ -7326,6 +7123,220 @@ class CocojojoCrawler(BaseCrawler):
 
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
+class CocochiliCrawler(BaseCrawler):
+    id = 228
+    name = 'cocochilitw'
+    prefix_urls = ["https://cocochilitw.easy.co/collections/all-1?limit=9999&page=1&sort=featured"]
+    urls = [f'{prefix}' for prefix in prefix_urls]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            # try:
+
+            items = soup.find('div', {'class': 'grid-uniform grid-link__container'}
+                              ).find_all('div', {'class': 'grid-link text-center'})
+
+            self.result.extend([self.parse_product(item) for item in items])
+            # except:
+            #     pass
+
+    def parse_product(self, item):
+        try:
+            url = 'https://cocochilitw.easy.co/'+item.find('a').get('href')
+
+            page_id = item.find('img').get('alt').replace('.jpeg', '')
+            title = item.find('p', {'class': 'grid-link__title'}).text
+
+            img_url = item.find('img').get('src')
+
+            price = item.find_all('span', {'class': 'money'})
+            if len(price) > 1:
+                if float(price[0].get('data-ori-price').replace(',', ' ').replace(" ", "")) > float(price[1].get('data-ori-price').replace(',', ' ').replace(" ", "")):
+
+                    sale_price = float(price[1].get('data-ori-price').replace(',', ' ').replace(" ", ""))
+                    original_price = float(price[0].get('data-ori-price').replace(',', ' ').replace(" ", ""))
+                else:
+                    sale_price = float(price[0].get('data-ori-price').replace(',', ' ').replace(" ", ""))
+                    original_price = float(price[1].get('data-ori-price').replace(',', ' ').replace(" ", ""))
+            else:
+                sale_price = float(price[-1].get('data-ori-price').replace(',', ' ').replace(" ", ""))
+                original_price = ''
+        except:
+            return
+
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class AttentionCrawler(BaseCrawler):
+    id = 216
+    name = 'attention'
+    prefix_urls = ["https://attention2015.shoplineapp.com/products?page={i}"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, page_Max)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            if soup.find("div", {'class': 'product-list-empty-placeholder'}):
+                break
+
+            try:
+
+                items = soup.find('ul', {'class': 'boxify-container'}).find_all("product-item")
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+
+                pass
+
+    def parse_product(self, item):
+        try:
+            url = 'https://attention2015.shoplineapp.com/'+item.find('a').get('href')
+            page_id = item.get('product-id')
+            img_url = item.find('div', {'class': 'boxify-image center-contain sl-lazy-image'}
+                                ).get('style').split('background-image:url(')[1].replace('?)', "")
+            title = item.find('div', {'class': 'title text-primary-color title-container ellipsis'}).text.strip()
+
+            try:
+                sale_price = float(item.find('div', {'class': 'price-sale price'}).text.replace("NT$", ""))
+                original_price = float(
+                    item.find('div', {'class': 'global-primary dark-primary price price-crossed'}).text.replace("NT$", ""))
+            except:
+                try:
+                    sale_price = float(
+                        item.find('div', {'class': 'global-primary dark-primary price'}).text.replace("NT$", ""))
+                    original_price = ","
+                except:
+                    sale_price = float(
+                        item.find('div', {'class': 'Label-price sl-price is-sale primary-color-price'}).text.replace("NT$", ""))
+                    original_price = ","
+                    sale_price = float(sale_price.replace(",", ""))
+            try:
+                original_price = float(original_price.replace(",", ""))
+            except:
+                original_price = ""
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class AndenhudCrawler(BaseCrawler):
+    id = 159
+    name = 'andenhud'
+    header = {
+        'Connection': 'keep-alive',
+        'Accept': 'text/html,application/xhtml+xml,application/xml,*/*',
+        'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,la;q=0.5,ja;q=0.4',
+        'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+    }
+    url = 'https://www.andenhud.com.tw'
+    response = requests.get(url, headers=header)
+    soup = BeautifulSoup(response.text, features='html.parser')
+    prefix_urls = []
+    li = soup.find_all("li")
+    for i in li:
+        a = i.find('a')
+
+        if a is not None:
+            link = (a.get('href'))
+    #                 for x in ['list']:
+            ret = str.__contains__(link, 'list')
+            if ret == True:
+                lin = 'https://www.andenhud.com.tw'+link
+                prefix_urls.append(lin)
+    urls = [f'{prefix}' for prefix in prefix_urls]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            try:
+                response = requests.get(url, headers=header)
+                soup = BeautifulSoup(response.text, features='html.parser')
+
+                items = soup.find("ul", {'class': 'product-list row medium-list'}).find_all('li')
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+
+                pass
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.find('div', {'class': 'image'}).get('data-id')
+            img_url = item.find('div', {'class': 'image'}).get('style').split(
+                "background-image: url('")[-1].replace("');", "")
+            title = item.find('div', {'class': 'image'}).get('name')
+            try:
+                a = item.find('a').get('href')
+                w = item.find('div', {'class': 'price'})
+                original_price = float(w.find('span', {'class': 'original-price'}).text.replace("$", ""))
+                sale_price = float(w.find_all('label')[-1].text)
+            except:
+                pass
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+
+class WemekrCrawler(BaseCrawler):
+    id = 167
+    name = 'wemekr'
+    prefix_urls = ['https://www.wemekr.com/products']
+    urls = [f'{prefix}' for prefix in prefix_urls]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}).find_all('div', {'class': 'product-item'})
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.find("product-item").get("product-id")
+            title = (item.find('div', {'class': 'title text-primary-color'}).text).strip(' \n ')
+            try:
+                img_url = item.find('div', {'class': 'boxify-image-wrapper js-quick-boxify-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            except:
+                img_url = item.find('div', {'class': 'boxify-image js-boxify-image center-contain sl-lazy-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            try:
+                original_price = float(item.find('div', {
+                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+            try:
+                sale_price = float(item.find(
+                    'div', {'class': 'price-sale price sl-price primary-color-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                sale_price = item.find('div', {'class': 'quick-cart-price'}
+                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
+                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[0].strip())
+                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                    sale_price = sale_price[-1].strip()
+                else:
+                    sale_price = float(sale_price[0].strip())
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
 def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
@@ -7423,7 +7434,7 @@ def get_crawler(crawler_id):
         # "142": LovfeeCrawler(),
         # "143": MarjorieCrawler(),
         "144": PureeCrawler(),
-        # "146": RereburnCrawler(),
+        "147": RereburnCrawler(),
         # "147": StylenandaCrawler(),
         # "148": ThegirlwhoCrawler(),
         # "150": ChuuCrawler(),
@@ -7431,9 +7442,10 @@ def get_crawler(crawler_id):
         # "152": TrudamodaCrawler(),
         "155": EvermoreCrawler(),  # V
         # "159": LamochaCrawler(),
-        # "162": BonyreadCrawler(),
+        "159": AndenhudCrawler(),
+        "162": BonnyreadCrawler(),
         "166": PixyCrawler(),  # V
-        # "167": WemeCrawler(),
+        "167": WemekrCrawler(),
         # "170": AnnadollyCrawler(),
         # "172": RobinmayCrawler(),
         # "174": ImfineCrawler(),
@@ -7450,7 +7462,9 @@ def get_crawler(crawler_id):
         "194": AlmashopCrawler(),
         "196": LeatherCrawler(),  # V
         "198": MuminCrawler(),
+        "216": AttentionCrawler(),
         "221": WhoiannCrawler(),
+        "228": CocochiliCrawler(),
         "225": ReallifeCrawler(),  # V
         "234": CoochadCrawler(),  # V
         "235": AnderlosCrawler(),  # V
