@@ -810,6 +810,53 @@ class SexyinshapeCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class YsquareCrawler(BaseCrawler):
+    id = 306
+    name = "ysquare"
+    base_url = "https://www.ysquare.co"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("a", {"class": "Product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "Product-title Label mix-primary-text"}).text
+        link = item.get("href")
+        link_id = item.get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "Image-boxify-image js-image-boxify-image sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            return
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        except:
+            try:
+                original_price = ""
+                sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
+            except:
+                original_price = ""
+                sale_price = self.get_price(
+                    item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class KkleeCrawler(BaseCrawler):
     id = 13
     name = "kklee"
@@ -5252,6 +5299,45 @@ class IruitwCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class FeminCrawler(BaseCrawler):
+    id = 385
+    name = "femin"
+    urls = [
+        f"https://femin.tw/shop/page/{i}"
+        for i in range(1, page_Max)
+    ]
+
+    def parse(self):
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            # print(soup)
+            items = soup.find_all(
+                "ul", {"class": 'woo-entry-inner clr'})
+            if not items:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        # print(item)
+        title = item.find("h2").text
+        link = item.find("a").get("href")
+        link_id = item.find("li", {"class": "btn-wrap clr"}).find("a").get("data-product_id")
+        image_url = item.find('img').get('srcset')
+        pattern = ", (.*?) 768w"
+        # print(image_url)
+        image_url = re.search(pattern, image_url).group(1)
+        try:
+            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+            sale_price = self.get_price(item.find("ins").find(
+                "span", {"class": "woocommerce-Price-amount amount"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("span", {"class": "price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 142_LOVFEE
 class LovfeeCrawler(BaseCrawler):
     id = 142
@@ -7641,6 +7727,7 @@ def get_crawler(crawler_id):
         "302": OurstudioCrawler(),
         "303": PennyncoCrawler(),
         "304": UnefemmeCrawler(),
+        "306": YsquareCrawler(),
         "337": AllgenderCrawler(),
         "341": PimgoCrawler(),
         "342": GotobuyCrawler(),
@@ -7652,5 +7739,6 @@ def get_crawler(crawler_id):
         "381": MymybagCrawler(),
         "382": FabulousCrawler(),
         "384": NinetwonineCrawler(),
+        "385": FeminCrawler(),
     }
     return crawlers.get(str(crawler_id))
