@@ -856,7 +856,6 @@ class YsquareCrawler(BaseCrawler):
                     item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
-
 class KkleeCrawler(BaseCrawler):
     id = 13
     name = "kklee"
@@ -7675,7 +7674,7 @@ def get_crawler(crawler_id):
         # "152": TrudamodaCrawler(),
         "155": EvermoreCrawler(),  # V
         "157": LamochaCrawler(),
-        "159": AndenhudCrawler(),
+        # "159": AndenhudCrawler(),
         "162": BonnyreadCrawler(),
         "166": PixyCrawler(),  # V
         "167": WemekrCrawler(),
