@@ -7677,7 +7677,7 @@ def get_crawler(crawler_id):
         # "159": AndenhudCrawler(),
         "162": BonnyreadCrawler(),
         "166": PixyCrawler(),  # V
-        "167": WemekrCrawler(),
+        # "167": WemekrCrawler(), id 錯誤
         # "170": AnnadollyCrawler(),
         # "172": RobinmayCrawler(),
         # "174": ImfineCrawler(),
@@ -7687,7 +7687,7 @@ def get_crawler(crawler_id):
         # "181": BrodntdCrawler(),
         # "182": DejavustoreeCrawler(),
         # "183": AramodalCrawler(),
-        "186": BuchaCrawler(),
+        # "186": BuchaCrawler(), id 錯誤
         # "187": YvestoreCrawler(),
         # "189": TennyshopCrawler(),
         # "190": MypopcornCrawler(),
