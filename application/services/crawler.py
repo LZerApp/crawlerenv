@@ -3869,27 +3869,26 @@ class UnefemmeCrawler(BaseCrawler):
     base_url = "https://www.unefemme.com.tw"
 
     def parse(self):
-        urls = [f"{self.base_url}/product.php?page={i}&cid=60#prod_list" for i in range(1, 3)]
+        urls = [f"{self.base_url}/product.php?page={i}&cid={k}#prod_list" for i in range(1, 3) for k in (60, 63)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all("div", {"class": "thumbnail"})
-
             print(url)
-            if not soup.find("ul", {"class": "pagination"}).find("li", {"class": "active"}).find_next_sibling("li"):
-                continue
+            # if not soup.find("ul", {"class": "pagination"}).find("li", {"class": "active"}).find_next_sibling("li"):
+            #     continue
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+
+        title = item.find("div", {"class": "prod-name"}).find("a").text.strip()
         if(item.find("div", {"class": "overflow-sold-out"})):
+            print(title)
             return
-        try:
-            title = item.find("div", {"class": "prod-name"}).find("a").text.strip()
-            link = item.find("a").get("href")
-            link_id = stripID(link, "pid=")
-            image_url = item.find("img").get("data-original")
-        except:
-            return
+        link = item.find("a").get("href")
+        link_id = stripID(link, "pid=")
+        image_url = item.find("img").get("data-original")
+
         try:
             original_price = self.get_price(item.find("div", {"class": "prod-price"}).find("del").text)
             sale_price = self.get_price(item.find("div", {"class": "prod-price"}).find("span").text)
@@ -7675,9 +7674,9 @@ def get_crawler(crawler_id):
         "155": EvermoreCrawler(),  # V
         "157": LamochaCrawler(),
         # "159": AndenhudCrawler(),
-        "162": BonnyreadCrawler(),
+        # "162": BonnyreadCrawler(), id 錯誤 160
         "166": PixyCrawler(),  # V
-        # "167": WemekrCrawler(), id 錯誤
+        # "167": WemekrCrawler(), id 錯誤 164
         # "170": AnnadollyCrawler(),
         # "172": RobinmayCrawler(),
         # "174": ImfineCrawler(),
@@ -7687,7 +7686,7 @@ def get_crawler(crawler_id):
         # "181": BrodntdCrawler(),
         # "182": DejavustoreeCrawler(),
         # "183": AramodalCrawler(),
-        # "186": BuchaCrawler(), id 錯誤
+        # "186": BuchaCrawler(), id 錯誤 184
         # "187": YvestoreCrawler(),
         # "189": TennyshopCrawler(),
         # "190": MypopcornCrawler(),
