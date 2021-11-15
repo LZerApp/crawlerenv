@@ -5,13 +5,15 @@ from datetime import datetime
 from typing import ItemsView
 import requests
 import csv
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, FeatureNotFound
 from openpyxl import Workbook
 from base64 import b64decode
 from gzip import decompress
 from config import ENV_VARIABLE
 from urllib import parse
 from urllib.request import urlopen
+import time
+from requests_html import HTMLSession
 
 fold_path = "./crawler_data"
 page_Max = 150
@@ -913,7 +915,7 @@ class AmesoeurCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("a", {"class": "Product-item"})
+            items = soup.find_all("div", {"class": "product-item"})
             print(url)
             if not items:
                 print(url, 'break')
@@ -921,31 +923,30 @@ class AmesoeurCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "Label-title"}).text
+        title = item.find("div", {"class": "title text-primary-color"}).text
         link = item.get("href")
-        link_id = item.get("product-id")
-        try:
-            image_url = (
-                item.find("div", {
-                    "class": "Image-boxify-image js-image-boxify-image sl-lazy-image"})["style"]
-                .split("url(")[-1]
-                .split("?)")[0]
-            )
-        except:
-            return
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
         try:
             original_price = self.get_price(
-                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
             sale_price = self.get_price(
-                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
-            try:
-                original_price = ""
-                sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
-            except:
-                original_price = ""
+            original_price = ""
+            if(item.find("div", {"class": "global-primary dark-primary price sl-price"})):
                 sale_price = self.get_price(
-                    item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+                    item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+            else:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class OolalaCrawler(BaseCrawler):
@@ -2078,6 +2079,8 @@ class LalalatwCrawler(BaseCrawler):
             original_price = ""
         sale_price = item["Price"]
         sale_price = str(sale_price).replace(".0", "")
+        if original_price == sale_price:
+            original_price = ""
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class ZebraCrawler(BaseCrawler):
@@ -4670,6 +4673,53 @@ class AnderlosCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class HuitcoCrawler(BaseCrawler):
+    id = 386
+    name = "huitco"
+    base_url = "https://www.huitco.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if (item.find("span", {"class": "badge badge--sold-out"})):
+            print(item.find("p", {"class": "grid-link__title"}).text)
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        prefix_link = item.find("a").get("href")
+        image_url = item.find('img').get('src')
+        try:
+            link_id = item.find("div").get("data-id")
+        except:
+            link_id = stripID(image_url, "/i/")
+            link_id = b_stripID(link_id, ".jpg")
+
+        link = f"{self.base_url}{prefix_link}"
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 83_POTATOCHICKS
 class PotatochicksCrawler(BaseCrawler):
     id = 83
@@ -5023,39 +5073,47 @@ class SumiCrawler(BaseCrawler):
 class SandaruCrawler(BaseCrawler):
     id = 126
     name = "sandaru"
-    base_url = "https://sandarushop.com"
+    base_url = "https://www.sandarushop.com"
 
     def parse(self):
         urls = [
-            f"{self.base_url}/product/all?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/categories/%E5%85%A8%E7%B3%BB%E5%88%97%E5%A5%B3%E9%9E%8B?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
         for url in urls:
-            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find("ul", {"class": "list-unstyled item_content clearfix"}).find_all(
-                "a", {"class": 'clearfix'})
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
             if not items:
+                print(url, 'break')
                 break
-
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("h4").text
-        link = item.get("href")
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
         try:
-            link_id = item.find("button").get("data-pid")
+            image_url = (
+                item.find("div", {
+                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
         except:
             return
-        image_url = item.find("span").get("data-src")
         try:
             original_price = self.get_price(
-                item.find("li", {"class": "item_origin item_actual"}).find("span").text)
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
             sale_price = self.get_price(
-                item.find("li", {"class": "item_sale"}).find("span").text)
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
             original_price = ""
-            sale_price = self.get_price(
-                item.find("span", {"class": "font_montserrat"}).text)
+            if(item.find("div", {"class": "global-primary dark-primary price sl-price"})):
+                sale_price = self.get_price(
+                    item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+            else:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class FabulousCrawler(BaseCrawler):
@@ -5803,6 +5861,9 @@ class LamochaCrawler(BaseCrawler):
             if item.find("p", {"class": "salePrice"})
             else item.find("div", {"class": "figcaption"}).find_all("p")[1].text
         )
+        original_price = original_price.replace("$", "").replace(".00", "")
+        sale_price = sale_price.replace("$", "").replace(".00", "")
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class BonnyreadCrawler(BaseCrawler):
@@ -6602,6 +6663,45 @@ class ControlfreakCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class FeatherCrawler(BaseCrawler):
+    id = 387
+    name = "feather"
+
+    base_url = 'https://www.feather-tw.com'
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?page={i}"
+            for i in range(1, page_Max)
+        ]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            if (soup.find("div", {"class": "product product_tag"})):
+                items = soup.find("div", {"class": "products_content"}).find_all(
+                    "div", {"class": "product product_tag"})
+            else:
+                break
+
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("a", {"class": "productClick"}).get("data-name")
+        link = item.find("a", {"class": "productClick"}).get("href")
+        link_id = item.find("a", {"class": "productClick"}).get('data-id')
+        link = f"{self.base_url}{link}"
+        image_url = item.find("img").get("data-src")
+        image_url = f"https:{image_url}"
+        try:
+            original_price = self.get_price(item.find("div", {"class": "product_price"}).find("del").text)
+            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class GozoCrawler(BaseCrawler):
     id = 246
     name = "gozo"
@@ -6832,12 +6932,11 @@ class AfadCrawler(BaseCrawler):
                 sale_price = prod.find('div', {'class': 'pditemPrice'}).find_all('span')[0]
                 sale_price = orie.text.strip().replace("NT$", "").replace(",", "")
 
-            # print(title,url,page_id,img_url,original_price,sale_price)
-                # print(title, url, page_id, img_url)
-           # print(title, url, page_id, img_url, original_price, sale_price)
-
+            if sale_price == "":
+                sale_price = original_price
+                original_price = ""
         except:
-            title = url = page_id = img_url = original_price = sale_price = ""
+            return
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
 
@@ -7436,7 +7535,9 @@ class AndenhudCrawler(BaseCrawler):
     def parse_product(self, item):
         try:
             url = item.find('a').get('href')
-            page_id = item.find('div', {'class': 'image'}).get('data-id')
+            data_id = item.find('div', {'class': 'image'}).get('data-id')
+            color_id = item.find('div', {'class': 'image'}).get('color-id')
+            page_id = f"{data_id}-{color_id}"
             img_url = item.find('div', {'class': 'image'}).get('style').split(
                 "background-image: url('")[-1].replace("');", "")
             title = item.find('div', {'class': 'image'}).get('name')
@@ -7568,6 +7669,75 @@ class VacanzaCrawler(BaseCrawler):
         except:
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
+
+
+class MumushopCrawler(BaseCrawler):
+    id = 149
+    name = "mumushop"
+
+    prefix_urls = ['https://www.mumushop.com.tw/plist/399/s0/p{i}']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 181)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        self.count = 0
+        for url in self.urls:
+            print(url)
+            session = HTMLSession()
+            r = session.get(url)
+
+            r.html.render(sleep=1, keep_page=True, scrolldown=1)
+            prd = r.html.find('#gl-container')
+            htm = prd[0].html
+            soup = BeautifulSoup(htm, features='html.parser')
+
+            try:
+
+                items = soup.find_all('div', {'class': 'divFormProductListItem gl-box'})
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                pass
+
+    def parse_product(self, prod):
+        try:
+            if self.count % 30 == 0:
+                time.sleep(20)
+            title = (prod.find('div', {'class': 'gl-img'})).get('title')
+            if title.find('Title') == -1:
+                try:
+                    url = 'https://www.mumushop.com.tw/'+prod.find('a', {'class': 'img-link'}).get('href')
+                except:
+                    url = " "
+                try:
+                    page_id = prod.find('a', {'class': 'img-link'}).get('href').split('/')[-1]
+                except:
+                    page_id = ""
+                try:
+                    img_url = prod.find('a', {'class': 'img-link'}).find('img').get('src')
+                except:
+                    img_url = " "
+                # print(title,url,page_id,img_url)
+                try:
+                    orie = prod.find('span', {'class': 'notranslate'})
+                    original_price = float(orie.text.strip().replace("NTD", "").replace(",", "").strip())
+                except:
+                    original_price = " "
+                try:
+                    sale_price = prod.find('span', {'class': 'gl-price-origin-price'})
+                    sale_price = float(sale_price.text.replace("特價 NTD", "").replace(",", "").strip())
+                except:
+                    sale_price = ""
+                # print(title, url, page_id, img_url, original_price, sale_price)
+            else:
+                title = url = page_id = img_url = original_price = sale_price = ""
+        except:
+            title = url = page_id = img_url = original_price = sale_price = ""
+        self.count = self.count+1
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
 def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
@@ -7655,7 +7825,7 @@ def get_crawler(crawler_id):
         "120": DafCrawler(),
         "122": SexyinshapeCrawler(),
         "125": MiniqueenCrawler(),
-        "126": SandaruCrawler(),
+        # "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
         "130": BaibeautyCrawler(),
         "136": DaimaCrawler(),
@@ -7668,12 +7838,13 @@ def get_crawler(crawler_id):
         "147": RereburnCrawler(),
         # "147": StylenandaCrawler(),
         # "148": ThegirlwhoCrawler(),
+        "149": MumushopCrawler(),
         # "150": ChuuCrawler(),
         # "151": AleyCrawler(),
         # "152": TrudamodaCrawler(),
         "155": EvermoreCrawler(),  # V
         "157": LamochaCrawler(),
-        # "159": AndenhudCrawler(),
+        # "159": AndenhudCrawler(),  會卡死
         # "162": BonnyreadCrawler(), id 錯誤 160
         "166": PixyCrawler(),  # V
         # "167": WemekrCrawler(), id 錯誤 164
@@ -7738,5 +7909,7 @@ def get_crawler(crawler_id):
         "382": FabulousCrawler(),
         "384": NinetwonineCrawler(),
         "385": FeminCrawler(),
+        "386": HuitcoCrawler(),
+        "387": FeatherCrawler(),
     }
     return crawlers.get(str(crawler_id))
