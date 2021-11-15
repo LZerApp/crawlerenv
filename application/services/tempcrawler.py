@@ -226,7 +226,7 @@ def Quentina():
         i = 1
         offset = (p-1) * 50
         url = "https://www.quentina.com.tw/products?limit=50&offset=" + \
-            str(offset) + "&price=0%2C99999&sort=createdAt-desc"
+            str(offset)
 
         # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
         try:
@@ -236,6 +236,8 @@ def Quentina():
             break
 
         while(i < 51):
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
             chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
             time.sleep(1)
             try:
