@@ -297,6 +297,93 @@ def Quentina():
     upload(shop_id, name)
 
 
+def Feelne():
+    shop_id = 392
+    name = 'feelne'
+    options = Options()                  # 啟動無頭模式
+    options.add_argument('--headless')   # 規避google bug
+    options.add_argument('--disable-gpu')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--remote-debugging-port=5566")
+    chrome = webdriver.Chrome(
+        executable_path='./chromedriver', chrome_options=options)
+
+    p = 1
+    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+    dfAll = pd.DataFrame()  # 存放所有資料
+    close = 0
+    while True:
+        if (close == 1):
+            chrome.quit()
+            break
+        i = 1
+        url = "https://www.feelne.com/pages/allproducts?1109dcef-4d59-43b0-8175-7da13c81030f=" + str(p)
+
+        try:
+            chrome.get(url)
+            print(url)
+        except:
+            break
+
+        while(i < 21):
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            time.sleep(1)
+            try:
+                title = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
+            except:
+                close += 1
+                break
+            try:
+                page_link = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]//a[@href]" % (i,)).get_attribute('href')
+                make_id = parse.urlsplit(page_link)
+                page_id = make_id.path
+                page_id = page_id.lstrip("/product/")
+                pic_link = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]//img" % (i,)).get_attribute('src')
+            except:
+                print(title)
+                i += 1
+                if(i == 21):
+                    p += 1
+                continue
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
+                sale_price = sale_price.strip('NT$ ')
+
+                ori_price = ""
+            except:
+                print(title)
+                i += 1
+                if(i == 21):
+                    p += 1
+                continue
+
+            i += 1
+            if(i == 21):
+                p += 1
+
+            df = pd.DataFrame(
+                {
+                    "title": [title],
+                    "page_link": [page_link],
+                    "page_id": [page_id],
+                    "pic_link": [pic_link],
+                    "ori_price": [ori_price],
+                    "sale_price": [sale_price]
+                })
+
+            dfAll = pd.concat([dfAll, df])
+            dfAll = dfAll.reset_index(drop=True)
+    save(shop_id, name, dfAll)
+    upload(shop_id, name)
+
+
 def Gmorning():
     shop_id = 30
     name = 'gmorning'
@@ -1652,5 +1739,6 @@ def get_tempcrawler(crawler_id):
         '123': Bonjour,
         '133': Amissa,
         '242': Quentina,  # lazy load V
+        '392': Feelne,  # lazy load
     }
     return crawlers.get(str(crawler_id))
