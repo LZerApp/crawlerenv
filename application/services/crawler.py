@@ -1701,6 +1701,146 @@ class OurstudioCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class HoukoreaCrawler(BaseCrawler):
+    id = 388
+    name = "houkorea"
+    base_url = "https://www.houkorea.co/"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("product-item")
+            if not items:
+                print(url, 'break')
+                break
+            # print(items)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "sold-out-item"})):
+            return
+
+        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        link = item.find("a").get("href")
+        link = f"{self.base_url}{link}"
+        link_id = item.get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price"}).text)
+        except:
+            original_price = ""
+            # if(item.find("div", {"class": "global-primary dark-primary price"})):
+            try:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "quick-cart-price"}).text)
+            except:
+                return
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class RosirosCrawler(BaseCrawler):
+    id = 390
+    name = "rosiros"
+    base_url = "https://rosirosofficial.shoplineapp.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?limit=72&page={i}" for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("product-item")
+            if not items:
+                print(url, 'break')
+                break
+            # print(items)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "sold-out-item"})):
+            return
+
+        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        link = item.find("a").get("href")
+        link = f"{self.base_url}{link}"
+        link_id = item.get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price"}).text)
+        except:
+            original_price = ""
+            # if(item.find("div", {"class": "global-primary dark-primary price"})):
+            try:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "quick-cart-price"}).text)
+            except:
+                return
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class OliviaCrawler(BaseCrawler):
+    id = 313
+    name = "olivia"
+    base_url = "https://www.olivia.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories/?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image m-fill"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            return
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 004_AjpeaceCrawler()
 class AjpeaceCrawler(BaseCrawler):
     id = 4
@@ -3314,6 +3454,56 @@ class MymybagCrawler(BaseCrawler):
         url = "https://fts-api.91app.com/pythia-cdn/graphql"
         for i in range(20):
             start = 200 * i
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query, 'variables': {**self.variables, "startIndex": start}},
+            )
+            items = json.loads(response.text)["data"]["shopCategory"]["salePageList"]["salePageList"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.get("title")
+        link_id = item.get("salePageId")
+        link = f"{self.base_url}{link_id}"
+        image_url = f"https:{item.get('picUrl')}"
+
+        if(item.get("price") == item.get("suggestPrice")):
+            original_price = ""
+            sale_price = item.get("price")
+        else:
+            original_price = item.get("suggestPrice")
+            sale_price = item.get("price")
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class MaaCrawler(BaseCrawler):
+    id = 389
+    name = "maa"
+    base_url = "https://www.2maa.com.tw//SalePage/Index/"  # 要記得改
+    query = """
+    query cms_shopCategory($shopId: Int!, $categoryId: Int!, $startIndex: Int!, $fetchCount: Int!, $orderBy: String, $isShowCurator: Boolean, $locationId: Int) {
+        shopCategory(shopId: $shopId, categoryId: $categoryId) {
+            salePageList(startIndex: $startIndex, maxCount: $fetchCount, orderBy: $orderBy, isCuratorable: $isShowCurator, locationId: $locationId) {
+                salePageList {
+                    salePageId
+                    title
+                    picUrl
+                    price
+                    suggestPrice
+                }
+            }
+        }
+    }
+"""
+
+    variables = {"shopId": 325, "categoryId": 0, "fetchCount": 100, "isShowCurator": True, "locationId": 0}
+
+    def parse(self):
+        url = "https://fts-api.91app.com/pythia-cdn/graphql"
+        for i in range(20):
+            start = 100 * i
             response = requests.request(
                 "POST",
                 url,
@@ -7552,56 +7742,6 @@ class AndenhudCrawler(BaseCrawler):
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
-
-class WemekrCrawler(BaseCrawler):
-    id = 167
-    name = 'wemekr'
-    prefix_urls = ['https://www.wemekr.com/products']
-    urls = [f'{prefix}' for prefix in prefix_urls]
-
-    def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.urls:
-            print(url)
-            response = requests.get(url, headers=header)
-            soup = BeautifulSoup(response.text, features='html.parser')
-            items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}).find_all('div', {'class': 'product-item'})
-            self.result.extend([self.parse_product(item) for item in items])
-
-    def parse_product(self, item):
-        try:
-            url = item.find('a').get('href')
-            page_id = item.find("product-item").get("product-id")
-            title = (item.find('div', {'class': 'title text-primary-color'}).text).strip(' \n ')
-            try:
-                img_url = item.find('div', {'class': 'boxify-image-wrapper js-quick-boxify-image'}
-                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
-            except:
-                img_url = item.find('div', {'class': 'boxify-image js-boxify-image center-contain sl-lazy-image'}
-                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
-            try:
-                original_price = float(item.find('div', {
-                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
-            except:
-                original_price = ""
-            try:
-                sale_price = float(item.find(
-                    'div', {'class': 'price-sale price sl-price primary-color-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
-            except:
-                sale_price = item.find('div', {'class': 'quick-cart-price'}
-                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
-                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
-                    sale_price = float(sale_price[0].strip())
-                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
-                    sale_price = sale_price[-1].strip()
-                else:
-                    sale_price = float(sale_price[0].strip())
-        except:
-            return
-        return Product(title, url, page_id, img_url, original_price, sale_price)
-
 class GirlsmondayCrawler(BaseCrawler):
     id = 301
     name = 'girlsmonday'
@@ -7738,6 +7878,329 @@ class MumushopCrawler(BaseCrawler):
         self.count = self.count+1
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
+class VizzleCrawler(BaseCrawler):
+    id = 163
+    name = 'vizzle'
+    prefix_urls = ['https://vizzle2014.com/shop/page/{i}']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            try:
+                items = soup.find('div', {'class': 'products product-content-item-wrapper products-grid grid-view-method'}
+                                  ).find_all('div', {'class': 'product-content-item'})
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                pass
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = url.split('/')[-1].replace('.html', "")
+            title = item.find('a', {'class': 'woocommerce-loop-product-link'}).text.strip()
+
+            img_url = item.find('a', {'class': 'lorada-product-img-link catalog-image'}).find('img').get('data-src')
+
+            try:
+                original_price = float(item.find('div', {
+                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+
+            try:
+                sale_price = float(item.find('span', {'class': 'price'}).text.strip(
+                    ' \n ').replace("NT$", "").replace(",", ""))
+
+            except:
+                sale_price = item.find('span', {'class': 'price'}).text.strip(
+                    ' \n ').replace("NT$", "").replace(",", "").split("–")
+                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[0].strip())
+                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                    sale_price = sale_price[-1].strip()
+                else:
+                    sale_price = float(sale_price[0].strip())
+        except:
+            return
+
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class WemeCrawler(BaseCrawler):
+    id = 164
+    name = 'weme'
+    prefix_urls = ['https://www.wemekr.com/products?page={i}&sort_by=&order_by=&limit=72']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            try:
+                print(url)
+                response = requests.get(url, headers=header)
+                soup = BeautifulSoup(response.text, features='html.parser')
+
+                items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}
+                                  ).find_all('div', {'class': 'product-item'})
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.find("product-item").get("product-id")
+            title = (item.find('div', {'class': 'title text-primary-color'}).text).strip(' \n ')
+            try:
+                img_url = item.find('div', {'class': 'boxify-image-wrapper js-quick-boxify-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            except:
+                img_url = item.find('div', {'class': 'boxify-image js-boxify-image center-contain sl-lazy-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            try:
+                original_price = float(item.find('div', {
+                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+            try:
+                sale_price = float(item.find(
+                    'div', {'class': 'price-sale price sl-price primary-color-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                sale_price = item.find('div', {'class': 'quick-cart-price'}
+                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
+                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[0].strip())
+                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[-1].strip())
+                else:
+                    sale_price = float(sale_price[0].strip())
+
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class KavaCrawler(BaseCrawler):
+    id = 180
+    name = "kava"
+
+    prefix_urls = ['https://www.kava-acc.com/ALL-4?page={i}',
+                   'https://www.kava-acc.com/ALL?page={i}',
+                   'https://www.kava-acc.com/ALL-2?page={i}',
+                   'https://www.kava-acc.com/手鍊-2?page={i}',
+                   'https://www.kava-acc.com/ALL-3?page={i}',
+                   'https://www.kava-acc.com/ALL-5?page={i}',
+                   'https://www.kava-acc.com/ALL-6?page={i}']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            try:
+                items = soup.find('div', {'class': 'product-grid row-fluid cols-3'}).find_all('div', {'class': 'inner'})
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, prod):
+        try:
+            title = prod.find('img').get("title").strip()
+            url = prod.find('a').get('href')
+            try:
+                page_id = prod.find('a').get('href').split('/')[-1].split('product_id=')[-1]
+            except:
+                page_id = ""
+
+            img_url = 'https:'+prod.find('div', {'class': 'image'}).find('img').get('src').strip()
+            if img_url.find('//image-cdn-flare.qdm.cloud') > -1:
+                pass
+            else:
+                img_url = 'https:'+prod.find('div', {'class': 'image'}).find('img').get('data-src').strip()
+            original_price = ""
+            sale_price = prod.find('div', {'class': 'price'})
+            sale_price = float(sale_price.get('data-price'))
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+
+class TennyshopCrawler(BaseCrawler):
+    id = 185
+    name = 'tennyshop'
+    prefix_urls = ['https://www.tennyshop.co/products?page={i}&sort_by=&order_by=&limit=48']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            try:
+                print(url)
+                response = requests.get(url, headers=header)
+                soup = BeautifulSoup(response.text, features='html.parser')
+
+                items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}
+                                  ).find_all('div', {'class': 'product-item'})
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.find("product-item").get("product-id")
+            title = (item.find('div', {'class': 'title'}).text).strip(' \n ')
+            try:
+                img_url = item.find('div', {'class': 'boxify-wrapper'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            except:
+                img_url = item.find('div', {'class': 'boxify-image js-boxify-image center-contain sl-lazy-image'}
+                                    ).get('style').split('background-image:url(')[1].replace('?)', "")
+            try:
+                original_price = float(item.find('div', {
+                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+
+            try:
+                sale_price = float(item.find(
+                    'div', {'class': 'global-primary dark-primary price sl-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+
+            except Exception as e:
+                print(e)
+                return
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class MypopcornCrawler(BaseCrawler):
+    id = 186
+    name = 'mypopcorn'
+    prefix_urls = [
+        'https://www.mypopcorn.com.tw/categories/%E2%97%8F%E6%89%80%E6%9C%89%E5%95%86%E5%93%81?page={i}&sort_by=&order_by=&limit=48']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            try:
+                print(url)
+                response = requests.get(url, headers=header)
+                soup = BeautifulSoup(response.text, features='html.parser')
+
+                items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}
+                                  ).find_all('div', {'class': 'product-item'})
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.find("product-item").get("product-id")
+            title = (item.find('div', {'class': 'title text-primary-color'}).text).strip(' \n ')
+            try:
+                img_url = item.find('div', {'class': 'boxify-image-wrapper js-quick-boxify-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            except:
+                img_url = item.find('div', {'class': 'boxify-image js-boxify-image center-contain sl-lazy-image'}
+                                    ).find('div').get('style').split('background-image:url(')[1].replace('?)', "")
+            try:
+                original_price = float(item.find('div', {
+                                       'class': 'global-primary dark-primary price sl-price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+
+            try:
+                sale_price = float(item.find(
+                    'div', {'class': 'price-sale price sl-price primary-color-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+
+            except:
+                sale_price = item.find('div', {'class': 'quick-cart-price'}
+                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
+                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[0].strip())
+                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[-1].strip())
+                else:
+                    sale_price = float(sale_price[0].strip())
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class BelloCrawler(BaseCrawler):
+    id = 206
+    name = 'bello'
+    prefix_urls = ['https://www.bellostore.me/products?page={i}']
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 100)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            try:
+                items = soup.find('ul', {'class': 'boxify-container'}).find_all('li',
+                                                                                {'class': 'boxify-item product-item'})
+
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            #                 print(item)
+            url = "https://www.bellostore.me"+item.find('a').get('href')
+
+            page_id = item.find("product-item").get("product-id")
+            title = (
+                item.find('div', {'class': 'title text-primary-color title-container ellipsis'}).text).strip(' \n ')
+            try:
+                img_url = item.find('div', {'class': 'boxify-image center-contain sl-lazy-image'}
+                                    ).get('style').split('background-image:url(')[1].replace('?)', "")
+            except:
+                # item.find('div',{'class':'boxify-image js-boxify-image center-contain sl-lazy-image'}).get('style').split('background-image:url(')[1].replace('?)',"")
+                img_url = ""
+            try:
+                original_price = float(item.find(
+                    'div', {'class': 'global-primary dark-primary price price-crossed'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+            except:
+                original_price = ""
+            try:
+                sale_price = float(
+                    item.find('div', {'class': 'global-primary dark-primary price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
+
+            except:
+                sale_price = item.find('div', {'class': 'price-sale price'}).text.strip(
+                    ' \n ').replace("\n", "").replace("NT$", "").replace(",", "").split("~")
+
+                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                    sale_price = float(sale_price[0].strip())
+                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                    sale_price = sale_price[-1].strip()
+                else:
+                    sale_price = float(sale_price[0].strip())
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
 def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
@@ -7838,7 +8301,7 @@ def get_crawler(crawler_id):
         "147": RereburnCrawler(),
         # "147": StylenandaCrawler(),
         # "148": ThegirlwhoCrawler(),
-        "149": MumushopCrawler(),
+        # "149": MumushopCrawler(), Exceeded: 8000 ms exceeded.
         # "150": ChuuCrawler(),
         # "151": AleyCrawler(),
         # "152": TrudamodaCrawler(),
@@ -7846,17 +8309,21 @@ def get_crawler(crawler_id):
         "157": LamochaCrawler(),
         # "159": AndenhudCrawler(),  會卡死
         # "162": BonnyreadCrawler(), id 錯誤 160
+        "163": VizzleCrawler(),
+        "164": WemeCrawler(),
         "166": PixyCrawler(),  # V
-        # "167": WemekrCrawler(), id 錯誤 164
         # "170": AnnadollyCrawler(),
         # "172": RobinmayCrawler(),
         # "174": ImfineCrawler(),
         # "175": MirricoCrawler(),
         # "178": AfashionshowroomCrawler(),
         "179": StarkikiCrawler(),
+        "180": KavaCrawler(),
         # "181": BrodntdCrawler(),
         # "182": DejavustoreeCrawler(),
         # "183": AramodalCrawler(),
+        "185": TennyshopCrawler(),
+        "186": MypopcornCrawler(),
         # "186": BuchaCrawler(), id 錯誤 184
         # "187": YvestoreCrawler(),
         # "189": TennyshopCrawler(),
@@ -7864,6 +8331,7 @@ def get_crawler(crawler_id):
         "194": AlmashopCrawler(),
         "196": LeatherCrawler(),  # V
         "198": MuminCrawler(),
+        "206": BelloCrawler(),
         "216": AttentionCrawler(),
         "221": WhoiannCrawler(),
         "228": CocochiliCrawler(),
@@ -7897,6 +8365,7 @@ def get_crawler(crawler_id):
         "303": PennyncoCrawler(),
         "304": UnefemmeCrawler(),
         "306": YsquareCrawler(),
+        "313": OliviaCrawler(),
         "337": AllgenderCrawler(),
         "341": PimgoCrawler(),
         "342": GotobuyCrawler(),
@@ -7911,5 +8380,8 @@ def get_crawler(crawler_id):
         "385": FeminCrawler(),
         "386": HuitcoCrawler(),
         "387": FeatherCrawler(),
+        "388": HoukoreaCrawler(),
+        "389": MaaCrawler(),
+        "390": RosirosCrawler(),
     }
     return crawlers.get(str(crawler_id))
