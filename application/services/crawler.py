@@ -352,6 +352,44 @@ class PleatsCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class Me30Crawler(BaseCrawler):
+    id = 391
+    name = "me30"
+    base_url = "https://www.me-30.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories/all-product?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
+            return
+
+        title = item.find(
+            "div", {"class": "title"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                      "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        original_price = ""
+        sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+        if (len(sale_price) == 1):
+            return
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class AspeedCrawler(BaseCrawler):
     id = 15
     name = "aspeed"
@@ -3532,34 +3570,34 @@ class EvermoreCrawler(BaseCrawler):
     id = 155
     name = "evermore"
     base_url = "https://www.love-evermore.com/product/"  # 要記得改
-    query = """query getProducts($search: searchInputObjectType) 
+    query = """query getProducts($search: searchInputObjectType)
 {
       computeProductList(search: $search) {
               data {
                         id
                               title {
                                           zh_TW
-                                                  
+
                                                     }
                                                                                                                        variants {
-                                                                                                                          
-                                                                                                                                  
+
+
                                                                                                                                           listPrice
-                                                                                                                                                  
+
                                                                                                                                                           totalPrice
-                                                                                                                                                                  
+
                                                                                                                                                                         }
                                                                                                                                                                               coverImage {
-                                                                                                                                                                                          
+
                                                                                                                                                                                                   scaledSrc {
                                                                                                                                                                                                                                                                                                  w1920
-                                                                                                                                                                                                                                                                                                                    
+
                                                                                                                                                                                                                                                                                                                             }
-                                                                                                                                                                                                                                                                                                                                    
+
                                                                                                                                                                                                                                                                                                                                           }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+
                                                                                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                                                                                                                                                
+
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         }
 }
 """
@@ -4125,6 +4163,44 @@ class PennyncoCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class MollyCrawler(BaseCrawler):
+    id = 396
+    name = "molly"
+    base_url = "https://www.molly-m.com"
+
+    def parse(self):
+        urls = [f"{self.base_url}/product.php?page={i}&cid=1#prod_list" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "thumbnail"})
+            if len(items) < 80:
+                print(len(items))
+                if flag == True:
+                    print("break")
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "overflow-sold-out"})):
+            return
+        title = item.find("div", {"class": "prod-name"}).find("a").text.strip()
+        link = item.find("a").get("href")
+        link_id = stripID(link, "pid=")
+        image_url = item.find("img").get("data-original")
+        try:
+            original_price = self.get_price(item.find("div", {"class": "prod-price"}).find("del").text)
+            sale_price = self.get_price(item.find("span", {"class": "text-danger"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "prod-price"}).text)
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class NanaCrawler(BaseCrawler):
     id = 66
     name = "nana"
@@ -4620,6 +4696,46 @@ class SivirCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class DfinaCrawler(BaseCrawler):
+    id = 394
+    name = "dfina"
+    base_url = "https://www.dfina.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/all?limit=100&page={i}" for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "inner"})
+            if not items:
+                print(url)
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("span", {"class": "label stock-status-label"}):
+            return
+        title = item.find("a").get("title")
+        link = item.find("a").get("href")
+        link_id = item.find("select").get('data-productid')
+
+        image_url = f"https:{item.find('img').get('src')}"
+        if 'max-260' in image_url:
+            image_url = image_url.replace('max-260', 'max-w-1024')
+        else:
+            image_url = f"https:{item.find('img').get('data-src')}"
+            image_url = image_url.replace('max-260', 'max-w-1024')
+        try:
+            original_price = self.get_price(item.find("span", {"class": "price-old"}).text)
+            sale_price = self.get_price(item.find("span", {"class": "price-new"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("span", {"class": "price-label"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class SpotlightCrawler(BaseCrawler):
     id = 298
     name = "spotlight"
@@ -4890,6 +5006,49 @@ class IlymCrawler(BaseCrawler):
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
         image_url = item.find('img').get('data-src')
+        pattern = "\/i\/(.+)\."
+        link_id = re.search(pattern, image_url).group(1)
+        link = f"{self.base_url}{prefix_link}"
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class Ss33Crawler(BaseCrawler):
+    id = 395
+    name = "ss33"
+    base_url = "https://www.ss33.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if (item.find("span", {"class": "badge badge--sold-out"})):
+            print(item.find("p", {"class": "grid-link__title"}).text)
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        prefix_link = item.find("a").get("href")
+        image_url = item.find('img').get('src')
         pattern = "\/i\/(.+)\."
         link_id = re.search(pattern, image_url).group(1)
         link = f"{self.base_url}{prefix_link}"
@@ -8426,6 +8585,10 @@ def get_crawler(crawler_id):
         "388": HoukoreaCrawler(),
         "389": MaaCrawler(),
         "390": RosirosCrawler(),
+        "391": Me30Crawler(),
         "393": IlymCrawler(),
+        "394": DfinaCrawler(),
+        "395": Ss33Crawler(),
+        "396": MollyCrawler(),
     }
     return crawlers.get(str(crawler_id))
