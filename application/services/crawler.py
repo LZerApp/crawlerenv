@@ -1028,6 +1028,47 @@ class OolalaCrawler(BaseCrawler):
             sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+class DesireCrawler(BaseCrawler):
+    id = 223
+    name = "desire"
+    base_url = "https://www.desireshop.com.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories/products?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class ChiehCrawler(BaseCrawler):
     id = 248
     name = "chieh"
@@ -8536,6 +8577,7 @@ def get_crawler(crawler_id):
         "206": BelloCrawler(),
         "216": AttentionCrawler(),
         "221": WhoiannCrawler(),
+        "223": DesireCrawler(),
         "228": CocochiliCrawler(),
         "225": ReallifeCrawler(),  # V
         "234": CoochadCrawler(),  # V
