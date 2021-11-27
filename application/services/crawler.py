@@ -8723,7 +8723,7 @@ def get_crawler(crawler_id):
         "120": DafCrawler(),
         "122": SexyinshapeCrawler(),
         "125": MiniqueenCrawler(),
-        "126": SandaruCrawler(),
+        # "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
         "130": BaibeautyCrawler(),
         "136": DaimaCrawler(),
