@@ -912,6 +912,53 @@ class YsquareCrawler(BaseCrawler):
                     item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+class AriaspaceCrawler(BaseCrawler):
+    id = 278
+    name = "ariaspace"
+    base_url = "https://www.aria-space.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/categories?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("a", {"class": "Product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("div", {"class": "Product-title Label mix-primary-text"}).text
+        link = item.get("href")
+        link_id = item.get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "Image-boxify-image js-image-boxify-image sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            return
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        except:
+            try:
+                original_price = ""
+                sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
+            except:
+                original_price = ""
+                sale_price = self.get_price(
+                    item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class KkleeCrawler(BaseCrawler):
     id = 13
     name = "kklee"
@@ -8953,7 +9000,7 @@ def get_crawler(crawler_id):
         "120": DafCrawler(),
         "122": SexyinshapeCrawler(),
         "125": MiniqueenCrawler(),
-        # "126": SandaruCrawler(),
+        "126": SandaruCrawler(),
         "127": BonbonsCrawler(),
         "130": BaibeautyCrawler(),
         "136": DaimaCrawler(),
@@ -9019,6 +9066,7 @@ def get_crawler(crawler_id):
         "250": ChangeuCrawler(),  # V
         "255": IruitwCrawler(),
         "266": LalalatwCrawler(),
+        "278": AriaspaceCrawler(),
         "280": VacanzaCrawler(),
         "295": DeerwCrawler(),
         "296": PreuniCrawler(),
