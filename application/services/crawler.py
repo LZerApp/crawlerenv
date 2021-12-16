@@ -1783,7 +1783,7 @@ class OmostudioCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/categories/all-items?limit=72&page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
         for url in urls:
             print(url)
             response = requests.request("GET", url, headers=self.headers)
