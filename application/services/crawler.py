@@ -7950,9 +7950,10 @@ class DarkcirclesCrawler(BaseCrawler):
             return
         title = item.find("span", {"class": "grid-product__title"}).text
         link = item.find("a", {"class": "grid-product__meta"}).get("href")
-        link_id = stripID(link, "/products/")
         link = f"{self.base_url}{link}"
         image_url = item.find("img", {"class": "grid-product__image"}).get("src")
+        pattern = "v=(.+)"
+        link_id = re.search(pattern, image_url).group(1)
         image_url = f"https:{image_url}"
         original_price = ""
         sale_price = self.get_price(item.find("span", {"class": "grid-product__price"}).text)
