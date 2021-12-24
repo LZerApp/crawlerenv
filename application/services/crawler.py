@@ -4059,6 +4059,78 @@ class MiashiCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class SecretaccCrawler(BaseCrawler):
+    id = 429
+    name = "secretacc"
+    base_url = "https://www.secretacc.com/product/"  # 要記得改
+    query = """query getProducts($search: searchInputObjectType)
+{
+      computeProductList(search: $search) {
+              data {
+                        id
+                              title {
+                                          zh_TW
+
+                                                    }
+                                                                                                                       variants {
+
+
+                                                                                                                                          listPrice
+
+                                                                                                                                                          totalPrice
+
+                                                                                                                                                                        }
+                                                                                                                                                                              coverImage {
+
+                                                                                                                                                                                                  scaledSrc {
+                                                                                                                                                                                                                                                                                                 w1920
+
+                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                          }
+
+                                                                                                                                                                                                                                                                                                                                }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+}
+"""
+
+    variables = {"search": {"size": 500, "from": 0, "filter": {"and": [{"type": "exact", "field": "status", "query": "1"}], "or": [
+    ]}, "sort": [{"field": "createdAt", "order": "desc"}], "showVariants": True, "showMainFile": True}}
+
+    # {"search":{"size":40,"from":0,"filter":{"and":[{"type":"exact","field":"status","query":"1"},{"type":"ids","ids":[]}]},"sort":[{"field":"createdAt","order":"desc"}],"showVariants":true,"showMainFile":true}}
+    def parse(self):
+        url = "https://www.secretacc.com/api/graphql"
+        # for offset in range(0, 2000, 500):
+        try:
+            # self.variables["search"]["from"] = offset
+            response = requests.request(
+                "POST",
+                url,
+                headers=self.headers,
+                json={'query': self.query},
+            )
+            # print(response.text)
+            items = json.loads(response.text)["data"]["computeProductList"]["data"]
+            self.result.extend([self.parse_product(item) for item in items])
+
+        except:
+            # print(offset)
+            return
+
+    def parse_product(self, item):
+
+        title = item['title']['zh_TW']
+        link_id = item['id']
+        link = f"{self.base_url}{link_id}"
+        image_url = item['coverImage']['scaledSrc']['w1920']
+
+        price = item["variants"]
+        original_price = ""
+        sale_price = price[0]["totalPrice"]
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class NelmuseoCrawler(BaseCrawler):
     id = 423
     name = "nelmuseo"
@@ -5443,9 +5515,8 @@ class PreuniCrawler(BaseCrawler):
         if item.find("span", {"class": "badge badge--sold-out"}):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
-        link_id = item.find("a").get("href")
-        link = f"{self.base_url}{link_id}"
-        link_id = stripID(link_id, "/products/")
+        link = f'{self.base_url}{item.find("a").get("href")}'
+        link_id = item.find("div", {"class": "addToCartList btn large--hide"}).get("data-id")
         image_url = item.find('img').get('src')
         if item.find("s", {"class": "grid-link__sale_price"}):
             original_price = self.get_price(
@@ -6110,7 +6181,6 @@ class OhlalaCrawler(BaseCrawler):
     def parse(self):
         urls = [
             f"{self.base_url}/gateway.php?a=view&m=website&WebPageID=OG2xp9RzW069aWMwJNgV3lje&page={i}&Token=&fbp=fb.2.1638889210454.1335955201&fbc=&pageTitle=Ohlala%E9%A3%BE%E5%93%81%20-%20%E5%AE%98%E7%B6%B2&pageId=DQ&FBPageID=0&FBPixelUrl=https%3A%2F%2Fwww.ohlala.com.tw%2Fall%3Fp%3D0&_=1638891716761" for i in range(0, 10)]
-        flag = 0
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             data_json = json.loads(response.text)
@@ -6122,7 +6192,7 @@ class OhlalaCrawler(BaseCrawler):
         # print("item:", item)
         # print(type(item))
         title = item.get('genP')[0].get('ProductName')
-        link = f"https://www.ohlala.com.tw/{item.get('genP')[0].get('ProductSKU')}"
+        link = f"https://www.ohlala.com.tw/{item.get('genP')[0].get('ProductSKU')}".lower()
         link_id = item.get('genP')[0].get('ProductID')
         image_url = item.get('genP')[0].get('MediaFile').get('OriginalFile')
         original_price = item.get('genP')[0].get('PriceBase')
@@ -6472,7 +6542,9 @@ class SdareCrawler(BaseCrawler):
     def parse_product(self, item):
         title = item.find("h3").text
         link = item.find("a").get("href")
-        link_id = link.replace("/Product/Detail/", "")
+        onclick = item.find("div", {"class": "pro_buy"}).get("onclick")
+        pattern = "\('(.*?)',"
+        link_id = re.search(pattern, onclick).group(1)
         link = f'{self.base_url}{link}'
         try:
             image_url = item.find("img").get("data-imgurl")
@@ -6662,7 +6734,7 @@ class NotjustonlyCrawler(BaseCrawler):
 
     def parse_product(self, item):
         title = item.find("div", {"class": "title"}).text.strip()
-        link = f'{self.base_url}{item.find("a").get("href")}'
+        link = item.find("a").get("href")
         link_id = item.get("product-id")
         try:
             image_url = (
@@ -8898,7 +8970,6 @@ class YurubraCrawler(BaseCrawler):
 # class QuentinaCrawler(BaseCrawler):
 #     id = 242
 #     name = "quentina"
-
 #     prefix_urls = ['https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E8%A4%B2',
 #                    'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&search=%E8%A4%B2&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E8%A3%99',
 #                    'https://www.quentina.com.tw/products?limit=50&offset=0&price=0%2C10000&search=%E5%8C%85&sort=createdAt-desc&tags=%E7%89%9B%E4%BB%94%E5%A4%96%E5%A5%97',
@@ -10594,5 +10665,6 @@ def get_crawler(crawler_id):
         "426": FigwooCrawler(),
         "427": TheshapeCrawler(),
         "428": CarabellaCrawler(),
+        "429": SecretaccCrawler(),
     }
     return crawlers.get(str(crawler_id))
