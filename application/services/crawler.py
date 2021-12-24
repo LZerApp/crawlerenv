@@ -10545,7 +10545,7 @@ def get_crawler(crawler_id):
         "155": EvermoreCrawler(),  # V
         "157": LamochaCrawler(),
         "158": AnnsCrawler(),
-        "159": AndenhudCrawler(),
+        # "159": AndenhudCrawler(),
         "161": EvaCrawler(),
         # "162": BonnyreadCrawler(), id 錯誤 160
         "163": VizzleCrawler(),
