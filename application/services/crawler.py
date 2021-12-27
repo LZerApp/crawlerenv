@@ -9453,6 +9453,7 @@ class VizzleCrawler(BaseCrawler):
             'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
         }
         for url in self.urls:
+            print(url)
             response = requests.get(url, headers=header)
             soup = BeautifulSoup(response.text, features='html.parser')
             try:
@@ -10551,7 +10552,7 @@ def get_crawler(crawler_id):
         # "159": AndenhudCrawler(),
         "161": EvaCrawler(),
         # "162": BonnyreadCrawler(), id 錯誤 160
-        "163": VizzleCrawler(),
+        # "163": VizzleCrawler(),
         "164": WemeCrawler(),
         "166": PixyCrawler(),  # V
         # "170": AnnadollyCrawler(),
