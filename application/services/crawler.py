@@ -13,6 +13,7 @@ from config import ENV_VARIABLE
 from urllib import parse
 from urllib.request import urlopen
 import time
+import os
 from requests_html import HTMLSession
 
 fold_path = "./crawler_data"
@@ -102,11 +103,13 @@ class BaseCrawler(object):
                     open(f"{fold_path}/{filename}.csv", "rb"),
                 ),
             }
-            response = requests.post(
-                verify=False, url=url, files=files, headers=headers
-            )
-            print(response.status_code)
-            # os.remove(filename+'.xlsx')
+            if os.stat(f"{fold_path}/{filename}.csv").st_size <= 60:
+                print("File is empty")
+            else:
+                response = requests.post(
+                    verify=False, url=url, files=files, headers=headers
+                )
+                print(response.status_code)
         except Exception as e:
             print(e)
 
@@ -5723,7 +5726,7 @@ class AnderlosCrawler(BaseCrawler):
 
     def parse_product(self, item):
         if (item.find("span", {"class": "badge badge--sold-out"})):
-            print(item.find("p", {"class": "grid-link__title"}).text)
+            # print(item.find("p", {"class": "grid-link__title"}).text)
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         link_id = item.find("a").get("href")
@@ -5765,7 +5768,7 @@ class IlymCrawler(BaseCrawler):
 
     def parse_product(self, item):
         if (item.find("span", {"class": "badge badge--sold-out"})):
-            print(item.find("p", {"class": "grid-link__title"}).text)
+            # print(item.find("p", {"class": "grid-link__title"}).text)
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
@@ -9638,7 +9641,7 @@ class TennyshopCrawler(BaseCrawler):
                     'div', {'class': 'global-primary dark-primary price sl-price'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
 
             except Exception as e:
-                print(e)
+                # print(e)
                 return
         except:
             return
@@ -10334,7 +10337,7 @@ class GoodlogoCrawler(BaseCrawler):
             soup = response.json()
             items = soup['data']['shopCategory']['salePageList']['salePageList']
             if items == []:
-                print(url)
+                # print(url)
                 continue
             self.result.extend([self.parse_product(item) for item in items])
 
