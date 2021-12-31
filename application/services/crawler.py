@@ -2,13 +2,15 @@ import re
 import json
 from collections import namedtuple
 from datetime import datetime
-from typing import ItemsView
+from typing import ItemsView, Pattern
 import requests
 import csv
 from bs4 import BeautifulSoup, FeatureNotFound
 from openpyxl import Workbook
 from base64 import b64decode
 from gzip import decompress
+
+from requests import cookies
 from config import ENV_VARIABLE
 from urllib import parse
 from urllib.request import urlopen
@@ -2205,6 +2207,48 @@ class PeachanCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class WhomforCrawler(BaseCrawler):
+    id = 431
+    name = "whomfor"
+    base_url = "https://www.whomfor.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "sold-out-item"})):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class YourzCrawler(BaseCrawler):
     id = 50
     name = "yourz"
@@ -4048,78 +4092,6 @@ class MiashiCrawler(BaseCrawler):
             except:
                 print(offset)
                 break
-
-    def parse_product(self, item):
-
-        title = item['title']['zh_TW']
-        link_id = item['id']
-        link = f"{self.base_url}{link_id}"
-        image_url = item['coverImage']['scaledSrc']['w1920']
-
-        price = item["variants"]
-        original_price = ""
-        sale_price = price[0]["totalPrice"]
-        return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
-class SecretaccCrawler(BaseCrawler):
-    id = 429
-    name = "secretacc"
-    base_url = "https://www.secretacc.com/product/"  # 要記得改
-    query = """query getProducts($search: searchInputObjectType)
-{
-      computeProductList(search: $search) {
-              data {
-                        id
-                              title {
-                                          zh_TW
-
-                                                    }
-                                                                                                                       variants {
-
-
-                                                                                                                                          listPrice
-
-                                                                                                                                                          totalPrice
-
-                                                                                                                                                                        }
-                                                                                                                                                                              coverImage {
-
-                                                                                                                                                                                                  scaledSrc {
-                                                                                                                                                                                                                                                                                                 w1920
-
-                                                                                                                                                                                                                                                                                                                            }
-
-                                                                                                                                                                                                                                                                                                                                          }
-
-                                                                                                                                                                                                                                                                                                                                }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
-}
-"""
-
-    variables = {"search": {"size": 500, "from": 0, "filter": {"and": [{"type": "exact", "field": "status", "query": "1"}], "or": [
-    ]}, "sort": [{"field": "createdAt", "order": "desc"}], "showVariants": True, "showMainFile": True}}
-
-    # {"search":{"size":40,"from":0,"filter":{"and":[{"type":"exact","field":"status","query":"1"},{"type":"ids","ids":[]}]},"sort":[{"field":"createdAt","order":"desc"}],"showVariants":true,"showMainFile":true}}
-    def parse(self):
-        url = "https://www.secretacc.com/api/graphql"
-        # for offset in range(0, 2000, 500):
-        try:
-            # self.variables["search"]["from"] = offset
-            response = requests.request(
-                "POST",
-                url,
-                headers=self.headers,
-                json={'query': self.query},
-            )
-            # print(response.text)
-            items = json.loads(response.text)["data"]["computeProductList"]["data"]
-            self.result.extend([self.parse_product(item) for item in items])
-
-        except:
-            # print(offset)
-            return
 
     def parse_product(self, item):
 
@@ -6327,7 +6299,14 @@ class GalleryCrawler(BaseCrawler):
         title = item.find("h5").text
         link_id = item.find("div", {"class": "add-cart"}).find("a").get("data-product_id")
         link = item.find("a").get("href")
-        image_url = item.find("img").get("data-lazy-src")
+        try:
+            image_url = item.find("a").find("img").get("data-lazy-src")
+        except:
+            try:
+                image_url = item.find("a").find("img").get("data-lazy-src")
+            except:
+                print(title)
+                return
         sale_price = self.get_price(item.find("span", {"class": "price"}).text)
         original_price = ""
 
@@ -7266,6 +7245,39 @@ class FeminCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class N34Crawler(BaseCrawler):
+    id = 430
+    name = "n34"
+    url = "https://www.n34.com.tw/all"
+
+    def parse(self):
+        response = requests.get(self.url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        # print(soup)
+        items = soup.find(
+            "ul", {"class": 'loops-wrapper products wc-products grid4 masonry boxed tf_rel tf_clearfix'}).find_all("li")
+        if not items:
+            return
+        self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("figure").find("a").get("title")
+        link = item.find("figure").find("a").get("href")
+        link_id = item.find("p").find("a").get("data-product_id")
+        image_url = item.find("img").get("src")
+        # pattern = ", (.*?) 768w"
+        # print(image_url)
+        # image_url = re.search(pattern, image_url).group(1)
+        try:
+            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+            sale_price = self.get_price(item.find("ins").find(
+                "span", {"class": "woocommerce-Price-amount amount"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("span", {"class": "price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class HolkeeCrawler(BaseCrawler):
     id = 422
     name = "holkee"
@@ -8164,15 +8176,24 @@ class RachelworldCrawler(BaseCrawler):
     id = 241
     name = "rachelworld"
     base_url = "https://www.rachelworld.com.tw"
+    url = f"{base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx?ajax=GetAllProductByViewOption"
+
+    def get_cookies(self):
+        cookies = requests.request("GET", self.url, headers=self.headers).cookies
+        pattern = "Cookie (.*?) for"
+        cookies = re.search(pattern, str(coo)).group(1)
+        print(cookies)
+        return cookies
 
     def parse(self):
-        url = f"{self.base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx"
         payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
                             "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
-        response = requests.request("POST", url, headers={
-                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, json=payload)
+        cookies = self.get_cookies()
+        response = requests.request("POST", self.url, headers={
+                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, cookies=cookies, json=payload)
         raw_text = re.sub("new Ajax\.Web\.Dictionary\(.*?\)|new Date\(.*?\)",
                           '""', response.content.decode(encoding='utf-8'))
+        print(response.text)
         items = json.loads(raw_text)["value"]["ListData"]
         self.result.extend([self.parse_product(item) for item in items])
 
@@ -10669,6 +10690,7 @@ def get_crawler(crawler_id):
         "426": FigwooCrawler(),
         "427": TheshapeCrawler(),
         "428": CarabellaCrawler(),
-        "429": SecretaccCrawler(),
+        "430": N34Crawler(),
+        "431": WhomforCrawler(),
     }
     return crawlers.get(str(crawler_id))
