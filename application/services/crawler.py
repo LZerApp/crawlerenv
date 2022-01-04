@@ -1890,7 +1890,7 @@ class NookCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/products?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
         for url in urls:
             print(url)
             response = requests.request("GET", url, headers=self.headers)
@@ -1926,7 +1926,7 @@ class NookCrawler(BaseCrawler):
                 sale_price = self.get_price(
                     item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
             else:
-                sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+                sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
