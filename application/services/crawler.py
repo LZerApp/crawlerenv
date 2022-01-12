@@ -11,6 +11,7 @@ from base64 import b64decode
 from gzip import decompress
 
 from requests import cookies
+from requests.sessions import session
 from config import ENV_VARIABLE
 from urllib import parse
 from urllib.request import urlopen
@@ -1568,7 +1569,7 @@ class OhherCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "product-item"})
+            items = soup.find_all("li", {"class": "boxify-item product-item"})
             print(url)
             if not items:
                 print(url, 'break')
@@ -1576,26 +1577,27 @@ class OhherCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "title text-primary-color"}).text
-        link = item.find("a").get("href")
+        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        link = f'{self.base_url}{item.find("a").get("href")}'.strip()
         link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
         try:
-            image_url = (
-                item.find("div", {
-                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
-                .split("url(")[-1]
-                .split("?)")[0]
-            )
-        except:
-            return
-        try:
-            original_price = ""
-            sale_price = self.get_price(
-                item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary"}))
+            sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
         except:
             original_price = ""
-            sale_price = self.get_price(
-                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+            try:
+                sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price"}).text)
+            except:
+                sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class ShaxiCrawler(BaseCrawler):
@@ -6269,6 +6271,100 @@ class AphroCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class VvvlandCrawler(BaseCrawler):
+    id = 436
+    name = "vvvland"
+    base_url = "https://www.vvvland.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if (item.find("span", {"class": "badge badge--sold-out"})):
+            print(item.find("p", {"class": "grid-link__title"}).text)
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        prefix_link = item.find("a").get("href")
+        image_url = item.find('img').get('data-src')
+        try:
+            link_id = item.find("div").get("data-id")
+        except:
+            pattern = "\/i\/(.+)\."
+            link_id = re.search(pattern, image_url).group(1)
+
+        link = f"{self.base_url}{prefix_link}"
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class VstoreCrawler(BaseCrawler):
+    id = 437
+    name = "vstore2012"
+    base_url = "https://www.vstore2012.com/"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if (item.find("span", {"class": "badge badge--sold-out"})):
+            print(item.find("p", {"class": "grid-link__title"}).text)
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        prefix_link = item.find("a").get("href")
+        image_url = item.find('img').get('src')
+        try:
+            link_id = item.find("div").get("data-id")
+        except:
+            pattern = "\/i\/(.+)\."
+            link_id = re.search(pattern, image_url).group(1)
+
+        link = f"{self.base_url}{prefix_link}"
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class OhlalaCrawler(BaseCrawler):
     id = 410
     name = "ohlala"
@@ -8336,19 +8432,17 @@ class RachelworldCrawler(BaseCrawler):
 
     def get_cookies(self):
         cookies = requests.request("GET", self.url, headers=self.headers).cookies
-        pattern = "Cookie (.*?) for"
-        cookies = re.search(pattern, str(coo)).group(1)
         print(cookies)
         return cookies
 
     def parse(self):
-        payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
-                            "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
-        cookies = self.get_cookies()
-        response = requests.request("POST", self.url, headers={
-                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, cookies=cookies, json=payload)
-        raw_text = re.sub("new Ajax\.Web\.Dictionary\(.*?\)|new Date\(.*?\)",
-                          '""', response.content.decode(encoding='utf-8'))
+        session = requests.Session()
+        payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
+                            "CategoryID": "-1", "BlockNo": [1]}}  # list(range(1, 1000))
+        # cookies = self.get_cookies()
+        session.get(self.base_url)
+        response = session.post(self.url, json=payload)
+        raw_text = response.content.decode(encoding='utf-8')
         print(response.text)
         items = json.loads(raw_text)["value"]["ListData"]
         self.result.extend([self.parse_product(item) for item in items])
@@ -10971,5 +11065,7 @@ def get_crawler(crawler_id):
         "433": AphroCrawler(),
         "434": MoriiCrawler(),
         "435": XwysiblingsCrawler(),
+        "436": VvvlandCrawler(),
+        "437": VstoreCrawler(),
     }
     return crawlers.get(str(crawler_id))
