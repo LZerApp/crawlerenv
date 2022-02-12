@@ -4282,6 +4282,78 @@ class EvermoreCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class Nora38Crawler(BaseCrawler):
+    id = 444
+    name = "nora38"
+    base_url = "https://www.nora38.com/product/"  # 要記得改
+    query = """query getProducts($search: searchInputObjectType)
+{
+      computeProductList(search: $search) {
+              data {
+                        id
+                              title {
+                                          zh_TW
+
+                                                    }
+                                                                                                                       variants {
+
+
+                                                                                                                                          listPrice
+
+                                                                                                                                                          totalPrice
+
+                                                                                                                                                                        }
+                                                                                                                                                                              coverImage {
+
+                                                                                                                                                                                                  scaledSrc {
+                                                                                                                                                                                                                                                                                                 w1920
+
+                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                          }
+
+                                                                                                                                                                                                                                                                                                                                }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+}
+"""
+
+    variables = {"search": {"size": 500, "from": 0, "filter": {"and": [{"type": "exact", "field": "status", "query": "1"}], "or": [
+    ]}, "sort": [{"field": "createdAt", "order": "desc"}], "showVariants": True, "showMainFile": True}}
+
+    def parse(self):
+        url = "https://www.nora38.com/api/graphql"
+        for offset in range(0, 2000, 500):
+            try:
+                print(offset)
+                self.variables["search"]["from"] = offset
+                response = requests.request(
+                    "POST",
+                    url,
+                    headers=self.headers,
+                    json={'query': self.query, 'variables': {**self.variables}},
+                )
+                items = json.loads(response.text)["data"]["computeProductList"]["data"]
+                self.result.extend([self.parse_product(item) for item in items])
+
+            except:
+                print(offset)
+                break
+
+    def parse_product(self, item):
+
+        title = item['title']['zh_TW']
+        link_id = item['id']
+        link = f"{self.base_url}{link_id}"
+        image_url = item['coverImage']['scaledSrc']['w1920']
+        price = item["variants"]
+        original_price = price[0]["listPrice"]
+        if original_price == 0:
+            original_price = ""
+        sale_price = price[0]["totalPrice"]
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class MiashiCrawler(BaseCrawler):
     id = 414
     name = "miashi"
@@ -7330,6 +7402,59 @@ class CarabellaCrawler(BaseCrawler):
             except:
                 sale_price = self.get_price(
                     item.find("div", {"class": "Label-price sl-price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+class UnuselfCrawler(BaseCrawler):
+    id = 445
+    name = "unuself"
+    base_url = "https://www.unuself.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item-content"}):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text.strip()
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            return
+
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price"}).text)
+        except:
+            original_price = ""
+            try:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price tertiary-color-price"}).text)
+            except:
+                try:
+                    sale_price = self.get_price(
+                        item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+                except:
+                    return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class FabulousCrawler(BaseCrawler):
@@ -11510,5 +11635,7 @@ def get_crawler(crawler_id):
         "441": XuaccCrawler(),
         "442": Menu12Crawler(),
         "443": Vior2015Crawler(),
+        "444": Nora38Crawler(),
+        "445": UnuselfCrawler(),
     }
     return crawlers.get(str(crawler_id))
