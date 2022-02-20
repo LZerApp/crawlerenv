@@ -5514,7 +5514,7 @@ class KisssilverCrawler(BaseCrawler):
         link_id = stripID(link, "prodid=")
         link = f"{self.base_url}{link}"
         try:
-            image_url = item.find("img").get("src")
+            image_url = item.find("img").get("data-src")
         except:
             image_url = item.find("source").get("src")
         image_url = f"{self.base_url}{image_url}"
@@ -8491,54 +8491,44 @@ class LamochaCrawler(BaseCrawler):
         sale_price = sale_price.replace("$", "").replace(".00", "")
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
-
-class BonnyreadCrawler(BaseCrawler):
+class VemarCrawler(BaseCrawler):
     id = 162
-    name = 'bonnyread'
-    prefix_urls = ["https://www.bonnyread.com.tw/products?page={i}&limit=72"]
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 10)]
+    name = "vemar"
+    prefix_urls = [
+        " https://fts-api.91app.com/pythia-cdn/graphql?shopId=588&lang=zh-TW&query=query%20cms_shopCategory(%24shopId%3A%20Int!%2C%20%24categoryId%3A%20Int!%2C%20%24startIndex%3A%20Int!%2C%20%24fetchCount%3A%20Int!%2C%20%24orderBy%3A%20String%2C%20%24isShowCurator%3A%20Boolean%2C%20%24locationId%3A%20Int%2C%20%24tagFilters%3A%20%5BItemTagFilter%5D%2C%20%24tagShowMore%3A%20Boolean%2C%20%24serviceType%3A%20String%2C%20%24minPrice%3A%20Float%2C%20%24maxPrice%3A%20Float%2C%20%24payType%3A%20%5BString%5D%2C%20%24shippingType%3A%20%5BString%5D)%20%7B%0A%20%20shopCategory(shopId%3A%20%24shopId%2C%20categoryId%3A%20%24categoryId)%20%7B%0A%20%20%20%20salePageList(startIndex%3A%20%24startIndex%2C%20maxCount%3A%20%24fetchCount%2C%20orderBy%3A%20%24orderBy%2C%20isCuratorable%3A%20%24isShowCurator%2C%20locationId%3A%20%24locationId%2C%20tagFilters%3A%20%24tagFilters%2C%20tagShowMore%3A%20%24tagShowMore%2C%20minPrice%3A%20%24minPrice%2C%20maxPrice%3A%20%24maxPrice%2C%20payType%3A%20%24payType%2C%20shippingType%3A%20%24shippingType%2C%20serviceType%3A%20%24serviceType)%20%7B%0A%20%20%20%20%20%20salePageList%20%7B%0A%20%20%20%20%20%20%20%20salePageId%0A%20%20%20%20%20%20%20%20title%0A%20%20%20%20%20%20%20%20picUrl%0A%20%20%20%20%20%20%20%20salePageCode%0A%20%20%20%20%20%20%20%20price%0A%20%20%20%20%20%20%20%20suggestPrice%0A%20%20%20%20%20%20%20%20isFav%0A%20%20%20%20%20%20%20%20isComingSoon%0A%20%20%20%20%20%20%20%20isSoldOut%0A%20%20%20%20%20%20%20%20soldOutActionType%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20totalSize%0A%20%20%20%20%20%20shopCategoryId%0A%20%20%20%20%20%20shopCategoryName%0A%20%20%20%20%20%20statusDef%0A%20%20%20%20%20%20listModeDef%0A%20%20%20%20%20%20orderByDef%0A%20%20%20%20%20%20dataSource%0A%20%20%20%20%20%20tags%20%7B%0A%20%20%20%20%20%20%20%20isGroupShowMore%0A%20%20%20%20%20%20%20%20groups%20%7B%0A%20%20%20%20%20%20%20%20%20%20groupId%0A%20%20%20%20%20%20%20%20%20%20groupDisplayName%0A%20%20%20%20%20%20%20%20%20%20isKeyShowMore%0A%20%20%20%20%20%20%20%20%20%20keys%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20keyId%0A%20%20%20%20%20%20%20%20%20%20%20%20keyDisplayName%0A%20%20%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20priceRange%20%7B%0A%20%20%20%20%20%20%20%20min%0A%20%20%20%20%20%20%20%20max%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D%0A&operationName=cms_shopCategory&variables=%7B%22shopId%22%3A588%2C%22categoryId%22%3A0%2C%22startIndex%22%3A{i}%2C%22fetchCount%22%3A100%2C%22orderBy%22%3A%22Newest%22%2C%22isShowCurator%22%3Afalse%2C%22locationId%22%3A0%2C%22tagFilters%22%3A%5B%5D%2C%22tagShowMore%22%3Afalse%2C%22minPrice%22%3Anull%2C%22maxPrice%22%3Anull%2C%22payType%22%3A%5B%5D%2C%22shippingType%22%3A%5B%5D%7D"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(0, 3000, 100)]
 
     def parse(self):
         header = {
             'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
         }
         for url in self.urls:
-            print(url)
             response = requests.get(url, headers=header)
-            soup = BeautifulSoup(response.text, features='html.parser')
-            # try:
-
-            items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}).find_all("a")
-
+            soup = response.json()
+            items = soup['data']['shopCategory']['salePageList']['salePageList']
+            if items == []:
+                print(url)
+                continue
             self.result.extend([self.parse_product(item) for item in items])
-            # except:
-            #     pass
 
     def parse_product(self, item):
         try:
-            page_id = item.get('product-id')
-            img_url = item.find('div', {'class': 'Image-boxify-image js-image-boxify-image sl-lazy-image'}
-                                ).get('style').split('background-image:url(')[1].replace('?)', "")
-            title = item.find('div', {'class': 'Product-title Label mix-primary-text'}).text
-
-            url = item.get('href')
+            page_id = item['salePageId']
+            img_url = 'https:'+item['picUrl']
+            title = item['title']
+            url = f'https://www.vemar.com.tw/SalePage/Index/{page_id}'
             try:
-                sale_price = float(item.find('div', {'class': 'DiscountLowest'}
-                                             ).text.replace("NT$", "").replace(",", ""))
-                original_price = float(
-                    item.find('div', {'class': 'Label-price sl-price'}).text.replace("NT$", "").replace(",", ""))
+                original_price = item['suggestPrice']
             except:
-                try:
-                    sale_price = float(item.find('div', {'class': 'Label-price sl-price'}
-                                                 ).text.replace("NT$", "").replace(",", ""))
-                    original_price = ""
-                except:
-                    sale_price = float(item.find(
-                        'div', {'class': 'Label-price sl-price is-sale primary-color-price'}).text.replace("NT$", "").replace(",", ""))
-                    original_price = ""
+                original_price = ""
+            try:
+                sale_price = item['price']
+            except:
+                pass
         except:
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
+
 class AnnadollyCrawler(BaseCrawler):
     id = 170
     name = "annadolly"
@@ -8683,51 +8673,6 @@ class StarkikiCrawler(BaseCrawler):
                                        ).text.replace("NT$", "").split('.')[-1].strip()
             except:
                 sales_price = original_price
-        except:
-            title = url = page_id = img_url = original_price = sale_price = None
-        return Product(title, url, page_id, img_url, original_price, sale_price)
-
-class BrodntdCrawler(BaseCrawler):
-    id = 181
-    name = "brodnyd"
-    prefix_urls = ['https://www.brodnyd.tw/%E5%85%A8%E9%83%A8%E5%95%86%E5%93%81?page={i}']
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 6)]
-
-    def parse(self):
-        for url in self.urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            try:
-                items = soup.find('div', {'class': 'product-grid row-fluid cols-3'}
-                                  ).find_all('div', {'class': 'grid-box'})
-                self.result.extend([self.parse_product(item) for item in items])
-            except:
-                pass
-
-    def parse_product(self, prod):
-        try:
-            url = prod.find('a').get('href')
-            # print(url)
-            page_id = url.split('/')[-1]
-            # print(page_id)
-            img_url = 'http:'+prod.find('img').get('src')
-            # print(img_url)
-            title = str((prod.find('a')).get('title')).strip()
-            title = title.split(' ')[0]
-            try:
-                original_price = prod.find('span', {'class': 'price-label'}
-                                           ).text.strip().replace("$", "").replace(",", "")
-                # print(original_price)
-            except:
-                original_price = prod.find('span', {'class': 'price-old'}
-                                           ).text.strip().replace("$", "").replace(",", "")
-            try:
-                sale_price = prod.find('span', {'class': 'price-label'}).text.replace("$", "").replace(",", "")
-            except:
-                try:
-                    sale_price = prod.find('span', {'class': 'price-new'}).text.replace("$", "").replace(",", "")
-                except:
-                    sale_price = original_price
         except:
             title = url = page_id = img_url = original_price = sale_price = None
         return Product(title, url, page_id, img_url, original_price, sale_price)
@@ -11384,6 +11329,191 @@ class ChuchustyleCrawler(BaseCrawler):
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
+class IpinkCrawler(BaseCrawler):
+    id = 137
+    name = "ipink"
+    prefix_urls = [
+        "https://fts-api.91app.com/pythia-cdn/graphql?shopId=618&lang=zh-TW&query=query%20cms_shopCategory(%24shopId%3A%20Int!%2C%20%24categoryId%3A%20Int!%2C%20%24startIndex%3A%20Int!%2C%20%24fetchCount%3A%20Int!%2C%20%24orderBy%3A%20String%2C%20%24isShowCurator%3A%20Boolean%2C%20%24locationId%3A%20Int%2C%20%24tagFilters%3A%20%5BItemTagFilter%5D%2C%20%24tagShowMore%3A%20Boolean%2C%20%24serviceType%3A%20String%2C%20%24minPrice%3A%20Float%2C%20%24maxPrice%3A%20Float%2C%20%24payType%3A%20%5BString%5D%2C%20%24shippingType%3A%20%5BString%5D)%20%7B%0A%20%20shopCategory(shopId%3A%20%24shopId%2C%20categoryId%3A%20%24categoryId)%20%7B%0A%20%20%20%20salePageList(startIndex%3A%20%24startIndex%2C%20maxCount%3A%20%24fetchCount%2C%20orderBy%3A%20%24orderBy%2C%20isCuratorable%3A%20%24isShowCurator%2C%20locationId%3A%20%24locationId%2C%20tagFilters%3A%20%24tagFilters%2C%20tagShowMore%3A%20%24tagShowMore%2C%20minPrice%3A%20%24minPrice%2C%20maxPrice%3A%20%24maxPrice%2C%20payType%3A%20%24payType%2C%20shippingType%3A%20%24shippingType%2C%20serviceType%3A%20%24serviceType)%20%7B%0A%20%20%20%20%20%20salePageList%20%7B%0A%20%20%20%20%20%20%20%20salePageId%0A%20%20%20%20%20%20%20%20title%0A%20%20%20%20%20%20%20%20picUrl%0A%20%20%20%20%20%20%20%20salePageCode%0A%20%20%20%20%20%20%20%20price%0A%20%20%20%20%20%20%20%20suggestPrice%0A%20%20%20%20%20%20%20%20isFav%0A%20%20%20%20%20%20%20%20isComingSoon%0A%20%20%20%20%20%20%20%20isSoldOut%0A%20%20%20%20%20%20%20%20soldOutActionType%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20totalSize%0A%20%20%20%20%20%20shopCategoryId%0A%20%20%20%20%20%20shopCategoryName%0A%20%20%20%20%20%20statusDef%0A%20%20%20%20%20%20listModeDef%0A%20%20%20%20%20%20orderByDef%0A%20%20%20%20%20%20dataSource%0A%20%20%20%20%20%20tags%20%7B%0A%20%20%20%20%20%20%20%20isGroupShowMore%0A%20%20%20%20%20%20%20%20groups%20%7B%0A%20%20%20%20%20%20%20%20%20%20groupId%0A%20%20%20%20%20%20%20%20%20%20groupDisplayName%0A%20%20%20%20%20%20%20%20%20%20isKeyShowMore%0A%20%20%20%20%20%20%20%20%20%20keys%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20keyId%0A%20%20%20%20%20%20%20%20%20%20%20%20keyDisplayName%0A%20%20%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20priceRange%20%7B%0A%20%20%20%20%20%20%20%20min%0A%20%20%20%20%20%20%20%20max%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D%0A&operationName=cms_shopCategory&variables=%7B%22shopId%22%3A618%2C%22categoryId%22%3A0%2C%22startIndex%22%3A{i}%2C%22fetchCount%22%3A100%2C%22orderBy%22%3A%22Newest%22%2C%22isShowCurator%22%3Afalse%2C%22locationId%22%3A0%2C%22tagFilters%22%3A%5B%5D%2C%22tagShowMore%22%3Afalse%2C%22minPrice%22%3Anull%2C%22maxPrice%22%3Anull%2C%22payType%22%3A%5B%5D%2C%22shippingType%22%3A%5B%5D%7D"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(0, 3000, 100)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            response = requests.get(url, headers=header)
+            soup = response.json()
+            items = soup['data']['shopCategory']['salePageList']['salePageList']
+            if items == []:
+                print(url)
+                continue
+
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        try:
+            page_id = item['salePageId']
+            img_url = 'https:'+item['picUrl']
+            title = item['title']
+
+            url = f'https://www.ipink.com.tw/SalePage/Index/{page_id}'
+            try:
+                original_price = item['suggestPrice']
+            except:
+                original_price = ""
+
+            try:
+                sale_price = item['price']
+            except:
+                pass
+            if original_price == sale_price:
+                original_price = ""
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class SuizaCrawler(BaseCrawler):
+    id = 156
+    name = 'suiza'
+    prefix_urls = ["https://www.suizaitaly.com.tw/product.php?page={i}&cid=1#prod_list"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 20)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            try:
+
+                items = soup.find_all('div', {'class': 'thumbnail'})
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            title = item.find('a').get('title')
+            img_url = item.find('img').get('data-original')
+            try:
+                a = img_url.split('/')[-1]
+                page_id = (str(base64.b64decode(a)).split('.jpg')[0].split('/')[-1])
+            except:
+                page_id = url.split('&pid=')[-1]
+            try:
+                original_price = float(
+                    item.find('div', {'class': 'prod-price'}).find('del').text.strip(' \n ').replace("NT.", "").replace(",", ""))
+            except:
+                original_price = ""
+
+            try:
+                sale_price = float(item.find('div', {'class': 'prod-price'}
+                                             ).text.strip(' \n ').replace("NT.", "").replace(",", ""))
+            except:
+                sale_price = float(item.find('span', {'class': 'text-danger'}
+                                             ).text.strip(' \n ').replace("NT.", "").replace(",", ""))
+
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class QmomoCrawler(BaseCrawler):
+    id = 121
+    name = "qmomo"
+    prefix_urls = [
+        "https://fts-api.91app.com/pythia-cdn/graphql?shopId=348&lang=zh-TW&query=query%20cms_shopCategory(%24shopId%3A%20Int!%2C%20%24categoryId%3A%20Int!%2C%20%24startIndex%3A%20Int!%2C%20%24fetchCount%3A%20Int!%2C%20%24orderBy%3A%20String%2C%20%24isShowCurator%3A%20Boolean%2C%20%24locationId%3A%20Int%2C%20%24tagFilters%3A%20%5BItemTagFilter%5D%2C%20%24tagShowMore%3A%20Boolean%2C%20%24serviceType%3A%20String%2C%20%24minPrice%3A%20Float%2C%20%24maxPrice%3A%20Float%2C%20%24payType%3A%20%5BString%5D%2C%20%24shippingType%3A%20%5BString%5D)%20%7B%0A%20%20shopCategory(shopId%3A%20%24shopId%2C%20categoryId%3A%20%24categoryId)%20%7B%0A%20%20%20%20salePageList(startIndex%3A%20%24startIndex%2C%20maxCount%3A%20%24fetchCount%2C%20orderBy%3A%20%24orderBy%2C%20isCuratorable%3A%20%24isShowCurator%2C%20locationId%3A%20%24locationId%2C%20tagFilters%3A%20%24tagFilters%2C%20tagShowMore%3A%20%24tagShowMore%2C%20minPrice%3A%20%24minPrice%2C%20maxPrice%3A%20%24maxPrice%2C%20payType%3A%20%24payType%2C%20shippingType%3A%20%24shippingType%2C%20serviceType%3A%20%24serviceType)%20%7B%0A%20%20%20%20%20%20salePageList%20%7B%0A%20%20%20%20%20%20%20%20salePageId%0A%20%20%20%20%20%20%20%20title%0A%20%20%20%20%20%20%20%20picUrl%0A%20%20%20%20%20%20%20%20salePageCode%0A%20%20%20%20%20%20%20%20price%0A%20%20%20%20%20%20%20%20suggestPrice%0A%20%20%20%20%20%20%20%20isFav%0A%20%20%20%20%20%20%20%20isComingSoon%0A%20%20%20%20%20%20%20%20isSoldOut%0A%20%20%20%20%20%20%20%20soldOutActionType%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20totalSize%0A%20%20%20%20%20%20shopCategoryId%0A%20%20%20%20%20%20shopCategoryName%0A%20%20%20%20%20%20statusDef%0A%20%20%20%20%20%20listModeDef%0A%20%20%20%20%20%20orderByDef%0A%20%20%20%20%20%20dataSource%0A%20%20%20%20%20%20tags%20%7B%0A%20%20%20%20%20%20%20%20isGroupShowMore%0A%20%20%20%20%20%20%20%20groups%20%7B%0A%20%20%20%20%20%20%20%20%20%20groupId%0A%20%20%20%20%20%20%20%20%20%20groupDisplayName%0A%20%20%20%20%20%20%20%20%20%20isKeyShowMore%0A%20%20%20%20%20%20%20%20%20%20keys%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20keyId%0A%20%20%20%20%20%20%20%20%20%20%20%20keyDisplayName%0A%20%20%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20priceRange%20%7B%0A%20%20%20%20%20%20%20%20min%0A%20%20%20%20%20%20%20%20max%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D%0A&operationName=cms_shopCategory&variables=%7B%22shopId%22%3A348%2C%22categoryId%22%3A0%2C%22startIndex%22%3A{i}%2C%22fetchCount%22%3A100%2C%22orderBy%22%3A%22Newest%22%2C%22isShowCurator%22%3Afalse%2C%22locationId%22%3A0%2C%22tagFilters%22%3A%5B%5D%2C%22tagShowMore%22%3Afalse%2C%22minPrice%22%3Anull%2C%22maxPrice%22%3Anull%2C%22payType%22%3A%5B%5D%2C%22shippingType%22%3A%5B%5D%7D"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(0, 3000, 100)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            response = requests.get(url, headers=header)
+            soup = response.json()
+            items = soup['data']['shopCategory']['salePageList']['salePageList']
+            if items == []:
+                print(url)
+                continue
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        try:
+            page_id = item['salePageId']
+            img_url = 'https:'+item['picUrl']
+            title = item['title']
+            url = f'https://www.qmomo.com.tw/SalePage/Index/{page_id}'
+            try:
+                original_price = item['suggestPrice']
+            except:
+                original_price = ""
+            try:
+                sale_price = item['price']
+            except:
+                pass
+            if original_price == sale_price:
+                original_price = ""
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+class BrodnydCrawler(BaseCrawler):
+    id = 177
+    name = 'brodnyd'
+    prefix_urls = ["https://www.brodnyd.tw/%E5%85%A8%E9%83%A8%E5%95%86%E5%93%81?page={i}"]
+    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+
+    def parse(self):
+        header = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+        }
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=header)
+            soup = BeautifulSoup(response.text, features='html.parser')
+            try:
+                items = soup.find_all('div', {'class': 'grid-box'})
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                break
+
+    def parse_product(self, item):
+        try:
+            url = item.find('a').get('href')
+            page_id = item.get('data-producttlid')
+            try:
+                img_url = 'https:'+item.find('img').get('data-src')
+            except:
+                img_url = 'https:'+item.find('img').get('src')
+            title = item.find('img').get('title')
+            try:
+                original_price = float(item.find('span', {'class': 'price-old'}
+                                                 ).text.strip(' \n ').replace("$", "").replace(",", ""))
+            except:
+                original_price = ""
+            try:
+                sale_price = float(item.find('span', {'class': 'price-new'}
+                                             ).text.strip(' \n ').replace("$", "").replace(",", ""))
+            except:
+                try:
+                    sale_price = float(item.find('span', {'class': 'price-label'}
+                                                 ).text.strip(' \n ').replace("$", "").replace(",", ""))
+                except:
+                    sale_price = item.find('div', {'class': 'price'}).text.strip(
+                        ' \n ').replace("$", "").replace(",", "").split("~")
+                    if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
+                        sale_price = float(sale_price[0].strip())
+                    elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
+                        sale_price = float(sale_price[-1].strip())
+                    else:
+                        sale_price = float(sale_price[0].strip())
+        except:
+            return
+        return Product(title, url, page_id, img_url, original_price, sale_price)
+
 def get_crawler(crawler_id):
     crawlers = {
         "1": GracegiftCrawler(),
@@ -11474,6 +11604,7 @@ def get_crawler(crawler_id):
         "116": LativCrawler(),
         "118": RightonCrawler(),
         "120": DafCrawler(),
+        "121": QmomoCrawler(),
         "122": SexyinshapeCrawler(),
         "125": MiniqueenCrawler(),
         "126": SandaruCrawler(),
@@ -11482,6 +11613,7 @@ def get_crawler(crawler_id):
         "131": FmshoesCrawler(),
         "132": CordateCrawler(),
         "136": DaimaCrawler(),
+        "137": IpinkCrawler(),
         "138": MiakiCrawler(),
         "139": VinaclosetCrawler(),
         "140": UneCrawler(),
@@ -11496,12 +11628,13 @@ def get_crawler(crawler_id):
         # "150": ChuuCrawler(),
         # "151": AleyCrawler(),
         # "152": TrudamodaCrawler(),
-        "155": EvermoreCrawler(),  # V
+        "155": EvermoreCrawler(),
+        "156": SuizaCrawler(),
         "157": LamochaCrawler(),
         "158": AnnsCrawler(),
         "159": AndenhudCrawler(),
         "161": EvaCrawler(),
-        # "162": BonnyreadCrawler(), id 錯誤 160
+        "162": VemarCrawler(),
         "163": VizzleCrawler(),
         "164": WemeCrawler(),
         "166": PixyCrawler(),  # V
@@ -11509,10 +11642,10 @@ def get_crawler(crawler_id):
         "171": MimiriccoCrawler(),
         # "172": RobinmayCrawler(),
         "174": AfashionshowroomCrawler(),
+        "177": BrodnydCrawler(),
         "178": DejavuCrawler(),
         "179": StarkikiCrawler(),
         "180": KavaCrawler(),
-        # "181": BrodntdCrawler(),
         "182": BuchaCrawler(),
         "183": YveCrawler(),
         "185": TennyshopCrawler(),
