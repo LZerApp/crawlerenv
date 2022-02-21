@@ -3121,6 +3121,43 @@ class GotobuyCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class AfadCrawler(BaseCrawler):
+    id = 239
+    name = "afad"
+    base_url = "https://www.afad.com.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/PDList2.asp?item=all&ob=D3&pageno={i}" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "pdbox"})
+            if len(items) < 30:
+                if flag == True:
+                    print("break")
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("p", {"class": "pdbox_name"}).text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}/{link_id}"
+        pattern = "no=(.+)&"
+        link_id = re.search(pattern, link).group(1)
+        image_url = item.find("img").get("src")
+        try:
+            original_price = self.get_price(item.find("p", {"class": "pdbox_price-origin"}).text)
+            sale_price = self.get_price(item.find("p", {"class": "pdbox_price-sale"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("p", {"class": "pdbox_price"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 # 108_EyescreamCrawler()
 class EyecreamCrawler(BaseCrawler):
     id = 108
@@ -9307,65 +9344,6 @@ class StylemooncatCrawler(BaseCrawler):
             # print(title, url, page_id, img_url, "o" ,original_price,"s", sale_price)
         except:
             title = url = page_id = img_url = original_price = sale_price = None
-        return Product(title, url, page_id, img_url, original_price, sale_price)
-
-class AfadCrawler(BaseCrawler):
-    id = 239
-    name = "afad"
-
-    prefix_urls = ['https://www.afad.com.tw/PDList2.asp?item1=02&item2=ALL&keyword=&pagex=all',
-                   'https://www.afad.com.tw/PDList2.asp?item1=04&item2=ALL&item3=&keyword=&pagex=all',
-                   'https://www.afad.com.tw/PDList2.asp?item1=&item2=&item3=&keyword=&pagex=all',
-                   'https://www.afad.com.tw/PDList2.asp?item1=00&item2=ALL&item3=&keyword=&pagex=all',
-                   'https://www.afad.com.tw/PDList2.asp?item1=01&item2=ALL&item3=&keyword=&pagex=all']
-    # urls =[f'{prefix}'.replace('{i}',str(i))  for prefix in prefix_urls for i in range(1,30)]
-
-    def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.prefix_urls:
-            print(url)
-            response = requests.get(url, headers=header)
-            try:
-                soup = BeautifulSoup(response.text, features='html.parser')
-                items = soup.find('div', {'id': 'even_dist'}).find_all('div', {'class': 'PDItem'})
-                self.result.extend([self.parse_product(item) for item in items])
-            except:
-                pass
-
-    def parse_product(self, prod):
-
-        try:
-            title = prod.find('a', {'class': 'permalink'}).text.strip()
-
-            url = 'https://www.afad.com.tw/'+prod.find('a', {'class': 'permalink'}).get('href')
-
-            try:
-                page_id = prod.find('a', {'class': 'permalink'}).get('href').split('?yano=')[-1].split('&')[0]
-            except:
-                page_id = ""
-
-            try:
-                img_url = prod.find('img', {'class': 'imgPDItem'}).get('src').strip()
-            except:
-                img_url = " "
-
-            try:
-                orie = prod.find('div', {'class': 'pditemPrice'}).find_all('span')[0]
-                original_price = orie.text.strip().replace("NT$", "").replace(",", "")
-                sale_price = prod.find('div', {'class': 'pditemPrice'}).find_all('span')[1]
-                sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
-            except:
-                original_price = " "
-                sale_price = prod.find('div', {'class': 'pditemPrice'}).find_all('span')[0]
-                sale_price = orie.text.strip().replace("NT$", "").replace(",", "")
-
-            if sale_price == "":
-                sale_price = original_price
-                original_price = ""
-        except:
-            return
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
 
