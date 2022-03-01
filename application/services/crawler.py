@@ -3143,7 +3143,7 @@ class AfadCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("p", {"class": "pdbox_name"}).text
+        title = item.find("p", {"class": "pdbox_name"}).text 
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
         pattern = "no=(.+)&"
@@ -6642,7 +6642,7 @@ class VvvlandCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('img').get('data-src')
+        image_url = item.find('img',{"class":"product-featured_image lozad"}).get('data-src')
         try:
             link_id = item.find("div").get("data-id")
         except:
@@ -6689,7 +6689,7 @@ class VstoreCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('img').get('src')
+        image_url = item.find('img',{"class":"product-featured_image"}).get('src')
         try:
             link_id = item.find("div").get("data-id")
         except:
