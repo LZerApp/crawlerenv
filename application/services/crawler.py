@@ -3143,7 +3143,7 @@ class AfadCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("p", {"class": "pdbox_name"}).text 
+        title = item.find("p", {"class": "pdbox_name"}).text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}/{link_id}"
         pattern = "no=(.+)&"
@@ -6642,7 +6642,7 @@ class VvvlandCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('img',{"class":"product-featured_image lozad"}).get('data-src')
+        image_url = item.find('img', {"class": "product-featured_image lozad"}).get('data-src')
         try:
             link_id = item.find("div").get("data-id")
         except:
@@ -6689,7 +6689,7 @@ class VstoreCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('img',{"class":"product-featured_image"}).get('src')
+        image_url = item.find('img', {"class": "product-featured_image"}).get('src')
         try:
             link_id = item.find("div").get("data-id")
         except:
@@ -9461,63 +9461,45 @@ class RubysCrawler(BaseCrawler):
             title = url = page_id = img_url = original_price = sale_price = ""
         return Product(title, url, page_id, img_url, original_price, sale_price)
 
-
 class MosdressCrawler(BaseCrawler):
     id = 60
     name = "mosdress"
-
-    prefix_urls = ['https://www.mosdress.com.tw/shop-zorka/page/{i}/']
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 60)]
+    urls = [
+        f"https://www.mosdress.com.tw/shop-zorka/page/{i}"
+        for i in range(1, page_Max)
+    ]
 
     def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
         for url in self.urls:
-            try:
-                print(url)
-                response = requests.get(url, headers=header)
-                soup = BeautifulSoup(response.text, features='html.parser')
-                items = soup.find('div', {'class': 'products row row-small large-columns-4 medium-columns-3 small-columns-2'}).find_all(
-                    'div', {'class': 'product-small box'})
-                if len(items) < 1:
-                    break
-                else:
-                    self.result.extend([self.parse_product(item) for item in items])
-            except:
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all(
+                "div", {"class": 'product-small box'})
+            if not items:
                 break
+            self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, prod):
+    def parse_product(self, item):
+        title = item.find("p", {"class": "name product-title"}).find("a").text
+        link = item.find("p", {"class": "name product-title"}).find("a").get("href")
+        link_id = item.find("div", {"class": "add-to-cart-button"}).find("a").get("data-product_id")
         try:
-
-            title = prod.find('p', {'class': 'name product-title'}).text
-
-            url = prod.find('p', {'class': 'name product-title'}).find('a').get('href')
-
-            try:
-                page_id = prod.find('a', {'class': 'add_to_wishlist'}).get('data-product-id')
-            except:
-                page_id = ""
-            try:
-                img_url = prod.find('img').get('src')
-            except:
-                img_url = ""
-            try:
-                orie = prod.find_all('span', {'class': 'woocommerce-Price-amount amount'})[0]
-                original_price = orie.text.strip().replace("NT$", "").replace(",", "")
-                sale_price = prod.find_all('span', {'class': 'woocommerce-Price-amount amount'})[1]
-                sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
-            except:
-                original_price = " "
-                sale_price = prod.find('span', {'class': 'price'})
-                sale_price = sale_price.text.replace("NT$", "").replace(",", "").strip()
-
-                # print(title, url, page_id, img_url)
-            # print(title, url, page_id, img_url, original_price, sale_price)
-
+            image_url = item.find('img').get("data-lazy-srcset")
+            # print(image_url)
+            pattern = "195w, (.*?) 666w"
+            image_url = re.search(pattern, image_url).group(1)
         except:
-            title = url = page_id = img_url = original_price = sale_price = None
-        return Product(title, url, page_id, img_url, original_price, sale_price)
+            pass
+
+        try:
+            sale_price = self.get_price(item.find("ins").find(
+                "span", {"class": "woocommerce-Price-amount amount"}).text)
+            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class StudioCrawler(BaseCrawler):
     id = 89
