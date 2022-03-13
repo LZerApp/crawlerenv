@@ -4834,7 +4834,7 @@ class MercciCrawler(BaseCrawler):
     base_url = "https://www.mercci22.com"
 
     def parse(self):
-        urls = [f"{self.base_url}/zh-tw/tag/HOTTEST?P={i}" for i in range(1, page_Max)]
+        urls = [f"{self.base_url}/zh-tw/all?P={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
