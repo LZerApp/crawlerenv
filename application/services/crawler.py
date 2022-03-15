@@ -11508,7 +11508,7 @@ def get_crawler(crawler_id):
         "45": GogosingCrawler(),
         "46": RoshopCrawler(),
         "47": CirclescinemaCrawler(),
-        "48": CozyfeeCrawler(),  # li沒class
+        # "48": CozyfeeCrawler(),  # li沒class
         "49": ReishopCrawler(),
         "50": YourzCrawler(),
         "51": WstyleCrawler(),
