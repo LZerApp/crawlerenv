@@ -11,7 +11,7 @@ scheduler = APScheduler()
 # def job1():
 #     brands = get_brands()
 #     print(brands)
-@scheduler.task('cron', id='do_job_4', hour='3', minute='25')
+@scheduler.task('cron', id='do_job_4', hour='3', minute='30')
 def job_crawler():
     brands = get_brands()
     for brand in brands:
