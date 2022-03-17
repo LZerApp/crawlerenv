@@ -10152,50 +10152,41 @@ class WemeCrawler(BaseCrawler):
 class KavaCrawler(BaseCrawler):
     id = 180
     name = "kava"
-
-    prefix_urls = ['https://www.kava-acc.com/ALL-4?page={i}',
-                   'https://www.kava-acc.com/ALL?page={i}',
-                   'https://www.kava-acc.com/ALL-2?page={i}',
-                   'https://www.kava-acc.com/手鍊-2?page={i}',
-                   'https://www.kava-acc.com/ALL-3?page={i}',
-                   'https://www.kava-acc.com/ALL-5?page={i}',
-                   'https://www.kava-acc.com/ALL-6?page={i}']
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+    base_url = "https://www.kava-acc.com"
 
     def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.urls:
+        urls = [
+            f"{self.base_url}/ALL?page={i}" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-box"})
             print(url)
-            response = requests.get(url, headers=header)
-            soup = BeautifulSoup(response.text, features='html.parser')
-            try:
-                items = soup.find('div', {'class': 'product-grid row-fluid cols-3'}).find_all('div', {'class': 'inner'})
-                self.result.extend([self.parse_product(item) for item in items])
-            except:
+            if not items:
+                print(url, 'break')
                 break
+            self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, prod):
-        try:
-            title = prod.find('img').get("title").strip()
-            url = prod.find('a').get('href')
-            try:
-                page_id = prod.find('a').get('href').split('/')[-1].split('product_id=')[-1]
-            except:
-                page_id = ""
-
-            img_url = 'https:'+prod.find('div', {'class': 'image'}).find('img').get('src').strip()
-            if img_url.find('//image-cdn-flare.qdm.cloud') > -1:
-                pass
-            else:
-                img_url = 'https:'+prod.find('div', {'class': 'image'}).find('img').get('data-src').strip()
-            original_price = ""
-            sale_price = prod.find('div', {'class': 'price'})
-            sale_price = float(sale_price.get('data-price'))
-        except:
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
             return
-        return Product(title, url, page_id, img_url, original_price, sale_price)
+
+        title = item.find("a").get("title")
+        link = item.find("a").get("href")
+        link_id = item.get("data-producttlid")
+
+        image_url = f"https:{item.find('img').get('data-src')}"
+        if '-cr-270x420' in image_url:
+            image_url = image_url.replace('-cr-270x420', '-max-w-1024')
+        else:
+            image_url = f"https:{item.find('img').get('src')}"
+            image_url = image_url.replace('-cr-270x420', '-max-w-1024')
+
+        original_price = ""
+        sale_price = self.get_price(item.find("div", {"class": "price"}).get("data-price"))
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 
 class TennyshopCrawler(BaseCrawler):
     id = 185
