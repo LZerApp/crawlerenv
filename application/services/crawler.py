@@ -10155,20 +10155,31 @@ class KavaCrawler(BaseCrawler):
     base_url = "https://www.kava-acc.com"
 
     def parse(self):
-        urls = [
-            f"{self.base_url}/ALL?page={i}" for i in range(1, page_Max)]
-        for url in urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "grid-box"})
-            print(url)
-            if not items:
-                print(url, 'break')
+        prefix_urls = [
+            f'{self.base_url}/ALL?page=',
+            f'{self.base_url}/ALL-2?page=',
+            f'{self.base_url}/ALL-3?page=',
+            f'{self.base_url}/ALL-4?page=',
+            f'{self.base_url}/ALL-5?page=',
+        ]
+        for prefix in prefix_urls:
+            for i in range(1, page_Max):
+                urls = [f"{prefix}{i}"]
+                for url in urls:
+                    response = requests.request("GET", url, headers=self.headers)
+                    soup = BeautifulSoup(response.text, features="html.parser")
+                    items = soup.find_all("div", {"class": "grid-box"})
+                    print(url)
+                    if not items:
+                        print(url, "break")
+                        break
+                    self.result.extend([self.parse_product(item) for item in items])
+                else:
+                    continue
                 break
-            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        if item.find("div", {"class": "sold-out-item"}):
+        if item.find("span", {"class": "label label-important text-right"}):
             return
 
         title = item.find("a").get("title")
