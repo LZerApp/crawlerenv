@@ -8043,38 +8043,41 @@ class HolkeeCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-# 142_LOVFEE
 class LovfeeCrawler(BaseCrawler):
     id = 142
     name = "lovfee"
-    urls = [
-        f"https://www.lovfee.com/PDList2.asp?item1=01&item2=&item3=&keyword=&ob=A&pagex=&pageno={i}"
-        for i in range(1, 22)
-    ]
+    base_url = "https://www.lovfee.com"
 
     def parse(self):
-        for url in self.urls:
-            response = requests.get(url, headers=self.headers)
+        urls = [
+            f"{self.base_url}/zh-TW/lovfee/productlist?pageitem=All"]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find("div", {"id": "productList"}).find_all("li")
+            items = soup.find_all("div", {"class": "pdBox"})
+            if not items:
+                break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "pdname"}).text
-        link = "https://www.lovfee.com/" + item.find("a").get("href")
-        link_id = link.split("?")[-1]
-        image_url = item.find("img").get("src")
-        original_price = (
-            item.find("span", {"class": "original"}).text
-            if item.find("span", {"class": "original"})
-            else ""
-        )
-        sale_price = (
-            item.find("span", {"class": "sale"}).text
-            if item.find("span", {"class": "original"})
-            else item.find("span", {"class": "normal"}).text
-        )
+        title = item.find("p", {"class": "pdBox_name"}).text
+        print(title)
+        if (item.find("a", {"class": "pdBox_img soldOut"})):
+            return
 
+        title = item.find("p", {"class": "pdBox_name"}).text
+        link = f"{self.base_url}/{item.find('a').get('href')}"
+        link_id = item.get("data-val")
+        try:
+            image_url = item.find("source").get("srcset")
+        except:
+            return
+        try:
+            original_price = self.get_price(item.find("span", {"class": "price_original"}).text)
+            sale_price = self.get_price(item.find("span", {"class": "price_sale"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("p", {"class": "pdBox_price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -11580,7 +11583,7 @@ def get_crawler(crawler_id):
         "139": VinaclosetCrawler(),
         "140": UneCrawler(),
         "141": StylemooncatCrawler(),
-        # "142": LovfeeCrawler(),
+        "142": LovfeeCrawler(),
         # "143": MarjorieCrawler(),
         "144": PureeCrawler(),
         "147": RereburnCrawler(),
