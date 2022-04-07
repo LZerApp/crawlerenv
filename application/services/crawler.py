@@ -1285,6 +1285,8 @@ class Menu12Crawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
+            return
         title = item.find("div", {"class": "title text-primary-color"}).text
         link = item.find("a").get("href")
         link_id = item.find("product-item").get("product-id")
@@ -1294,7 +1296,6 @@ class Menu12Crawler(BaseCrawler):
             .split("url(")[-1]
             .split("?)")[0]
         )
-
         try:
             original_price = self.get_price(
                 item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
