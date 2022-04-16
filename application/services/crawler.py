@@ -46,7 +46,7 @@ class BaseCrawler(object):
         "Connection": "keep-alive",
         "Accept": "text/html,application/xhtml+xml,application/xml,*/*",
         "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,la;q=0.json,ja;q=0.4",
-        "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36",
+        "user-agent": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36",
         "cache-control": "no-cache",
     }
 
@@ -8882,6 +8882,7 @@ class RachelworldCrawler(BaseCrawler):
 
     def parse(self):
         # session = requests.Session()
+        # cookie = self.get_cookies()
         for i in range(1, 1000, 10):
             payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
                                 "CategoryID": "-1", "BlockNo": list(range(i, i+9))}}  # list(range(1, 1000))
@@ -8891,9 +8892,8 @@ class RachelworldCrawler(BaseCrawler):
                               '"",', response.content.decode(encoding='utf-8'))
             raw_text = raw_text.replace('"",,', '"",')
             raw_text = raw_text.replace('"",}', '""}')
-            # raw_text = raw_text.replace('}]})', "}}")
-            # raw_text = raw_text.replace('}]})', '}]')
             raw_text = raw_text.replace('}]])', '')
+            print(raw_text)
             try:
                 items = json.loads(raw_text)["value"]["ListData"]
             except:
@@ -11644,7 +11644,7 @@ def get_crawler(crawler_id):
         "238": OhherCrawler(),
         "239": AfadCrawler(),
         "240": KiiwioCrawler(),
-        "241": RachelworldCrawler(),  # V
+        # "241": RachelworldCrawler(),  # V
         # "242": QuentinaCrawler(), #lazy
         "243": GalleryCrawler(),  # V
         "244": ToofitCrawler(),  # V
