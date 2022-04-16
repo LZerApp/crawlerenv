@@ -8876,21 +8876,30 @@ class RachelworldCrawler(BaseCrawler):
     url = f"{base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx?ajax=GetAllProductByViewOption"
 
     def get_cookies(self):
-        cookies = requests.request("GET", self.url, headers=self.headers).cookies
+        cookies = requests.request("POST", self.base_url, headers=self.headers).cookies
         print(cookies)
         return cookies
 
     def parse(self):
-        session = requests.Session()
-        payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
-                            "CategoryID": "-1", "BlockNo": [1]}}  # list(range(1, 1000))
-        # cookies = self.get_cookies()
-        session.get(self.base_url)
-        response = session.post(self.url, json=payload)
-        raw_text = response.content.decode(encoding='utf-8')
-        print(response.text)
-        items = json.loads(raw_text)["value"]["ListData"]
-        self.result.extend([self.parse_product(item) for item in items])
+        # session = requests.Session()
+        for i in range(1, 1000, 10):
+            payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
+                                "CategoryID": "-1", "BlockNo": list(range(i, i+9))}}  # list(range(1, 1000))
+            response = requests.request("POST", self.url, headers={
+                                        **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption", "Cookie": "ASP.NET_SessionId=y251q8z7r7oaxab6me4llewcykx1frie5"}, json=payload)
+            raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\),|new Date\(.*?\)',
+                              '"",', response.content.decode(encoding='utf-8'))
+            raw_text = raw_text.replace('"",,', '"",')
+            raw_text = raw_text.replace('"",}', '""}')
+            # raw_text = raw_text.replace('}]})', "}}")
+            # raw_text = raw_text.replace('}]})', '}]')
+            raw_text = raw_text.replace('}]])', '')
+            try:
+                items = json.loads(raw_text)["value"]["ListData"]
+            except:
+                print(i)
+                continue
+            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.get("ProductName")
@@ -8911,9 +8920,9 @@ class AlmashopCrawler(BaseCrawler):
         url = f"{self.base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx"
         payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
                             "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
-        response = requests.request("POST", url, headers={
+        response = requests.request("GET", url, headers={
                                     **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, json=payload)
-        # print(response.content.decode(encoding='utf-8'))
+        print(response.content.decode(encoding='utf-8'))
         raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\),|new Date\(.*?\)',
                           '"",', response.content.decode(encoding='utf-8'))
         # raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\)', '""', raw_text)
