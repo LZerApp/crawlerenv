@@ -46,7 +46,7 @@ class BaseCrawler(object):
         "Connection": "keep-alive",
         "Accept": "text/html,application/xhtml+xml,application/xml,*/*",
         "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,la;q=0.json,ja;q=0.4",
-        "user-agent": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36",
         "cache-control": "no-cache",
     }
 
@@ -6399,17 +6399,16 @@ class IspotyellowCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+            f"{self.base_url}/collections/all?limit=72&page={i}" for i in range(1, page_Max)]
         flag = 0
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "grid-link"})
+            items = soup.find_all("div", {"class": "grid-link text-center"})
             if len(items) < 72:
                 if flag == True:
                     break
                 flag = True
-            print(url)
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
@@ -6418,9 +6417,12 @@ class IspotyellowCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('img').get('src')
+        image_url = item.find('a',{"class":"grid-link__image-centered"}).find("img").get('src')
         pattern = "\/i\/(.+)\."
-        link_id = re.search(pattern, image_url).group(1)
+        try:
+            link_id = re.search(pattern, image_url).group(1) 
+        except:
+            return #客訂
         link = f"{self.base_url}{prefix_link}"
         original_price = ""
         sale_price = self.get_price(
@@ -7547,29 +7549,24 @@ class HermosaCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             # print(soup)
-            items = soup.find_all("li", {"class": 'item_block js_is_photo_style has_listing_cart'})
+            items = soup.find_all("li", {"class": 'item_block js_is_photo_style'})
             if not items:
                 break
 
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("h4").text
+        onclick = item.find("a").get("onclick")
+        title_pattern = "'name': '(.*?)',"
+        title = re.search(title_pattern, onclick).group(1)
         link = item.find("a").get("href")
-        try:
-            link_id = item.find("button").get("data-pid")
-        except:
-            return
+        id_pattern = "'id': '(.*?)',"
+        link_id = re.search(id_pattern, onclick).group(1)
         image_url = item.find("span").get("data-src")
-        try:
-            original_price = self.get_price(
-                item.find("li", {"class": "item_origin item_actual"}).find("span").text)
-            sale_price = self.get_price(
-                item.find("li", {"class": "item_sale"}).find("span").text)
-        except:
-            original_price = ""
-            sale_price = self.get_price(
-                item.find("span", {"class": "font_montserrat"}).text)
+        price_pattern = "'price': '(.*?)'"
+        original_price = ""
+        sale_price = re.search(price_pattern, onclick).group(1)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class LaconicCrawler(BaseCrawler):
