@@ -392,7 +392,14 @@ class Me30Crawler(BaseCrawler):
             .split("?)")[0]
         )
         original_price = ""
-        sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+        try:
+            sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+        except:
+            try:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+            except:
+                pass
         if (len(sale_price) == 1):
             return
         return Product(title, link, link_id, image_url, original_price, sale_price)
@@ -1828,7 +1835,7 @@ class JulyCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/products?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/categories/shop-all?limit=72&page={i}" for i in range(1, page_Max)]
         for url in urls:
             print(url)
             response = requests.request("GET", url, headers=self.headers)
@@ -5649,8 +5656,6 @@ class SuitangtangCrawler(BaseCrawler):
         self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        # if(item.find("div", {"class": "Sold_Out"})):
-        #     return
         title = item.find("img").get("alt")
         link = item.find("a").get("href")
         link_id = item.get("id")
@@ -5658,11 +5663,11 @@ class SuitangtangCrawler(BaseCrawler):
         link_id = b_stripID(link_id, "-")
         image_url = item.find("img").get("data-original")
         try:
-            original_price = self.get_price(item.find("span", {"class": "price"}).contents[0].text)
-            sale_price = self.get_price(item.find("span", {"class": "price"}).contents[1])
+            original_price = self.get_price(item.find("div", {"class": "price"}).contents[0].text)
+            sale_price = self.get_price(item.find("div", {"class": "price"}).contents[1])
         except:
             original_price = ""
-            sale_price = self.get_price(item.find("span", {"class": "price"}).contents[0])
+            sale_price = self.get_price(item.find("div", {"class": "price"}).contents[0])
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
@@ -6417,12 +6422,12 @@ class IspotyellowCrawler(BaseCrawler):
             return
         title = item.find("p", {"class": "grid-link__title"}).text
         prefix_link = item.find("a").get("href")
-        image_url = item.find('a',{"class":"grid-link__image-centered"}).find("img").get('src')
+        image_url = item.find('a', {"class": "grid-link__image-centered"}).find("img").get('src')
         pattern = "\/i\/(.+)\."
         try:
-            link_id = re.search(pattern, image_url).group(1) 
+            link_id = re.search(pattern, image_url).group(1)
         except:
-            return #客訂
+            return  # 客訂
         link = f"{self.base_url}{prefix_link}"
         original_price = ""
         sale_price = self.get_price(
@@ -6802,10 +6807,11 @@ class TheshapeCrawler(BaseCrawler):
         self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+        print(item)
         title = item['name']
         link = f"{self.base_url}/product/{item['id']}/MzI"
-        link_id = item['media']['id']
-        image_url = f"{self.base_image}/{item['media']['path']['w1200']}"
+        link_id = item['id']
+        image_url = f"{self.base_image}/{item['media']}"
         if item['specialPrice'] != 0:
             original_price = item['price']
             sale_price = item['specialPrice']
@@ -11497,7 +11503,7 @@ def get_crawler(crawler_id):
         "8": AirspaceCrawler(),
         # "9": YocoCrawler(),
         "10": EfshopCrawler(),
-        # "11": ModaCrawler(),
+        "11": ModaCrawler(),
         "13": KkleeCrawler(),
         "14": WishbykoreaCrawler(),
         "15": AspeedCrawler(),
