@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup, FeatureNotFound
 from openpyxl import Workbook
 from base64 import b64decode
 from gzip import decompress
-
 from requests import cookies
 from requests.sessions import session
 from config import ENV_VARIABLE
@@ -7503,6 +7502,60 @@ class UnuselfCrawler(BaseCrawler):
                     return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+class KoilifefCrawler(BaseCrawler):
+    id = 446
+    name = "koilife"
+    base_url = "https://www.koilife-tw.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item-content"}):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text.strip()
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        try:
+            image_url = (
+                item.find("div", {
+                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+                .split("url(")[-1]
+                .split("?)")[0]
+            )
+        except:
+            print(title)
+            return
+
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            try:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price tertiary-color-price"}).text)
+            except:
+                try:
+                    sale_price = self.get_price(
+                        item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+                except:
+                    return
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class FabulousCrawler(BaseCrawler):
     id = 382
     name = "fabulousy"
@@ -8065,14 +8118,17 @@ class LovfeeCrawler(BaseCrawler):
 
     def parse_product(self, item):
         title = item.find("p", {"class": "pdBox_name"}).text
-        print(title)
         if (item.find("a", {"class": "pdBox_img soldOut"})):
             return
 
         title = item.find("p", {"class": "pdBox_name"}).text
         link = f"{self.base_url}/{item.find('a').get('href')}"
-        link_id = item.get("data-val")
+        pattern = "SaleID=(.+)&ColorID=(.+)"
+
         try:
+            link_id_1 = re.search(pattern, link).group(1)
+            link_id_2 = re.search(pattern, link).group(2)
+            link_id = link_id_1 + '-' + link_id_2
             image_url = item.find("source").get("srcset")
         except:
             return
@@ -11748,5 +11804,6 @@ def get_crawler(crawler_id):
         "443": Vior2015Crawler(),
         "444": Nora38Crawler(),
         "445": UnuselfCrawler(),
+        "446": KoilifefCrawler(),
     }
     return crawlers.get(str(crawler_id))
