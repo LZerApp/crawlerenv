@@ -1706,7 +1706,7 @@ class OhherCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("li", {"class": "boxify-item product-item"})
+            items = soup.find_all("div", {"class": "product-item"})
             print(url)
             if not items:
                 print(url, 'break')
@@ -1714,26 +1714,27 @@ class OhherCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
-        link = f'{self.base_url}{item.find("a").get("href")}'.strip()
+        if item.find("div", {"class": "sold-out-item"}):
+            return
+
+        title = item.find(
+            "div", {"class": "title"}).text
+        link = item.find("a").get("href")
         link_id = item.find("product-item").get("product-id")
         image_url = (
             item.find("div", {
-                "class": "boxify-image center-contain sl-lazy-image"})["style"]
+                      "class": "boxify-image js-boxify-image center-contain sl-lazy-image m-fill"})["style"]
             .split("url(")[-1]
             .split("?)")[0]
         )
-
         try:
             original_price = self.get_price(
-                item.find("div", {"class": "global-primary dark-primary"}))
-            sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
             original_price = ""
-            try:
-                sale_price = self.get_price(item.find("div", {"class": "global-primary dark-primary price"}).text)
-            except:
-                sale_price = self.get_price(item.find("div", {"class": "price-sale price"}).text)
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next('div').text)
 
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
