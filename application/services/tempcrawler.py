@@ -435,7 +435,7 @@ def Feelne():
                 sale_price = chrome.find_element_by_xpath(
                     "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
                 sale_price = sale_price.strip('NT$ ')
-
+                sale_price = sale_price.strip('定價NT$ ')
                 ori_price = ""
             except:
                 print(title)
