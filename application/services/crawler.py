@@ -1684,7 +1684,8 @@ class MandoCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "title text-primary-color"}).text
+        print(item)
+        title = item.find("div", {"class": "title"}).text
         link = item.find("a").get("href")
         link_id = item.find("product-item").get("product-id")
         try:
