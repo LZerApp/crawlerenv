@@ -6729,6 +6729,52 @@ class Vior2015Crawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class SymbolictrueCrawler(BaseCrawler):
+    id = 447
+    name = "symbolictrue"
+    base_url = "https://www.symbolictrue.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}&sort=featured" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        # print(item)
+        if (item.find("span", {"class": "badge badge--sold-out"})):
+            print(item.find("p", {"class": "grid-link__title"}).text)
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        prefix_link = item.find("a").get("href")
+        image_url = item.find('img').get('src')
+        pattern = "\/i\/(.+)\."
+        link_id = re.search(pattern, image_url).group(1)
+
+        link = f"{self.base_url}{prefix_link}"
+        if item.find("s", {"class": "grid-link__sale_price"}):
+            sale_price = self.get_price(
+                item.find("span", {"class": "money"}).find_next("span").text)
+            sale_price = sale_price[:-3]
+            original_price = self.get_price(
+                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
+        else:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class OhlalaCrawler(BaseCrawler):
     id = 410
     name = "ohlala"
@@ -9134,9 +9180,12 @@ class DarkcirclesCrawler(BaseCrawler):
         title = item.find("span", {"class": "grid-product__title"}).text
         link = item.find("a", {"class": "grid-product__meta"}).get("href")
         link = f"{self.base_url}{link}"
-        image_url = item.find("img", {"class": "grid-product__image"}).get("src")
-        pattern = "v=(.+)"
-        link_id = re.search(pattern, image_url).group(1)
+        try:
+            image_url = item.find("img", {"class": "grid-product__image"}).get("src")
+            pattern = "v=(.+)"
+            link_id = re.search(pattern, image_url).group(1)
+        except:
+            return
         image_url = f"https:{image_url}"
         original_price = ""
         sale_price = self.get_price(item.find("span", {"class": "grid-product__price"}).text)
@@ -11823,5 +11872,6 @@ def get_crawler(crawler_id):
         "444": Nora38Crawler(),
         "445": UnuselfCrawler(),
         "446": KoilifefCrawler(),
+        "447": SymbolictrueCrawler(),
     }
     return crawlers.get(str(crawler_id))
