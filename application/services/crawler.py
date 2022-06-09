@@ -70,6 +70,7 @@ class BaseCrawler(object):
         )
 
         filename = f"{fold_path}/{name}.csv"
+
         with open(filename, 'w', newline='') as save_file:
             file_writer = csv.writer(save_file)
             file_writer.writerow(Product._fields)
@@ -101,6 +102,33 @@ class BaseCrawler(object):
                 "authorization": ENV_VARIABLE["SERVER_TOKEN"],
             }
             url = f"{ENV_VARIABLE['SERVER_URL']}/api/import/product"
+            files = {
+                "file": (
+                    filename + ".csv",
+                    open(f"{fold_path}/{filename}.csv", "rb"),
+                ),
+            }
+            if os.stat(f"{fold_path}/{filename}.csv").st_size <= 60:
+                print("File is empty")
+            else:
+                response = requests.post(
+                    verify=False, url=url, files=files, headers=headers
+                )
+                print(response.status_code)
+        except Exception as e:
+            print(e)
+
+    def manual_upload(self):
+        filename = "_".join(
+            [str(self.id), self.name, datetime.today().strftime("%Y%m%d")]
+        )
+        print(filename)
+        try:
+            headers = {
+                **self.headers,
+                "authorization": "Bearer qdm24nwuJqIP9ptuaNTwZL56t5KcpCdCdnERGRHA",
+            }
+            url = f"https://www.curvedata.tw/api/import/product"
             files = {
                 "file": (
                     filename + ".csv",
@@ -7387,7 +7415,7 @@ class HouseladiesCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("div", {"class": "Label-title"}).text.strip()
+        title = item.find("div", {"class": "Product-title Label mix-primary-text"}).text.strip()
         link = item.get("href")
         link_id = item.get("product-id")
         try:
@@ -7401,17 +7429,21 @@ class HouseladiesCrawler(BaseCrawler):
             return
         try:
             original_price = self.get_price(
-                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+                item.find("div", {"class": "Label-price sl-price Label-price-original"}).text)
             sale_price = self.get_price(
-                item.find("div", {"class": "price-sale price"}).text)
+                item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
         except:
             original_price = ""
             try:
                 sale_price = self.get_price(
-                    item.find("div", {"class": "Label-price sl-price is-sale tertiary-color-price"}).text)
+                    item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
             except:
-                sale_price = self.get_price(
-                    item.find("div", {"class": "Label-price sl-price"}).text)
+                try:
+                    sale_price = self.get_price(
+                        item.find("div", {"class": "Label-price sl-price"}).text)
+                except:
+                    sale_price = self.get_price(
+                        item.find("div", {"class": "Label-price sl-price primary-color-price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -8992,6 +9024,7 @@ class HealerCrawler(BaseCrawler):
         except:
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
+
 class RachelworldCrawler(BaseCrawler):
     id = 241
     name = "rachelworld"
@@ -9010,13 +9043,13 @@ class RachelworldCrawler(BaseCrawler):
             payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
                                 "CategoryID": "-1", "BlockNo": list(range(i, i+9))}}  # list(range(1, 1000))
             response = requests.request("POST", self.url, headers={
-                                        **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption", "Cookie": "ASP.NET_SessionId=y251q8z7r7oaxab6me4llewcykx1frie5"}, json=payload)
+                                        **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption", "Cookie": "ASP.NET_SessionId=r2s1y8e7f7sapa56nevullfcob2qdn1qh"}, json=payload)
             raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\),|new Date\(.*?\)',
                               '"",', response.content.decode(encoding='utf-8'))
             raw_text = raw_text.replace('"",,', '"",')
             raw_text = raw_text.replace('"",}', '""}')
             raw_text = raw_text.replace('}]])', '')
-            print(raw_text)
+            # print(raw_text)
             try:
                 items = json.loads(raw_text)["value"]["ListData"]
             except:
@@ -9033,26 +9066,37 @@ class RachelworldCrawler(BaseCrawler):
         sale_price = item.get("MinDisplayPrice")
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
-
 class AlmashopCrawler(BaseCrawler):
     id = 194
     name = "almashop"
     base_url = "https://www.alma-shop.com.tw"
+    url = f"{base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx?ajax=GetAllProductByViewOption"
+
+    def get_cookies(self):
+        cookies = requests.request("POST", self.base_url, headers=self.headers).cookies
+        print(cookies)
+        return cookies
 
     def parse(self):
-        url = f"{self.base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx"
-        payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
+        # session = requests.Session()
+        # cookie = self.get_cookies()
+        # for i in range(1, 1000, 10):
+        # payload = {"aOpt": {"SearchType": -1, "CacheId": 35616,
+        #                     "CategoryID": "-1", "BlockNo": list(range(i, i+9))}}  # list(range(1, 1000))
+        payload = {"aOpt": {"SearchType": -1, "CacheId": -1, "CategoryID": "64",
                             "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
-        response = requests.request("GET", url, headers={
-                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, json=payload)
-        print(response.content.decode(encoding='utf-8'))
+        # payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
+        #                 "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
+        response = requests.request("POST", self.url, headers={
+                                    **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption", "Cookie": "ASP.NET_SessionId=r2t1v8ta52m6t3eeuekortavkvqingaew"}, json=payload)
         raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\),|new Date\(.*?\)',
                           '"",', response.content.decode(encoding='utf-8'))
-        # raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\)', '""', raw_text)
         raw_text = raw_text.replace('"",,', '"",')
         raw_text = raw_text.replace('"",}', '""}')
+        raw_text = raw_text.replace('}]])', '')
         # print(raw_text)
         items = json.loads(raw_text)["value"]["ListData"]
+
         self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
@@ -9063,6 +9107,37 @@ class AlmashopCrawler(BaseCrawler):
         original_price = item.get("MaxDeletePrice")
         sale_price = item.get("MinDisplayPrice")
         return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
+# class AlmashopCrawler(BaseCrawler):
+#     id = 194
+#     name = "almashop"
+#     base_url = "https://www.alma-shop.com.tw"
+
+#     def parse(self):
+#         url = f"{self.base_url}/ajaxpro/Mallbic.U.UShopShareUtil.Ajax.GlobalAjaxProductUtil,ULibrary.ashx"
+#         payload = {"aOpt": {"SearchType": -1, "CategoryID": "-1",
+#                             "SortingMode": 0, "IsInStock": False, "BlockNo": list(range(1, 1000))}}
+#         response = requests.request("GET", url, headers={
+#                                     **self.headers, "Content-Type": "application/json", "X-AjaxPro-Method": "GetAllProductByViewOption"}, json=payload)
+#         print(response.content.decode(encoding='utf-8'))
+#         raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\),|new Date\(.*?\)',
+#                           '"",', response.content.decode(encoding='utf-8'))
+#         # raw_text = re.sub('new Ajax\.Web\.Dictionary\(.*?\)', '""', raw_text)
+#         raw_text = raw_text.replace('"",,', '"",')
+#         raw_text = raw_text.replace('"",}', '""}')
+#         # print(raw_text)
+#         items = json.loads(raw_text)["value"]["ListData"]
+#         self.result.extend([self.parse_product(item) for item in items])
+
+#     def parse_product(self, item):
+#         title = item.get("ProductName")
+#         link_id = item.get("ProductID")
+#         link = f'{self.base_url}/pitem/{link_id}'
+#         image_url = item.get("SmallPicUrl")
+#         original_price = item.get("MaxDeletePrice")
+#         sale_price = item.get("MinDisplayPrice")
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class ControlfreakCrawler(BaseCrawler):
     id = 236
@@ -11770,7 +11845,7 @@ def get_crawler(crawler_id):
         "238": OhherCrawler(),
         "239": AfadCrawler(),
         "240": KiiwioCrawler(),
-        # "241": RachelworldCrawler(),  # V
+        "241": RachelworldCrawler(),  # V
         # "242": QuentinaCrawler(), #lazy
         "243": GalleryCrawler(),  # V
         "244": ToofitCrawler(),  # V
