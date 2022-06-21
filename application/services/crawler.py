@@ -529,6 +529,7 @@ class SeoulmateCrawler(BaseCrawler):
         "/catalog.php?m=370&page=",
         "/catalog.php?m=358&page=",
         "/catalog.php?m=242&page=",
+        "/catalog.php?m=115&page=",
     ]
 
     def parse(self):
@@ -539,9 +540,12 @@ class SeoulmateCrawler(BaseCrawler):
                     print(url)
                     response = requests.get(url, headers=self.headers)
                     soup = BeautifulSoup(response.text, features="html.parser")
-                    items = soup.find("section", {"class": "cataList cataList-align-left cataList-4x"}).find_all("li")
-                    if not items:
-                        print(url, "break")
+                    try:
+                        items = soup.find("section", {"class": "cataList cataList-align-left cataList-4x"}).find_all("li")
+                        if not items:
+                            print(url, "break")
+                            break
+                    except:
                         break
                     self.result.extend([self.parse_product(item) for item in items])
                 else:
