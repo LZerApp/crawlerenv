@@ -1569,8 +1569,15 @@ class Seaaa1Crawler(BaseCrawler):
                 item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
         except:
             original_price = ""
-            sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
-
+            try:
+                sale_price = self.get_price(item.find("div", {"class": "Label-price sl-price"}).text)
+            except:
+                try:
+                    sale_price = self.get_price(
+                        item.find("div", {"class": "Label-price sl-price is-sale primary-color-price"}).text)
+                except:
+                    print(item)
+                    return
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -9245,10 +9252,10 @@ class RachelworldCrawler(BaseCrawler):
             # print(raw_text)
             try:
                 items = json.loads(raw_text)["value"]["ListData"]
+                self.result.extend([self.parse_product(item) for item in items])
             except:
                 print(i)
                 continue
-            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.get("ProductName")
@@ -9288,9 +9295,11 @@ class AlmashopCrawler(BaseCrawler):
         raw_text = raw_text.replace('"",}', '""}')
         raw_text = raw_text.replace('}]])', '')
         # print(raw_text)
-        items = json.loads(raw_text)["value"]["ListData"]
-
-        self.result.extend([self.parse_product(item) for item in items])
+        try:
+            items = json.loads(raw_text)["value"]["ListData"]
+            self.result.extend([self.parse_product(item) for item in items])
+        except:
+            print('failed')
 
     def parse_product(self, item):
         title = item.get("ProductName")
