@@ -5617,7 +5617,7 @@ class QueenshopCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             try:
-                items = soup.find("ul", {"class": "items-list list-array-4"}).find_all("li")
+                items = soup.find("ul", {"class": "items-list list-array-2"}).find_all("li")
             except:
                 print(url)
                 break
@@ -5628,6 +5628,7 @@ class QueenshopCrawler(BaseCrawler):
         title = item.find("p").text
         link = item.find("a").get("href")
         link_id = stripID(link, "ID=")
+        link_id = b_stripID(link_id, '&Page')
         link = f"{self.base_url}{link}"
         image_url = item.find("img").get("data-src")
         try:
@@ -7048,6 +7049,42 @@ class SymbolictrueCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class IruitwCrawler(BaseCrawler):
+    id = 255
+    name = "iruitw"
+    base_url = "https://www.iruitw.com"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/collections/all?limit=72&page={i}" for i in range(1, page_Max)]
+        flag = 0
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "grid-link"})
+            if len(items) < 72:
+                if flag == True:
+                    print("break")
+                    break
+                flag = True
+            print(url)
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if item.find("span", {"class": "badge badge--sold-out"}):
+            return
+        title = item.find("p", {"class": "grid-link__title"}).text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}{link_id}"
+        link_id = stripID(link_id, "/products/")
+        image_url = item.find('img').get('src')
+        original_price = ""
+        sale_price = self.get_price(
+            item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        if len(sale_price) == 1:
+            return
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class OhlalaCrawler(BaseCrawler):
     id = 410
     name = "ohlala"
@@ -8176,46 +8213,6 @@ class BonbonsCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-class IruitwCrawler(BaseCrawler):
-    id = 255
-    name = "iruitw"
-    prefix_urls = ["https://iruitw.com/product-category/all-%E5%85%A8%E9%83%A8%E5%96%AE%E5%93%81/page/",
-                   "https://iruitw.com/product-category/%e5%a5%97%e8%a3%9d-%e3%82%bb%e3%83%83%e3%83%88/page/", ]
-
-    def parse(self):
-        for prefix in self.prefix_urls:
-            for i in range(1, page_Max):
-                urls = [f"{prefix}{i}"]
-                for url in urls:
-                    print(url)
-                    response = requests.get(url, headers=self.headers)
-                    soup = BeautifulSoup(response.text, features="html.parser")
-                    # print(soup)
-                    items = soup.find_all(
-                        "li", {"class": 'ast-col-sm-12'})
-                    if not items:
-                        break
-                    self.result.extend([self.parse_product(item) for item in items])
-                else:
-                    continue
-                break
-
-    def parse_product(self, item):
-        title = item.find("h2").text
-        link = item.find("a").get("href")
-        link_id = stripID(link, "/product/")
-        image_url = item.find('img').get('src')
-        image_url = b_stripID(image_url, "resize")
-        try:
-            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
-            sale_price = self.get_price(item.find("ins").find(
-                "span", {"class": "woocommerce-Price-amount amount"}).text)
-        except:
-            original_price = ""
-            sale_price = self.get_price(item.find("span", {"class": "price"}).text)
-        return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
 class CharleneCrawler(BaseCrawler):
     id = 409
     name = "charlene"
@@ -8398,7 +8395,7 @@ class N34Crawler(BaseCrawler):
     def parse_product(self, item):
         title = item.find("figure").find("a").get("title")
         link = item.find("figure").find("a").get("href")
-        link_id = item.find("p").find("a").get("data-product_id")
+        link_id = item.find('div', {'class': 'wishlist-wrap tf_inline_b tf_vmiddle'}).find("a").get("data-id")
 
         noscript = item.find("noscript")
         # print(noscript)
