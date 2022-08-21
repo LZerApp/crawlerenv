@@ -351,9 +351,12 @@ def Secretacc():
                 if(i == 37):
                     p += 1
                 continue
-
-            sale_price = chrome.find_element_by_xpath(
-                "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
+            try:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[4]/div" % (i,)).text
+            except:
+                sale_price = chrome.find_element_by_xpath(
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
             sale_price = sale_price.strip('NT$ ')
             sale_price = sale_price.strip('定價NT$ ')
             ori_price = ""
