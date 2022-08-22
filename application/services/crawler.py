@@ -2691,15 +2691,15 @@ class YourzCrawler(BaseCrawler):
 class Closet152Crawler(BaseCrawler):
     id = 440
     name = "152closet"
-    base_url = "https://mach2266.wixsite.com"
+    base_url = "https://www.152closet.com"
 
     def parse(self):
         urls = [
-            f"{self.base_url}/152closet/shop?page={i}" for i in range(1, page_Max)]
+            f"{self.base_url}/shop?page={i}" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"data-hook": "product-item-root"})
+            items = soup.find_all("li", {"data-hook": "product-list-grid-item"})
             print(url)
             if not items:
                 print(url, 'break')
@@ -2707,15 +2707,23 @@ class Closet152Crawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+        if item.find("span", {'data-hook': 'product-item-out-of-stock'}):
+            return
         title = item.find("h3").text
         link = item.find('a').get('href')
         link_id = stripID(link, "product-page/")
         image_url = item.find("div", {"data-hook": "product-item-images"}).get("style")
         pattern = "url\((.*)\/v1"
         image_url = re.search(pattern, image_url).group(1)
-        original_price = ""
-        sale_price = self.get_price(
-            item.find("span", {"data-hook": "product-item-price-to-pay"}).text).replace(".00", "")
+        try:
+            original_price = self.get_price(
+                item.find("span", {"data-hook": "product-item-price-before-discount"}).text)
+            sale_price = self.get_price(
+                item.find("span", {"data-hook": "product-item-price-to-pay"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(
+                item.find("span", {"data-hook": "product-item-price-to-pay"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
@@ -9581,6 +9589,41 @@ class ClothinglabCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class GutenCrawler(BaseCrawler):
+    id = 222
+    name = "guten"
+
+    base_url = 'https://www.guten.co'
+
+    def parse(self):
+        urls = [f"{self.base_url}/collections/all?page={i}"for i in range(1, page_Max)]
+        for url in urls:
+            print(url)
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            if (soup.find("div", {"class": "product"})):
+                items = soup.find("div", {"class": "products_content"}).find_all(
+                    "div", {"class": "product"})
+            else:
+                break
+
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        title = item.find("a", {"class": "productClick"}).get("data-name")
+        link = item.find("a", {"class": "productClick"}).get("href")
+        link_id = item.find("a", {"class": "productClick"}).get('data-id')
+        link = f"{self.base_url}{link}"
+        image_url = item.find("img").get("data-src")
+        image_url = f"https:{image_url}"
+        try:
+            original_price = self.get_price(item.find("div", {"class": "product_price"}).find("del").text)
+            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 class GozoCrawler(BaseCrawler):
     id = 246
     name = "gozo"
@@ -9877,41 +9920,33 @@ class RubysCrawler(BaseCrawler):
 class MosdressCrawler(BaseCrawler):
     id = 60
     name = "mosdress"
-    urls = [
-        f"https://www.mosdress.com.tw/shop-zorka/page/{i}"
-        for i in range(1, page_Max)
-    ]
+    base_url = 'https://www.mosdress.com.tw'
 
     def parse(self):
-        for url in self.urls:
+        urls = [f"{self.base_url}/productlist?page={i}" for i in range(1, page_Max)]
+        for url in urls:
             print(url)
             response = requests.get(url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             items = soup.find_all(
-                "div", {"class": 'product-small box'})
+                "div", {"class": 'column is-half-mobile is-one-third-tablet is-one-quarter-widescreen pdbox'})
             if not items:
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("p", {"class": "name product-title"}).find("a").text
-        link = item.find("p", {"class": "name product-title"}).find("a").get("href")
-        link_id = item.find("div", {"class": "add-to-cart-button"}).find("a").get("data-product_id")
+        title = item.find("p", {"class": "pdbox_name"}).text
+        link_id = item.find("a").get("href")
+        link = f"{self.base_url}/{link_id}"
+        pattern = "id=(.+)&"
+        link_id = re.search(pattern, link).group(1)
+        image_url = item.find("img").get("src")
         try:
-            image_url = item.find('img').get("data-lazy-srcset")
-            # print(image_url)
-            pattern = "195w, (.*?) 666w"
-            image_url = re.search(pattern, image_url).group(1)
-        except:
-            pass
-
-        try:
-            sale_price = self.get_price(item.find("ins").find(
-                "span", {"class": "woocommerce-Price-amount amount"}).text)
-            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+            original_price = self.get_price(item.find("span", {"class": "pdbox_price-origin"}).text)
+            sale_price = self.get_price(item.find("span", {"class": "pdbox_price-sale"}).text)
         except:
             original_price = ""
-            sale_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+            sale_price = self.get_price(item.find("span", {"class": "pdbox_price"}).text)
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class StudioCrawler(BaseCrawler):
@@ -11897,6 +11932,7 @@ def get_crawler(crawler_id):
         "206": BelloCrawler(),
         "216": AttentionCrawler(),
         "221": WhoiannCrawler(),
+        "222": GutenCrawler(),
         "223": DesireCrawler(),
         "228": CocochiliCrawler(),
         "225": ReallifeCrawler(),  # V
