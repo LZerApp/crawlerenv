@@ -333,7 +333,7 @@ def Secretacc():
             time.sleep(1)
             try:
                 title = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[2]" % (i,)).text
+                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]" % (i,)).text
             except:
                 close += 1
                 break
