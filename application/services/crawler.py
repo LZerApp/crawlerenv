@@ -6322,7 +6322,7 @@ class RewearingCrawler(BaseCrawler):
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "grid-link"})
+            items = soup.find_all("li", {"class": "grid__item"})
             if len(items) < 72:
                 if flag == True:
                     print("break")
@@ -6334,20 +6334,13 @@ class RewearingCrawler(BaseCrawler):
     def parse_product(self, item):
         if item.find("span", {"class": "badge badge--sold-out"}):
             return
-        title = item.find("p", {"class": "grid-link__title"}).text
+        title = item.find("span", {"class": "card-information__text"}).text
         link_id = item.find("a").get("href")
         link = f"{self.base_url}{link_id}"
         link_id = stripID(link_id, "/products/")
         image_url = item.find('img').get('src')
-        if item.find("s", {"class": "grid-link__sale_price"}):
-            original_price = self.get_price(
-                item.find("s", {"class": "grid-link__sale_price"}).find("span").text).replace(".00", "")
-            sale_price = self.get_price(
-                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
-        else:
-            original_price = ""
-            sale_price = self.get_price(
-                item.find("p", {"class": "grid-link__meta"}).find("span").text).replace(".00", "")
+        original_price = ""
+        sale_price = self.get_price(item.find("span", {"class": "money"}).text).replace(".00", "")
         if len(sale_price) == 1:
             return
         return Product(title, link, link_id, image_url, original_price, sale_price)
