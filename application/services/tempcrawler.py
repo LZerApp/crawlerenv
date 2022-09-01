@@ -301,14 +301,15 @@ def Secretacc():
     shop_id = 429
     name = 'secretacc'
     options = Options()                  # 啟動無頭模式
-    options.add_argument('--headless')   # 規避google bug
-    options.add_argument('--disable-gpu')
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--remote-debugging-port=5566")
+    # options.add_argument('--headless')   # 規避google bug
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--ignore-certificate-errors')
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-dev-shm-usage')
+    # options.add_argument("--remote-debugging-port=5566")
+    options.headless = True
     chrome = webdriver.Chrome(
-        executable_path='./chromedriver', chrome_options=options)
+        executable_path='./chromedriver', options=options)
 
     p = 1
     df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
@@ -327,24 +328,23 @@ def Secretacc():
             break
 
         while(i < 37):
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
-            chrome.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+            chrome.find_element("tag name", 'body').send_keys(Keys.PAGE_DOWN)
+            chrome.find_element("tag name", 'body').send_keys(Keys.PAGE_DOWN)
+            chrome.find_element("tag name", 'body').send_keys(Keys.PAGE_DOWN)
             time.sleep(1)
             try:
-                title = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]" % (i,)).text
+                title = chrome.find_element("xpath", "//div[@class='rmq-3ab81ca3'][%i]/div[3]" % (i,)).text
             except:
                 close += 1
                 break
             try:
-                page_link = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]//a[@href]" % (i,)).get_attribute('href')
+                page_link = chrome.find_element(
+                    "xpath", "//div[@class='rmq-3ab81ca3'][%i]//a[@href]" % (i,)).get_attribute('href')
                 make_id = parse.urlsplit(page_link)
                 page_id = make_id.path
                 page_id = page_id.lstrip("/product/")
-                pic_link = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]//img" % (i,)).get_attribute('src')
+                pic_link = chrome.find_element(
+                    "xpath", "//div[@class='rmq-3ab81ca3'][%i]//img" % (i,)).get_attribute('src')
             except:
                 print(title)
                 i += 1
@@ -352,11 +352,11 @@ def Secretacc():
                     p += 1
                 continue
             try:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[4]/div" % (i,)).text
+                sale_price = chrome.find_element("xpath",
+                                                 "//div[@class='rmq-3ab81ca3'][%i]/div[4]/div" % (i,)).text
             except:
-                sale_price = chrome.find_element_by_xpath(
-                    "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
+                sale_price = chrome.find_element("xpath",
+                                                 "//div[@class='rmq-3ab81ca3'][%i]/div[3]/div" % (i,)).text
             sale_price = sale_price.strip('NT$ ')
             sale_price = sale_price.strip('定價NT$ ')
             ori_price = ""
