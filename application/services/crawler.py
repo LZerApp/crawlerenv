@@ -10807,58 +10807,38 @@ class RoshopCrawler(BaseCrawler):
 class ShopCrawler(BaseCrawler):
     id = 189
     name = '50shop'
-    header = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-    }
-    url = 'https://www.50-shop.com/common/ajax/menucmd.ashx?t=main'
-    prefix_urls = []
-    res = requests.get(url, headers=header)
-    data_json = json.loads(res.content.decode())
-    for node in data_json:
-        prefix_urls.append(node['V1']+'&smfp={i}')
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
+    base_url = 'https://www.50-shop.com/Shop/'
 
     def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.urls:
-            response = requests.get(url, headers=header)
-            soup = BeautifulSoup(response.text, features='html.parser')
-            items = soup.find('div', {'id': 'main_content'}).find_all('div', {'class': 'products_list fbNo1'})
-            self.result.extend([self.parse_product(item) for item in items])
+        url = f'{self.base_url}itemList.aspx?m=6&smfp=0'
+        response = requests.get(url, headers=self.headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        items = soup.find_all("div", {'class': 'products_list fbNo1'})
+        if not items:
+            print('no item')
+            return
+        # print(items)
+        self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         try:
-            url = 'https://www.50-shop.com/Shop/'+item.find('a').get('href')
-            no = url.split('?')[-1].split('&')
-            page_id = no[0].split('=')[-1]+"-"+no[1].split('=')[-1]
-            title = (item.find('div', {'class': 'size_option_wrapper'}).text.split('NT')[0]).strip(' \n ')
-            try:
-                img_url = item.find('img').get('src')
-            except:
-                # item.find('div',{'class':'boxify-image js-boxify-image center-contain sl-lazy-image'}).get('style').split('background-image:url(')[1].replace('?)',"")
-                img_url = ""
-            try:
-                original_price = float(
-                    item.find('span', {'style': 'text-decoration: line-through;'}).text.strip(' \n ').replace("NT.", "").replace(",", ""))
-            except:
-                original_price = ""
-            try:
-                # .strip(' \n ').replace("NT.","").replace(",",""))
-                sale_price = (item.find('div', {'class': 'size_option_wrapper'}).text.split('NT.')[-1])
-            except:
-                sale_price = item.find('div', {'class': 'quick-cart-price'}
-                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
-                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
-                    sale_price = float(sale_price[0].strip())
-                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
-                    sale_price = sale_price[-1].strip()
-                else:
-                    sale_price = float(sale_price[0].strip())
+            option = item.find('div', {'class': 'size_option_wrapper'}).text
+            title = b_stripID(option, 'NT.')
+            link = f"{self.base_url}{item.find('a').get('href')}"
+            link_id = b_stripID(link, "&cno")
+            link_id = stripID(link_id, "mNo1=")
+            image_url = item.find('a').find('img').get('src')
+            temp_price = stripID(option, 'NT.')
+            if 'NT.' in temp_price:
+                original_price = b_stripID(temp_price, 'NT.')
+                sale_price = stripID(temp_price, 'NT.')
+            else:
+                original_price = ''
+                sale_price = temp_price
         except:
+            print(title)
             return
-        return Product(title, url, page_id, img_url, original_price, sale_price)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class SnatchCrawler(BaseCrawler):
     id = 312
