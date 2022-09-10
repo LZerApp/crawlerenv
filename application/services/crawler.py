@@ -2660,6 +2660,48 @@ class XwysiblingsCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class RoshopCrawler(BaseCrawler):
+    id = 46
+    name = "roshop"
+    base_url = "https://www.roshop.tw"
+
+    def parse(self):
+        urls = [
+            f"{self.base_url}/products?page={i}&limit=72" for i in range(1, page_Max)]
+        for url in urls:
+            response = requests.request("GET", url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        if(item.find("div", {"class": "sold-out-item"})):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
+        try:
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+        except:
+            original_price = ""
+            sale_price = self.get_price(item.find("div", {"class": "quick-cart-price"}).find_next("div").text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class YourzCrawler(BaseCrawler):
     id = 50
     name = "yourz"
@@ -10749,56 +10791,6 @@ class UneCrawler(BaseCrawler):
                         sale_price = float(sale_price[-1].strip())
                     else:
                         sale_price = float(sale_price[0].strip())
-        except:
-            return
-        return Product(title, url, page_id, img_url, original_price, sale_price)
-
-
-class RoshopCrawler(BaseCrawler):
-    id = 46
-    name = 'roshop'
-    prefix_urls = ["https://www.roshop.tw/products?page={i}&limit=72"]
-    urls = [f'{prefix}'.replace('{i}', str(i)) for prefix in prefix_urls for i in range(1, 30)]
-
-    def parse(self):
-        header = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-        }
-        for url in self.urls:
-            print(url)
-            response = requests.get(url, headers=header)
-            soup = BeautifulSoup(response.text, features='html.parser')
-            try:
-                items = soup.find('div', {'class': 'col-xs-12 ProductList-list'}).find_all("a")
-                self.result.extend([self.parse_product(item) for item in items])
-            except:
-                break
-
-    def parse_product(self, item):
-        try:
-            page_id = item.get('product-id')
-            img_url = item.find('div', {'class': 'Image-boxify-image js-image-boxify-image sl-lazy-image'}
-                                ).get('style').split('background-image:url(')[1].replace('?)', "")
-            title = item.find('div', {'class': 'Product-title Label mix-primary-text'}).text
-            url = item.get('href')
-            try:
-                original_price = float(item.find(
-                    'div', {'class': 'Label-price sl-price Label-price-original'}).text.strip(' \n ').replace("NT$", "").replace(",", ""))
-            except:
-                original_price = ""
-            try:
-                sale_price = float(item.find('div', {'class': 'Label-price sl-price'}
-                                             ).text.strip(' \n ').replace("NT$", "").replace(",", ""))
-
-            except:
-                sale_price = item.find('div', {'class': 'Label-price sl-price is-sale primary-color-price'}
-                                       ).text.strip(' \n ').replace("NT$", "").replace(",", "").split("~")
-                if(float(sale_price[0].strip()) < float(sale_price[-1].strip())):
-                    sale_price = float(sale_price[0].strip())
-                elif(float(sale_price[0].strip()) > float(sale_price[-1].strip())):
-                    sale_price = float(sale_price[-1].strip())
-                else:
-                    sale_price = float(sale_price[0].strip())
         except:
             return
         return Product(title, url, page_id, img_url, original_price, sale_price)
