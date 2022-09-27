@@ -2754,9 +2754,9 @@ class Closet152Crawler(BaseCrawler):
         title = item.find("h3").text
         link = item.find('a').get('href')
         link_id = stripID(link, "product-page/")
-        image_url = item.find("div", {"data-hook": "product-item-images"}).get("style")
-        pattern = "url\((.*)\/v1"
-        image_url = re.search(pattern, image_url).group(1)
+        image_url = item.find("div", {"data-hook": "ImageUiTpaWrapperDataHook.Wrapper_1"}
+                              ).find('img').get('src').replace('147', '720')
+
         try:
             original_price = self.get_price(
                 item.find("span", {"data-hook": "product-item-price-before-discount"}).text)
