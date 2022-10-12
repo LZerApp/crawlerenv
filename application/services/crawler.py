@@ -4794,6 +4794,75 @@ class FeelneCrawler(BaseCrawler):
         sale_price = price[0]["totalPrice"]
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
+
+class MollyCrawler(BaseCrawler):
+    id = 396
+    name = "molly"
+    base_url = "https://www.molly-m.com/products/"  # 要記得改
+    query = """query getProducts($search: searchInputObjectType)
+{
+      computeProductList(search: $search) {
+              data {
+                        id
+                              title {
+                                          zh_TW
+
+                                                    }
+                                                                                                                       variants {
+
+
+                                                                                                                                          listPrice
+
+                                                                                                                                                          totalPrice
+
+                                                                                                                                                                        }
+                                                                                                                                                                              coverImage {
+
+                                                                                                                                                                                                  scaledSrc {
+                                                                                                                                                                                                                                                                                                 w1920
+
+                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                          }
+
+                                                                                                                                                                                                                                                                                                                                }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+}
+"""
+
+    variables = {"search": {"size": 500, "from": 0, "filter": {"and": [{"type": "exact", "field": "status", "query": "1"}], "or": [
+    ]}, "sort": [{"field": "createdAt", "order": "desc"}], "showVariants": True, "showMainFile": True}}
+
+    def parse(self):
+        url = "https://www.molly-m.com/api/graphql"
+        for offset in range(0, 2000, 500):
+            try:
+                print(offset)
+                self.variables["search"]["from"] = offset
+                response = requests.request(
+                    "POST",
+                    url,
+                    headers=self.headers,
+                    json={'query': self.query, 'variables': {**self.variables}},
+                )
+                items = json.loads(response.text)["data"]["computeProductList"]["data"]
+                self.result.extend([self.parse_product(item) for item in items])
+            except:
+                print(offset)
+                break
+
+    def parse_product(self, item):
+
+        title = item['title']['zh_TW']
+        link_id = item['id']
+        link = f"{self.base_url}{link_id}"
+        image_url = item['coverImage']['scaledSrc']['w1920']
+        price = item["variants"]
+        original_price = ""
+        sale_price = price[0]["totalPrice"]
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
 # 10_EFSHOP
 class EfshopCrawler(BaseCrawler):
     id = 10
@@ -5303,44 +5372,6 @@ class PennyncoCrawler(BaseCrawler):
             print(url)
             if not soup.find("ul", {"class": "pagination"}).find("li", {"class": "active"}).find_next_sibling("li"):
                 continue
-            self.result.extend([self.parse_product(item) for item in items])
-
-    def parse_product(self, item):
-        if(item.find("div", {"class": "overflow-sold-out"})):
-            return
-        title = item.find("div", {"class": "prod-name"}).find("a").text.strip()
-        link = item.find("a").get("href")
-        link_id = stripID(link, "pid=")
-        image_url = item.find("img").get("data-original")
-        try:
-            original_price = self.get_price(item.find("div", {"class": "prod-price"}).find("del").text)
-            sale_price = self.get_price(item.find("span", {"class": "text-danger"}).text)
-        except:
-            original_price = ""
-            sale_price = self.get_price(item.find("div", {"class": "prod-price"}).text)
-
-        return Product(title, link, link_id, image_url, original_price, sale_price)
-
-
-class MollyCrawler(BaseCrawler):
-    id = 396
-    name = "molly"
-    base_url = "https://www.molly-m.com"
-
-    def parse(self):
-        urls = [f"{self.base_url}/product.php?page={i}&cid=1#prod_list" for i in range(1, page_Max)]
-        flag = 0
-        for url in urls:
-            response = requests.request("GET", url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            items = soup.find_all("div", {"class": "thumbnail"})
-            if len(items) < 80:
-                print(len(items))
-                if flag == True:
-                    print("break")
-                    break
-                flag = True
-            print(url)
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
