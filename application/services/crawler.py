@@ -5696,7 +5696,7 @@ class QueenshopCrawler(BaseCrawler):
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
             try:
-                items = soup.find("ul", {"class": "items-list list-array-2"}).find_all("li")
+                items = soup.find("ul", {"class": "items-list list-array-4"}).find_all("li")
             except:
                 print(url)
                 break
