@@ -2754,7 +2754,7 @@ class Closet152Crawler(BaseCrawler):
         title = item.find("h3").text
         link = item.find('a').get('href')
         link_id = stripID(link, "product-page/")
-        image_url = item.find("div", {"data-hook": "ImageUiTpaWrapperDataHook.Wrapper_1"}
+        image_url = item.find("div", {"data-hook": "ImageUiTpaWrapperDataHook.Wrapper_0"}
                               ).find('img').get('src').replace('147', '720')
 
         try:
@@ -8288,14 +8288,14 @@ class BonbonsCrawler(BaseCrawler):
 class CharleneCrawler(BaseCrawler):
     id = 409
     name = "charlene"
-    prefix_urls = [ "https://www.charlene168.com/product-category/%e4%b8%8b%e8%ba%ab/page/",
-                    "https://www.charlene168.com/product-category/%e5%a5%97%e8%a3%9d/page/",
-                    "https://www.charlene168.com/product-category/%e6%8e%a8%e8%96%a6%e5%a5%bd%e7%89%a9/page/",
-                    "https://www.charlene168.com/product-category/%e9%a0%90%e8%b3%bc/page/",
-                    "https://www.charlene168.com/product-category/%e7%8f%be%e8%b2%a8%e5%95%86%e5%93%81/page/",
-                    "https://www.charlene168.com/product-category/%e5%a4%96%e5%a5%97%e7%b3%bb%e5%88%97/page/",
-                    "https://www.charlene168.com/product-category/%e4%b8%8a%e8%a1%a3/page/",
-                    "https://www.charlene168.com/product-category/%e9%85%8d%e4%bb%b6/page",
+    prefix_urls = ["https://www.charlene168.com/product-category/%e4%b8%8b%e8%ba%ab/page/",
+                   "https://www.charlene168.com/product-category/%e5%a5%97%e8%a3%9d/page/",
+                   "https://www.charlene168.com/product-category/%e6%8e%a8%e8%96%a6%e5%a5%bd%e7%89%a9/page/",
+                   "https://www.charlene168.com/product-category/%e9%a0%90%e8%b3%bc/page/",
+                   "https://www.charlene168.com/product-category/%e7%8f%be%e8%b2%a8%e5%95%86%e5%93%81/page/",
+                   "https://www.charlene168.com/product-category/%e5%a4%96%e5%a5%97%e7%b3%bb%e5%88%97/page/",
+                   "https://www.charlene168.com/product-category/%e4%b8%8a%e8%a1%a3/page/",
+                   "https://www.charlene168.com/product-category/%e9%85%8d%e4%bb%b6/page",
                    ]
 
     def parse(self):
