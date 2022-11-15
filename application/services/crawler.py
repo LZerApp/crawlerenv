@@ -8288,32 +8288,28 @@ class BonbonsCrawler(BaseCrawler):
 class CharleneCrawler(BaseCrawler):
     id = 409
     name = "charlene"
-    prefix_urls = ["https://www.charlene168.com/product-category/%e4%b8%8b%e8%ba%ab/page/",
-                   "https://www.charlene168.com/product-category/%e5%a5%97%e8%a3%9d/page/",
-                   "https://www.charlene168.com/product-category/%e6%8e%a8%e8%96%a6%e5%a5%bd%e7%89%a9/page/",
-                   "https://www.charlene168.com/product-category/%e9%a0%90%e8%b3%bc/page/",
-                   "https://www.charlene168.com/product-category/%e7%8f%be%e8%b2%a8%e5%95%86%e5%93%81/page/",
-                   "https://www.charlene168.com/product-category/%e5%a4%96%e5%a5%97%e7%b3%bb%e5%88%97/page/",
-                   "https://www.charlene168.com/product-category/%e4%b8%8a%e8%a1%a3/page/",
-                   "https://www.charlene168.com/product-category/%e9%85%8d%e4%bb%b6/page",
-                   ]
+    # prefix_urls = ["https://www.charlene168.com/product-category/%e4%b8%8b%e8%ba%ab/page/",
+    #                "https://www.charlene168.com/product-category/%e5%a5%97%e8%a3%9d/page/",
+    #                "https://www.charlene168.com/product-category/%e6%8e%a8%e8%96%a6%e5%a5%bd%e7%89%a9/page/",
+    #                "https://www.charlene168.com/product-category/%e9%a0%90%e8%b3%bc/page/",
+    #                "https://www.charlene168.com/product-category/%e7%8f%be%e8%b2%a8%e5%95%86%e5%93%81/page/",
+    #                "https://www.charlene168.com/product-category/%e5%a4%96%e5%a5%97%e7%b3%bb%e5%88%97/page/",
+    #                "https://www.charlene168.com/product-category/%e4%b8%8a%e8%a1%a3/page/",
+    #                "https://www.charlene168.com/product-category/%e9%85%8d%e4%bb%b6/page",
+    #                ]
+    base_url = 'https://www.charlene168.com'
 
     def parse(self):
-        for prefix in self.prefix_urls:
-            for i in range(1, page_Max):
-                urls = [f"{prefix}{i}?per_page=72"]
-                for url in urls:
-                    print(url)
-                    response = requests.get(url, headers=self.headers)
-                    soup = BeautifulSoup(response.text, features="html.parser")
-                    items = soup.find_all(
-                        "div", {"class": 'product-wrapper'})
-                    if not items:
-                        break
-                    self.result.extend([self.parse_product(item) for item in items])
-                else:
-                    continue
+        for i in range(1, page_Max):
+            url = f"{self.base_url}/shop/page/{i}/?per_page=72"
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            items = soup.find_all(
+                "div", {"class": 'product-wrapper'})
+            if not items:
                 break
+            self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
         title = item.find("h3").text
