@@ -8295,14 +8295,13 @@ class CharleneCrawler(BaseCrawler):
             url = f"{self.base_url}/shop/page/{i}/?per_page=72"
             print(url)
             # response = requests.get(url, headers=self.headers)
-            scraper = cloudscraper.create_scraper()
+            # scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.CloudScraper()
             response = scraper.get(url).text
             soup = BeautifulSoup(response, features="html.parser")
             items = soup.find_all(
                 "div", {"class": 'product-wrapper'})
             if not items:
-                print(soup)
-                print('no data')
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
