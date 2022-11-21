@@ -18,7 +18,7 @@ import time
 import os
 from requests_html import HTMLSession
 import base64
-
+import cloudscraper
 
 fold_path = "./crawler_data"
 page_Max = 150
@@ -8294,8 +8294,10 @@ class CharleneCrawler(BaseCrawler):
         for i in range(1, page_Max):
             url = f"{self.base_url}/shop/page/{i}/?per_page=72"
             print(url)
-            response = requests.get(url, headers=self.headers)
-            soup = BeautifulSoup(response.text, features="html.parser")
+            # response = requests.get(url, headers=self.headers)
+            scraper = cloudscraper.create_scraper()
+            response = scraper.get(url).text
+            soup = BeautifulSoup(response, features="html.parser")
             items = soup.find_all(
                 "div", {"class": 'product-wrapper'})
             if not items:
