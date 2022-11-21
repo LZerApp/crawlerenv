@@ -8299,6 +8299,8 @@ class CharleneCrawler(BaseCrawler):
             items = soup.find_all(
                 "div", {"class": 'product-wrapper'})
             if not items:
+                print(soup)
+                print('no data')
                 break
             self.result.extend([self.parse_product(item) for item in items])
 
