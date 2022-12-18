@@ -8407,6 +8407,43 @@ class FeminCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
+class SecretaccCrawler(BaseCrawler):
+    id = 429
+    name = "secretacc"
+    base_url = "https://www.secretacc.com"
+    urls = [
+        f"https://www.secretacc.com/?74f5e760-22bf-4b32-b9cd-1dd4093e350c={i}"
+        for i in range(1, page_Max)
+    ]
+
+    def parse(self):
+        for url in self.urls:
+            print(url)
+            response = requests.get(url, headers=self.headers)
+            soup = BeautifulSoup(response.text, features="html.parser")
+            # print(soup)
+            items = soup.find_all(
+                "div", {"class": 'rmq-3ab81ca3'})
+            if not items:
+                break
+            self.result.extend([self.parse_product(item) for item in items])
+
+    def parse_product(self, item):
+        # print(item)
+        title = item.find("div", {
+                          "style": "display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;max-height:4.5em;line-height:1.5em;overflow:hidden;font-size:13px;margin-bottom:10px;color:rgba(50, 50, 50, 0.8)"}).text
+        link = f'{self.base_url}{item.find("a").get("href")}'
+        link_id = stripID(link, '/products/')
+        image_url = item.find('img').get('data-srcset')
+        pattern = "960w, (.*?) 1200w"
+        # print(image_url)
+        image_url = re.search(pattern, image_url).group(1)
+
+        original_price = ""
+        sale_price = self.get_price(item.find("div", {"style": 'font-size:15px;font-weight:bold'}).text)
+        return Product(title, link, link_id, image_url, original_price, sale_price)
+
+
 class MoriiCrawler(BaseCrawler):
     id = 434
     name = "morii"
@@ -12016,6 +12053,7 @@ def get_crawler(crawler_id):
         "426": FigwooCrawler(),
         "427": TheshapeCrawler(),
         "428": CarabellaCrawler(),
+        "429": SecretaccCrawler(),
         "430": N34Crawler(),
         "431": WhomforCrawler(),
         "432": CycomyuCrawler(),
