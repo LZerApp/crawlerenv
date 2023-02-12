@@ -778,6 +778,90 @@ def Greenpea():
     upload(shop_id, name)
 
 
+def Queenshop():
+    shop_id = 42
+    name = 'queenshop'
+    options = Options()                  # 啟動無頭模式
+    options.add_argument('--headless')   # 規避google bug
+    options.add_argument('--disable-gpu')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--remote-debugging-port=5566")
+    chrome = webdriver.Chrome(
+        executable_path='./chromedriver', chrome_options=options)
+
+    p = 1
+    df = pd.DataFrame()  # 暫存當頁資料，換頁時即整併到dfAll
+    dfAll = pd.DataFrame()  # 存放所有資料
+    close = 0
+    while True:
+        if (close == 1):
+            chrome.quit()
+            break
+
+        base_url = "https://www.queenshop.com.tw/zh-TW/QueenShop/"
+        url = f"{base_url}ProductList?item1=01&item2=all&Page={p}&View=4"
+
+        # 如果頁面超過(找不到)，直接印出completed然後break跳出迴圈
+        try:
+            chrome.get(url)
+            print(url)
+        except Exception as e:
+            print(e)
+            break
+
+        time.sleep(1)
+        i = 1
+        while(i < 33):
+            try:
+                title = chrome.find_element("xpath", "//ul[@class='items-list list-array-4']/li[%i]/a/p" % (i,)).text
+            except Exception as e:
+                close += 1
+                break
+
+            try:
+                page_link = chrome.find_element("xpath",
+                                                "//ul[@class='items-list list-array-4']/li[%i]/a[@href]" % (i,)).get_attribute('href')
+                page_id = chrome.find_element("xpath",
+                                              "//ul[@class='items-list list-array-4']/li[%i]/p[1]/button[@data-productid]" % (i,)).get_attribute('data-productid')
+                pic_link = chrome.find_element("xpath",
+                                               "//ul[@class = 'items-list list-array-4']/li[%i]/a/img[1]" % (i,)).get_attribute('src')
+                ori_price = chrome.find_element("xpath",
+                                                "//ul[@class='items-list list-array-4']/li[%i]/p[2]/span[@class='p_original_d']" % (i,)).text
+                sale_price = chrome.find_element("xpath",
+                                                 "//ul[@class='items-list list-array-4']/li[%i]/p[2]/span[@class='p_sale_d']" % (i,)).text
+                sale_price = sale_price.strip('NT.')
+                sale_price = sale_price.split()
+                sale_price = sale_price[0]
+                ori_price = ori_price.strip('NT.')
+                ori_price = ori_price.split()
+                ori_price = ori_price[0]
+            except Exception as e:
+                i += 1
+                if(i == 33):
+                    p += 1
+                continue
+
+            i += 1
+            if(i == 33):
+                p += 1
+
+            df = pd.DataFrame(
+                {
+                    "title": [title],
+                    "page_link": [page_link],
+                    "page_id": [page_id],
+                    "pic_link": [pic_link],
+                    "ori_price": [ori_price],
+                    "sale_price": [sale_price]
+                })
+
+            dfAll = pd.concat([dfAll, df])
+            dfAll = dfAll.reset_index(drop=True)
+    save(shop_id, name, dfAll)
+    # upload(shop_id, name)
+
 def Sweesa():
     shop_id = 55
     name = 'sweesa'
@@ -1565,6 +1649,7 @@ def get_tempcrawler(crawler_id):
         '35': Jcjc,
         '36': Ccshop,
         '40': Greenpea,
+        '42': Queenshop,
         '55': Sweesa,
         '61': Pufii,  # json
         '80': Asobi,

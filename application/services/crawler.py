@@ -5691,7 +5691,7 @@ class QueenshopCrawler(BaseCrawler):
     base_url = "https://www.queenshop.com.tw/zh-TW/QueenShop/"
 
     def parse(self):
-        urls = [f"{self.base_url}ProductList?item1=01&item2=all&Page={i}" for i in range(1, page_Max)]
+        urls = [f"{self.base_url}ProductList?item1=01&item2=all&Page={i}&View=4" for i in range(1, 3)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -5703,7 +5703,7 @@ class QueenshopCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        # print(item)
+        print(item)
         title = item.find("p").text
         link = item.find("a").get("href")
         link_id = stripID(link, "ID=")
@@ -11840,7 +11840,7 @@ def get_crawler(crawler_id):
         "37": IrisCrawler(),
         "39": NookCrawler(),
         "41": RainbowCrawler(),
-        "42": QueenshopCrawler(),
+        # "42": QueenshopCrawler(),
         "43": NeedCrawler(),
         "45": GogosingCrawler(),
         "46": RoshopCrawler(),
