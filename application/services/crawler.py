@@ -1630,7 +1630,7 @@ class ReallifeCrawler(BaseCrawler):
 
     def parse(self):
         urls = [
-            f"{self.base_url}/categories/all?page={i}&limit=72" for i in range(1, page_Max)]
+            f"{self.base_url}/products?page={i}&sort_by=&order_by=&limit=72" for i in range(1, page_Max)]
         for url in urls:
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -1642,18 +1642,18 @@ class ReallifeCrawler(BaseCrawler):
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
+        if item.find("div", {"class": "sold-out-item"}):
+            return
         title = item.find("div", {"class": "title text-primary-color"}).text
         link = item.find("a").get("href")
         link_id = stripID(link, "products/")
-        try:
-            image_url = (
-                item.find("div", {
-                    "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
-                .split("url(")[-1]
-                .split("?)")[0]
-            )
-        except:
-            return
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
         try:
             original_price = self.get_price(
                 item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
