@@ -2293,21 +2293,20 @@ class FashionforyesCrawler(BaseCrawler):
         if(item.find("div", {"class": "sold-out-item"})):
             return
 
-        title = item.find("div", {"class": "title text-primary-color title-container ellipsis"}).text.strip()
+        title = item.find("div", {"class": "title text-primary-color"}).text.strip()
         link = item.find("a").get("href")
-        link = f"{self.base_url}{link}"
         link_id = item.get("product-id")
         image_url = (
             item.find("div", {
-                      "class": "boxify-image center-contain sl-lazy-image"})["style"]
+                      "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
             .split("url(")[-1]
             .split("?)")[0]
         )
         try:
             original_price = self.get_price(
-                item.find("div", {"class": "global-primary dark-primary price price-crossed"}).text)
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
             sale_price = self.get_price(
-                item.find("div", {"class": "price-sale price"}).text)
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
             original_price = ""
             # if(item.find("div", {"class": "global-primary dark-primary price"})):
