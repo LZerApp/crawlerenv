@@ -860,7 +860,7 @@ def Queenshop():
             dfAll = pd.concat([dfAll, df])
             dfAll = dfAll.reset_index(drop=True)
     save(shop_id, name, dfAll)
-    # upload(shop_id, name)
+    upload(shop_id, name)
 
 def Sweesa():
     shop_id = 55
