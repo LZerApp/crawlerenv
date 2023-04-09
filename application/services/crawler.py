@@ -11920,10 +11920,6 @@ def get_crawler(crawler_id):
         "147": RereburnCrawler(),
         # "147": StylenandaCrawler(),
         "148": ThegirlwhoCrawler(),
-        # "149": MumushopCrawler(), Exceeded: 8000 ms exceeded.
-        # "150": ChuuCrawler(),
-        # "151": AleyCrawler(),
-        # "152": TrudamodaCrawler(),
         "155": EvermoreCrawler(),
         "156": SuizaCrawler(),
         "157": LamochaCrawler(),
