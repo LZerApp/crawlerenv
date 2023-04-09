@@ -18,22 +18,16 @@ def run_crawler(crawler_id):
 
     if crawler:
         print(f"Crawler No. {crawler_id} written in crawler.py.")
-        try:
-            crawler.parse()
-            crawler.save()
-            crawler.upload()
-        except Exception as e:
-            print(e)
+        crawler.parse()
+        crawler.save()
+        crawler.upload()
         return None
 
     crawler = get_tempcrawler(crawler_id)
 
     if crawler:
         print(f"Crawler No. {crawler_id} written in tempcrawler.py.")
-        try:
-            crawler()
-        except Exception as e:
-            print(e)
+        crawler()
         return None
 
     print(f"Crawler No. {crawler_id} haven't been implemented yet.")
