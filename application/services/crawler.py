@@ -9689,32 +9689,45 @@ class GutenCrawler(BaseCrawler):
     base_url = 'https://www.guten.co'
 
     def parse(self):
-        urls = [f"{self.base_url}/collections/all?page={i}"for i in range(1, page_Max)]
+        urls = [
+            f"{self.base_url}/categories/%E6%89%80%E6%9C%89%E5%95%86%E5%93%81?page={i}&limit=72"for i in range(1, page_Max)]
         for url in urls:
-            print(url)
             response = requests.request("GET", url, headers=self.headers)
             soup = BeautifulSoup(response.text, features="html.parser")
-            if (soup.find("div", {"class": "product"})):
-                items = soup.find("div", {"class": "products_content"}).find_all(
-                    "div", {"class": "product"})
-            else:
+            items = soup.find_all("div", {"class": "product-item"})
+            print(url)
+            if not items:
+                print(url, 'break')
                 break
-
             self.result.extend([self.parse_product(item) for item in items])
 
     def parse_product(self, item):
-        title = item.find("a", {"class": "productClick"}).get("data-name")
-        link = item.find("a", {"class": "productClick"}).get("href")
-        link_id = item.find("a", {"class": "productClick"}).get('data-id')
-        link = f"{self.base_url}{link}"
-        image_url = item.find("img").get("data-src")
-        image_url = f"https:{image_url}"
+        if item.find("div", {"class": "sold-out-item-content"}):
+            return
+        title = item.find("div", {"class": "title text-primary-color"}).text
+        link = item.find("a").get("href")
+        link_id = item.find("product-item").get("product-id")
+        image_url = (
+            item.find("div", {
+                "class": "boxify-image js-boxify-image center-contain sl-lazy-image"})["style"]
+            .split("url(")[-1]
+            .split("?)")[0]
+        )
+
         try:
-            original_price = self.get_price(item.find("div", {"class": "product_price"}).find("del").text)
-            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+            original_price = self.get_price(
+                item.find("div", {"class": "global-primary dark-primary price sl-price price-crossed"}).text)
+            sale_price = self.get_price(
+                item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
         except:
             original_price = ""
-            sale_price = self.get_price(item.find("div", {"class": "product_price"}).find("span").text)
+            if(item.find("div", {"class": "global-primary dark-primary price sl-price"})):
+                sale_price = self.get_price(
+                    item.find("div", {"class": "global-primary dark-primary price sl-price"}).text)
+            else:
+                sale_price = self.get_price(
+                    item.find("div", {"class": "price-sale price sl-price primary-color-price"}).text)
+
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 class GozoCrawler(BaseCrawler):
