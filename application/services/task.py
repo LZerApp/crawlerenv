@@ -24,7 +24,8 @@ def job_crawler():
                 crawler.save()
                 crawler.upload()
                 continue
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
         crawler = get_tempcrawler(brand[0])
@@ -32,7 +33,8 @@ def job_crawler():
         if crawler:
             try:
                 crawler()
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
 
