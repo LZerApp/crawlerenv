@@ -18,7 +18,6 @@ import time
 import os
 from requests_html import HTMLSession
 import base64
-import cloudscraper
 
 fold_path = "./crawler_data"
 page_Max = 150
@@ -8284,39 +8283,39 @@ class BonbonsCrawler(BaseCrawler):
         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
-class CharleneCrawler(BaseCrawler):
-    id = 409
-    name = "charlene"
-    base_url = 'https://www.charlene168.com'
+# class CharleneCrawler(BaseCrawler):
+#     id = 409
+#     name = "charlene"
+#     base_url = 'https://www.charlene168.com'
 
-    def parse(self):
-        for i in range(1, page_Max):
-            url = f"{self.base_url}/shop/page/{i}/?per_page=72"
-            print(url)
-            # response = requests.get(url, headers=self.headers)
-            # scraper = cloudscraper.create_scraper()
-            scraper = cloudscraper.CloudScraper()
-            response = scraper.get(url).text
-            soup = BeautifulSoup(response, features="html.parser")
-            items = soup.find_all(
-                "div", {"class": 'product-wrapper'})
-            if not items:
-                break
-            self.result.extend([self.parse_product(item) for item in items])
+#     def parse(self):
+#         for i in range(1, page_Max):
+#             url = f"{self.base_url}/shop/page/{i}/?per_page=72"
+#             print(url)
+#             # response = requests.get(url, headers=self.headers)
+#             # scraper = cloudscraper.create_scraper()
+#             scraper = cloudscraper.CloudScraper()
+#             response = scraper.get(url).text
+#             soup = BeautifulSoup(response, features="html.parser")
+#             items = soup.find_all(
+#                 "div", {"class": 'product-wrapper'})
+#             if not items:
+#                 break
+#             self.result.extend([self.parse_product(item) for item in items])
 
-    def parse_product(self, item):
-        title = item.find("h3").text
-        link = item.find("a").get("href")
-        link_id = item.find("div", {"class": "woodmart-add-btn"}).find("a").get("data-product_id")
-        image_url = item.find('img').get('src').replace('-300x300', '')
-        try:
-            original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
-            sale_price = self.get_price(item.find("ins").find(
-                "span", {"class": "woocommerce-Price-amount amount"}).text)
-        except:
-            original_price = ""
-            sale_price = self.get_price(item.find("span", {"class": "price"}).text)
-        return Product(title, link, link_id, image_url, original_price, sale_price)
+#     def parse_product(self, item):
+#         title = item.find("h3").text
+#         link = item.find("a").get("href")
+#         link_id = item.find("div", {"class": "woodmart-add-btn"}).find("a").get("data-product_id")
+#         image_url = item.find('img').get('src').replace('-300x300', '')
+#         try:
+#             original_price = self.get_price(item.find("span", {"class": "woocommerce-Price-amount amount"}).text)
+#             sale_price = self.get_price(item.find("ins").find(
+#                 "span", {"class": "woocommerce-Price-amount amount"}).text)
+#         except:
+#             original_price = ""
+#             sale_price = self.get_price(item.find("span", {"class": "price"}).text)
+#         return Product(title, link, link_id, image_url, original_price, sale_price)
 
 
 class MaisonmCrawler(BaseCrawler):
@@ -12041,7 +12040,7 @@ def get_crawler(crawler_id):
         "406": PeachanCrawler(),
         "407": SomethingmeCrawler(),
         "408": OutfitCrawler(),
-        "409": CharleneCrawler(),
+        # "409": CharleneCrawler(),
         "410": OhlalaCrawler(),
         "411": YandjstyleCrawler(),
         "412": HouseladiesCrawler(),
